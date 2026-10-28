@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>光的折射 · 实验数据采集</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="shell">
+  <div class="topbar">
+    <div class="brand"><h1>光的折射 · 实验数据采集</h1><p>学生端｜录入真实实验的入射角 i 与折射角 r</p></div>
+    <div class="toplinks"><a class="btn" href="teacher.html">教师入口</a></div>
+  </div>
+  <div class="grid">
+    <section class="card side">
+      <h2 class="section-title">实验信息</h2>
+      <div class="class-picker">
+        <div><label for="gradeLevel">年级 *</label><select class="select" id="gradeLevel"><option value="">请选择年级</option><option value="高一">高一</option><option value="高二">高二</option><option value="高三">高三</option></select></div>
+        <div><label for="classNumber">班级 *</label><div class="class-number-field"><input class="input" id="classNumber" type="number" inputmode="numeric" min="1" max="99" step="1" placeholder="如 3"><span>班</span></div></div>
+      </div>
+      <div class="class-preview" id="classPreview">班级将统一记录为：请选择年级和班级</div>
+      <label for="groupName">组别 *</label><input class="input" id="groupName" placeholder="例如：第 4 组">
+      <label for="studentCode">学生代号 / 姓名</label><input class="input" id="studentCode" placeholder="可填组长姓名或学号后四位">
+      <label for="medium">介质（可选）</label><input class="input" id="medium" placeholder="如需区分介质可填写，例如：水、玻璃">
+      <label for="note">备注</label><textarea class="textarea" id="note" style="min-height:76px" placeholder="可选"></textarea>
+      <hr style="border:0;border-top:1px solid var(--line);margin:14px 0">
+      <h2 class="section-title">从 Excel / CSV 快速粘贴</h2>
+      <div class="hint">直接复制两列数据（第一列 i，第二列 r），粘贴后点击“识别两列数据”。</div>
+      <textarea class="textarea" id="pasteBox" placeholder="10\t7.5\n20\t14.9\n30\t22.0"></textarea>
+      <div class="row" style="margin-top:8px"><button class="btn" id="parseBtn">识别两列数据</button><button class="btn warn" id="clearRowsBtn">清空数据</button></div>
+    </section>
+    <section class="card main">
+      <div class="row" style="justify-content:space-between;margin-bottom:10px"><h2 class="section-title" style="margin:0">测量数据</h2><button class="btn" id="addRowBtn">＋ 添加一行</button></div>
+      <div class="table-wrap"><table class="data-table"><thead><tr><th>#</th><th>入射角 i /°</th><th>折射角 r /°</th><th>操作</th></tr></thead><tbody id="rowsBody"></tbody></table></div>
+      <div class="hint" style="margin-top:9px">只提交原始测量值。比例与拟合由后续分析平台自动计算。</div>
+      <div class="row" style="justify-content:flex-end;margin-top:12px"><button class="btn primary" id="submitBtn">提交本组实验数据</button></div>
+      <div class="status" id="status"></div>
+    </section>
+  </div>
+  <div class="footer">真实实验数据采集 · GitHub Pages + Supabase</div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script src="student.js"></script>
+</body>
+</html>
