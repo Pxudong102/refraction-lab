@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>光的折射 · 真实实验数据分析平台</title>
+<style>
+:root{
+  --bg:#07111f;--panel:#0d1b2d;--panel2:#10233a;--line:rgba(144,191,233,.18);
+  --text:#ecf7ff;--muted:#89a5b9;--cyan:#48d8ff;--cyan2:#7af0ff;--blue:#468dff;
+  --green:#69e6b2;--amber:#ffd36b;--red:#ff7d84;--shadow:0 18px 55px rgba(0,0,0,.26)
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;min-height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:"Microsoft YaHei","PingFang SC","Noto Sans SC",system-ui,sans-serif}
+body{min-height:100vh;background:radial-gradient(circle at 50% 14%,rgba(45,129,205,.11),transparent 35%),linear-gradient(180deg,#071423,#06101d)}
+button,input,select{font:inherit}
+button{color:inherit}
+.app{height:100vh;min-height:0;display:grid;grid-template-rows:68px minmax(0,1fr) 34px;overflow:hidden}
+header{height:68px;display:flex;align-items:center;justify-content:space-between;padding:0 22px;border-bottom:1px solid var(--line);background:rgba(6,17,31,.91);backdrop-filter:blur(15px);position:sticky;top:0;z-index:20}
+.brand{display:flex;align-items:center;gap:13px;min-width:0}.logo{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(145deg,rgba(72,216,255,.25),rgba(70,141,255,.14));border:1px solid rgba(110,224,255,.34);position:relative;overflow:hidden}.logo:after{content:"";width:25px;height:2px;background:linear-gradient(90deg,transparent,#8ff6ff,transparent);transform:rotate(-34deg);box-shadow:0 0 8px #55dfff}
+.brand h1{font-size:18px;margin:0;letter-spacing:.04em}.brand .sub{font-size:10.5px;color:var(--muted);margin-top:3px;letter-spacing:.08em}.status{display:flex;align-items:center;gap:8px;font-size:11px;color:#afc4d3;padding:8px 11px;border:1px solid var(--line);border-radius:10px;background:rgba(14,31,50,.7)}.status i{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 9px var(--green)}
+.main{min-height:0;overflow:hidden;display:grid;grid-template-columns:255px minmax(0,1fr);gap:12px;padding:12px}
+.panel{background:linear-gradient(180deg,rgba(13,27,45,.95),rgba(9,22,37,.95));border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);min-width:0;overflow:hidden}
+.sidebar{display:grid;grid-template-rows:auto auto 1fr auto;min-height:0}.panel-title{height:46px;padding:0 15px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);font-size:13px;font-weight:700;background:rgba(16,39,61,.38)}.panel-title small{font-size:9px;color:var(--muted);font-weight:500}
+.progress{padding:13px 14px 7px}.progress-label{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-bottom:7px}.progress-track{height:5px;border-radius:99px;background:rgba(255,255,255,.07);overflow:hidden}.progress-fill{height:100%;width:33.33%;background:linear-gradient(90deg,var(--blue),var(--cyan));transition:.28s}
+.missions{padding:8px;display:grid;gap:7px}.mission{border:1px solid transparent;border-radius:12px;padding:10px;display:grid;grid-template-columns:29px 1fr;gap:9px;cursor:pointer;background:rgba(255,255,255,.015);transition:.18s}.mission:hover{background:rgba(255,255,255,.03)}.mission.active{border-color:rgba(72,216,255,.28);background:linear-gradient(90deg,rgba(72,216,255,.10),rgba(70,141,255,.04))}.mission-no{width:28px;height:28px;border-radius:9px;border:1px solid rgba(137,178,210,.24);display:grid;place-items:center;font-size:11px;color:#9db5c8}.mission strong{font-size:12px;display:block;margin:1px 0 3px}.mission p{font-size:10px;line-height:1.5;color:var(--muted);margin:0}
+.task-card{margin:6px 10px 10px;padding:12px;border-radius:13px;border:1px solid rgba(72,216,255,.18);background:linear-gradient(145deg,rgba(72,216,255,.06),rgba(70,141,255,.025));overflow:auto}.task-kicker{font-size:9px;color:var(--cyan);letter-spacing:.13em;margin-bottom:7px}.task-title{font-size:14px;font-weight:700;line-height:1.45;margin-bottom:7px}.task-text{font-size:10.5px;line-height:1.75;color:#b8cad8}.goal-list{margin:9px 0 0;padding:0;list-style:none;display:grid;gap:6px}.goal-list li{font-size:10px;color:#94afc1;display:flex;gap:7px;line-height:1.5}.goal-list li:before{content:"";width:5px;height:5px;border-radius:50%;background:var(--cyan);margin-top:5px;box-shadow:0 0 7px var(--cyan);flex:none}.side-foot{border-top:1px solid var(--line);padding:10px 12px;display:grid;grid-template-columns:1fr 1fr;gap:6px}.side-stat{padding:8px;border:1px solid rgba(255,255,255,.05);border-radius:9px;background:rgba(255,255,255,.025)}.side-stat span{display:block;font-size:8px;color:#7894a8}.side-stat b{display:block;margin-top:3px;font-size:12px;color:#e9fbff}
+.workspace{min-height:0;overflow:hidden;display:flex;flex-direction:column}.workspace-head{height:46px;padding:0 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);background:rgba(16,39,61,.38)}.workspace-head strong{font-size:13px}.tag{padding:4px 7px;border-radius:7px;background:rgba(72,216,255,.09);border:1px solid rgba(72,216,255,.18);font-size:9px;color:#91edff}.head-right{font-size:10px;color:var(--muted)}
+.view{display:none;min-height:0;flex:1;padding:12px;overflow:hidden}.view.active{display:block;height:100%}.card{border:1px solid rgba(255,255,255,.055);border-radius:13px;background:rgba(255,255,255,.022);min-width:0}.card-head{min-height:42px;padding:9px 12px;display:flex;align-items:center;justify-content:space-between;gap:10px;border-bottom:1px solid rgba(137,185,220,.11)}.card-head h3{font-size:12px;margin:0}.card-head small{font-size:9px;color:var(--muted)}
+.action{border:1px solid rgba(130,185,222,.19);background:#0b1b2b;border-radius:9px;height:33px;padding:0 11px;font-size:10px;cursor:pointer;transition:.18s;white-space:nowrap}.action:hover{transform:translateY(-1px);border-color:rgba(72,216,255,.45)}.action.primary{background:linear-gradient(135deg,#1885bd,#245ee8);border-color:rgba(110,218,255,.3)}.action.good{background:linear-gradient(135deg,rgba(42,182,135,.78),rgba(29,120,113,.78));border-color:rgba(105,230,178,.28)}.action.warn{border-color:rgba(255,211,107,.25);color:#ffe39d}.action.danger{border-color:rgba(255,125,132,.25);color:#ffc0c4}.action:disabled{opacity:.38;cursor:not-allowed;transform:none}
+/* 动态绘图/拟合按钮：透明待执行 → 运行 → 实心完成 → 点击清空后恢复透明 */
+.action.cycle-btn{background:rgba(255,255,255,.018);border-color:rgba(130,185,222,.20);color:#a9c4d5;box-shadow:none}
+.action.cycle-btn.primary,.action.cycle-btn.good{background:rgba(255,255,255,.018);border-color:rgba(130,185,222,.20);color:#a9c4d5;box-shadow:none}
+.action.cycle-btn.running{background:rgba(255,211,107,.08)!important;border-color:rgba(255,211,107,.42)!important;color:#fff0ad!important}
+.action.cycle-btn.done{background:linear-gradient(135deg,rgba(30,154,195,.86),rgba(48,105,221,.88))!important;border-color:rgba(112,224,255,.48)!important;color:#f4fdff!important;box-shadow:0 6px 16px rgba(30,118,202,.18)}
+.action.cycle-btn.fit-cycle.done{background:linear-gradient(135deg,rgba(42,182,135,.84),rgba(29,120,113,.84))!important;border-color:rgba(105,230,178,.46)!important;color:#effff8!important;box-shadow:0 6px 16px rgba(35,155,121,.16)}
+.action.cycle-btn:disabled{opacity:.34;background:rgba(255,255,255,.012)!important;box-shadow:none!important}
+.btn-row{display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+.select,.input{height:32px;border:1px solid rgba(136,188,226,.16);background:#0a1a2b;color:#d8edf8;border-radius:8px;padding:0 9px;font-size:10px;outline:none}.input:focus,.select:focus{border-color:rgba(72,216,255,.52);box-shadow:0 0 0 2px rgba(72,216,255,.08)}
+/* module 1 */
+.input-grid{display:grid;grid-template-columns:minmax(310px,.78fr) minmax(520px,1.22fr);gap:12px;height:100%;min-height:0}.group-list{display:flex;flex-direction:column;min-height:0}.group-tools{padding:10px;display:flex;gap:7px;flex-wrap:wrap}.groups{padding:0 10px 10px;display:grid;gap:7px;overflow:auto}.group-item{padding:10px;border:1px solid rgba(255,255,255,.06);border-radius:10px;background:rgba(255,255,255,.02);cursor:pointer;transition:.16s}.group-item.active{border-color:rgba(72,216,255,.32);background:rgba(72,216,255,.065)}.group-item-top{display:flex;justify-content:space-between;gap:8px;align-items:center}.group-item b{font-size:11px}.group-item span{font-size:9px;color:var(--muted)}.group-meta{font-size:9px;color:#7897ab;margin-top:5px}.editor{display:grid;grid-template-rows:auto auto 1fr;min-height:0}.editor-toolbar{padding:10px 12px;display:grid;grid-template-columns:minmax(180px,1fr) auto;gap:8px;align-items:center}.sample-entry{padding:0 12px 10px;display:grid;grid-template-columns:1fr 1fr auto;gap:8px}.sample-entry label{font-size:9px;color:var(--muted);display:grid;gap:4px}.sample-table-wrap{min-height:0;overflow:auto;padding:0 12px 12px}.data-table{width:100%;border-collapse:collapse;font-size:10px;font-variant-numeric:tabular-nums}.data-table th{position:sticky;top:0;background:#0c1e31;color:#83a5bc;font-weight:500;padding:8px 6px;border-bottom:1px solid rgba(135,183,218,.14);text-align:right}.data-table th:first-child,.data-table td:first-child{text-align:center}.data-table td{padding:7px 6px;text-align:right;color:#b9cedc;border-bottom:1px solid rgba(255,255,255,.04)}.row-delete{border:0;background:transparent;color:#ff9ba1;cursor:pointer;font-size:11px}.empty{padding:32px 12px;text-align:center;color:#5f7d91;font-size:10px}
+.csv-hint{margin:0 12px 10px;padding:8px 10px;border:1px solid rgba(72,216,255,.14);border-radius:9px;background:rgba(72,216,255,.035);display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:9px;color:#7899ad;line-height:1.55}.csv-hint b{color:#bfefff;font-weight:600}.csv-hint code{font-family:Consolas,monospace;color:#9fd5e7;font-size:8.5px}.import-status{white-space:nowrap;color:#79d9b7;font-size:9px}
+/* module 2 + 3 */
+.analysis-layout{display:grid;grid-template-columns:minmax(230px,.32fr) minmax(560px,.68fr);gap:12px;height:100%;min-height:0}.control-stack{display:grid;gap:10px;align-content:start}.control-card{padding:11px}.control-card h4{font-size:11px;margin:0 0 8px}.control-card p{font-size:9.5px;line-height:1.6;color:var(--muted);margin:0 0 9px}.metric-tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px}.metric-tab{height:34px;border-radius:9px;border:1px solid rgba(137,185,220,.13);background:rgba(255,255,255,.02);font-size:10px;color:#9ab5c7;cursor:pointer}.metric-tab.active{border-color:rgba(72,216,255,.35);background:rgba(72,216,255,.09);color:#dff9ff}.chart-card{display:grid;grid-template-rows:auto minmax(0,1fr) auto;min-height:0}.chart-toolbar{display:flex;gap:7px;align-items:center;flex-wrap:wrap}.chart-wrap{position:relative;min-height:0;margin:10px 12px;border:1px solid rgba(255,255,255,.05);border-radius:11px;background:#081727;overflow:hidden}.chart-wrap canvas{width:100%;height:100%;display:block}.chart-note{margin-top:2px;padding:9px 13px 11px;border-top:1px solid rgba(127,178,214,.08);font-size:9.5px;color:#7796aa;line-height:1.55}.result-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:8px}.result-chip{padding:8px;border-radius:9px;background:rgba(255,255,255,.026);border:1px solid rgba(255,255,255,.05)}.result-chip span{display:block;font-size:8px;color:#7692a6}.result-chip b{display:block;margin-top:3px;font-size:12px;color:#e9fbff}.result-chip.em b{color:var(--green)}.ratio-draw-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}.ratio-draw-grid .action{width:100%}.ratio-draw-grid .action.done{border-color:rgba(105,230,178,.42);background:rgba(105,230,178,.08);color:#b8f4dc}@media(max-width:760px){.ratio-draw-grid{grid-template-columns:1fr}}
+
+/* module 3 · 拟合结果回到光路：数字折射实验台（只做结果可视化，不替代真实实验） */
+#refractionLabCard{display:none;min-height:0;height:100%;overflow:hidden;flex-direction:column}
+#view3.lab-active .compare-control-card{display:none}
+#view3.lab-active .control-stack{height:100%;min-height:0;align-content:stretch;grid-template-rows:minmax(0,1fr)}
+#view3.lab-active .chart-card{height:100%;min-height:0}
+#view3.lab-active #refractionLabCard{display:flex}
+#view3.lab-active .analysis-layout{grid-template-columns:minmax(430px,var(--lab-left,1.55fr)) 9px minmax(360px,var(--lab-right,1fr));gap:8px}
+#view3 .lab-splitter{display:none}
+#view3.lab-active .lab-splitter{display:block;align-self:stretch;min-height:0;border-radius:9px;cursor:col-resize;position:relative;background:rgba(72,216,255,.045);border:1px solid rgba(120,188,229,.12);touch-action:none;user-select:none;transition:background .18s,border-color .18s}
+#view3.lab-active .lab-splitter:hover,#view3.lab-active .lab-splitter.dragging{background:rgba(72,216,255,.13);border-color:rgba(72,216,255,.40)}
+.lab-splitter span{position:absolute;left:50%;width:3px;height:3px;border-radius:50%;background:#78a9c2;transform:translate(-50%,-50%)}
+.lab-splitter span:nth-child(1){top:47%}.lab-splitter span:nth-child(2){top:50%}.lab-splitter span:nth-child(3){top:53%}
+.refraction-lab-body{padding:10px 12px;display:grid;grid-template-rows:auto minmax(190px,1fr) auto auto;flex:1;min-height:0;gap:7px;overflow:hidden}
+#refractionLabCard .card-head{min-height:48px;padding:9px 13px}#refractionLabCard .card-head h3{font-size:15px}#refractionLabCard .card-head small{font-size:10px;margin-top:2px;display:block}
+.lab-angle-control{display:grid;grid-template-columns:auto minmax(120px,1fr) 56px 72px 72px;align-items:center;width:100%;column-gap:7px;row-gap:5px;padding:7px 9px;border-radius:9px;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.05)}
+.lab-angle-control label{font-size:11px;color:#b2c7d5;white-space:nowrap;font-weight:600;margin-right:1px}.lab-angle-control input[type=range]{width:100%;min-width:0;accent-color:var(--cyan);margin:0}.lab-angle-control b{font-size:13px;color:#f0fbff;text-align:center;font-variant-numeric:tabular-nums;white-space:nowrap}.lab-step-select{width:100%;height:30px;padding:0 4px;text-align:center}.lab-auto-btn{width:100%;height:30px;padding:0 6px;display:inline-flex;align-items:center;justify-content:center}.lab-auto-btn.running{border-color:rgba(255,211,107,.38);background:rgba(255,211,107,.08);color:#fff2b5}
+.refraction-canvas-wrap{position:relative;min-height:0;height:100%;border:1px solid rgba(255,255,255,.05);border-radius:11px;background:radial-gradient(circle at 50% 30%,rgba(38,115,167,.11),transparent 48%),#081727;overflow:hidden}
+.refraction-canvas-wrap canvas{width:100%;height:100%;display:block}
+.lab-result-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.lab-result-card{padding:11px;border-radius:9px;border:1px solid rgba(255,255,255,.055);background:rgba(255,255,255,.024);min-width:0}.lab-result-card .name{font-size:10.5px;color:#9fb7c7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.lab-result-card .vals{display:flex;gap:12px;align-items:baseline;flex-wrap:wrap;margin-top:5px}.lab-result-card .vals b{font-size:16px;color:#eefcff;font-variant-numeric:tabular-nums}.lab-result-card .vals span{font-size:11.5px;color:#91aabc}.lab-result-card.a{border-color:rgba(72,216,255,.18)}.lab-result-card.b{border-color:rgba(255,211,107,.18)}
+.lab-physics-note{font-size:10.5px;line-height:1.6;color:#91aabd;padding:1px 2px}.lab-physics-note b{color:#d2f2fa;font-weight:600}
+#refractionLabAction .action{flex:1;display:flex;justify-content:center;align-items:center}
+@media(max-width:1180px){#view3.lab-active .analysis-layout{grid-template-columns:minmax(390px,var(--lab-left,1.45fr)) 8px minmax(330px,var(--lab-right,1fr))}}
+@media(max-width:1050px){html,body{height:auto;min-height:100%;overflow:auto}.app{height:auto;min-height:100vh;overflow:visible}.main,.workspace,.view{overflow:visible}.view.active{height:auto}#view3.lab-active .analysis-layout{grid-template-columns:1fr;gap:12px;height:auto}#view3.lab-active .lab-splitter{display:none}#refractionLabCard{height:auto;min-height:620px}.refraction-canvas-wrap{min-height:360px}}
+@media(max-width:620px){.lab-angle-control{grid-template-columns:auto minmax(90px,1fr) 50px 62px 64px;gap:4px;padding:7px}.lab-angle-control label{font-size:10px}.lab-result-grid{grid-template-columns:1fr}}
+
+.compare-selects{display:grid;grid-template-columns:1fr 1fr;gap:6px}.legend{display:flex;gap:12px;align-items:center;font-size:9px;color:#91aabd}.legend i{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:4px}.legend .a{background:var(--cyan)}.legend .b{background:var(--amber)}.legend .c{background:var(--green)}.legend .d{background:#b993ff}
+.notice{padding:10px 11px;border-radius:10px;border:1px solid rgba(72,216,255,.15);background:rgba(72,216,255,.045);font-size:9.5px;color:#a9c3d4;line-height:1.65}.count-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 8px;border-radius:8px;background:rgba(105,230,178,.07);border:1px solid rgba(105,230,178,.18);font-size:9px;color:#a7e9d1}.count-badge b{font-size:11px}
+footer{height:34px;border-top:1px solid rgba(137,185,220,.12);background:#06101c;display:flex;align-items:center;justify-content:space-between;padding:0 16px;font-size:9px;color:#59758a}
+.toast{position:fixed;left:50%;top:82px;transform:translate(-50%,-10px);padding:9px 14px;border:1px solid rgba(72,216,255,.25);border-radius:10px;background:rgba(5,19,32,.96);box-shadow:0 14px 35px rgba(0,0,0,.28);font-size:11px;color:#d8f4ff;opacity:0;pointer-events:none;transition:.22s;z-index:80}.toast.show{opacity:1;transform:translate(-50%,0)}
+@media(max-width:1050px){.main{grid-template-columns:220px 1fr;overflow:visible}.input-grid,.analysis-layout{grid-template-columns:1fr;min-height:auto;height:auto}.chart-wrap{min-height:400px}.sidebar{min-height:720px}.workspace,.view{overflow:visible}}
+@media(max-width:760px){html,body{height:auto;overflow:auto}.app{height:auto;min-height:100vh;display:block;overflow:visible}.main{grid-template-columns:1fr}.sidebar{min-height:auto}.missions{grid-template-columns:repeat(3,1fr)}.mission{grid-template-columns:1fr}.mission p{display:none}.task-card{display:none}.view{padding:8px}.sample-entry{grid-template-columns:1fr 1fr}.sample-entry .action{grid-column:1/-1}.compare-selects{grid-template-columns:1fr}.chart-wrap{min-height:330px}.brand .sub,.status{display:none}}
+
+
+/* module 1 · 云端班级数据汇集 */
+.source-stage{height:100%;min-height:0;display:grid;grid-template-rows:auto minmax(0,1fr);gap:9px}
+.source-tabs{display:flex;align-items:center;gap:7px;flex-wrap:wrap;padding:1px}
+.source-tab{height:31px;border:1px solid rgba(130,185,222,.19);background:rgba(255,255,255,.018);border-radius:9px;padding:0 12px;font-size:10px;color:#9eb9ca;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}
+.source-tab.active{background:rgba(72,216,255,.10);border-color:rgba(72,216,255,.36);color:#e2fbff}
+.source-tab-note{font-size:9px;color:#718fa4;margin-left:3px}
+.source-panels{min-height:0;position:relative}.source-panel{display:none;height:100%;min-height:0}.source-panel.active{display:block}
+.cloud-layout{display:grid;grid-template-columns:minmax(330px,.43fr) minmax(460px,.57fr);gap:12px;height:100%;min-height:0}
+.cloud-card{display:flex;flex-direction:column;min-height:0}.cloud-card-body{padding:10px 12px 12px;min-height:0;display:flex;flex-direction:column;gap:8px}
+.cloud-auth{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 9px;border:1px solid rgba(72,216,255,.12);border-radius:9px;background:rgba(72,216,255,.035);font-size:9px;color:#84a6ba}.cloud-auth b{color:#bfefff;font-weight:600}.cloud-auth a{color:#8eeaff;text-decoration:none}
+.cloud-toolbar{display:grid;grid-template-columns:minmax(150px,1fr) auto;gap:7px;align-items:center}.cloud-toolbar .select{width:100%}
+.cloud-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.cloud-stat{padding:8px;border-radius:9px;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.05)}.cloud-stat span{display:block;font-size:8px;color:#7895a8}.cloud-stat b{display:block;font-size:12px;color:#e9fbff;margin-top:3px;font-variant-numeric:tabular-nums}
+.cloud-options{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:9px;color:#7898ad}.cloud-check{display:inline-flex;align-items:center;gap:5px;cursor:pointer}.cloud-check input{accent-color:var(--cyan)}
+.cloud-groups{min-height:0;overflow:auto;display:grid;align-content:start;gap:6px;padding-right:2px}.cloud-group{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px;align-items:center;padding:9px;border-radius:10px;border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.02);cursor:pointer;transition:.16s}.cloud-group:hover{border-color:rgba(72,216,255,.20)}.cloud-group.active{border-color:rgba(72,216,255,.36);background:rgba(72,216,255,.06)}.cloud-group input{accent-color:var(--cyan)}.cloud-group-main{min-width:0}.cloud-group-main b{font-size:10.5px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.cloud-group-main span{font-size:8.5px;color:#7795a9;display:block;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.cloud-group-time{font-size:8px;color:#66859a;white-space:nowrap}
+.cloud-actions{display:flex;gap:6px;align-items:center;flex-wrap:wrap}.cloud-actions .action{display:inline-flex;align-items:center;justify-content:center}.cloud-import-status{font-size:9px;color:#78d9b5;margin-left:auto}
+.cloud-preview-meta{padding:9px 12px;border-bottom:1px solid rgba(137,185,220,.10);display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:9px;color:#7897aa}.cloud-preview-meta b{font-size:11px;color:#e9fbff}.cloud-preview-table{min-height:0;overflow:auto;padding:0 12px 12px}.cloud-preview-table table{width:100%;border-collapse:collapse;font-size:10px;font-variant-numeric:tabular-nums}.cloud-preview-table th{position:sticky;top:0;background:#0c1e31;color:#83a5bc;font-weight:500;padding:8px 7px;border-bottom:1px solid rgba(135,183,218,.14);text-align:right}.cloud-preview-table th:first-child,.cloud-preview-table td:first-child{text-align:center}.cloud-preview-table td{padding:7px;text-align:right;color:#b9cedc;border-bottom:1px solid rgba(255,255,255,.04)}
+.cloud-empty{padding:36px 14px;text-align:center;color:#5f7d91;font-size:10px;line-height:1.7}.manual-source{height:100%;min-height:0}
+@media(max-width:1050px){.source-stage{height:auto}.source-panels,.source-panel{height:auto}.cloud-layout{grid-template-columns:1fr;height:auto}.cloud-card{min-height:360px}.manual-source{height:auto}.cloud-preview-table{max-height:420px}}
+@media(max-width:620px){.cloud-toolbar{grid-template-columns:1fr}.cloud-stats{grid-template-columns:1fr 1fr 1fr}.source-tab-note{width:100%;margin:0}.cloud-group{grid-template-columns:auto minmax(0,1fr)}.cloud-group-time{grid-column:2}}
+
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+  <div class="brand"><div class="logo"></div><div><h1>光的折射 · 真实实验数据分析平台</h1><div class="sub">REAL EXPERIMENT DATA · 从数据比较到规律建模</div></div></div>
+  <div class="status"><i></i><span id="headerStatus">等待录入真实实验数据</span></div>
+</header>
+<div class="main">
+  <aside class="panel sidebar">
+    <div class="panel-title"><span>数据探究流程</span><small>DATA INQUIRY</small></div>
+    <div class="progress"><div class="progress-label"><span>学习进度</span><span id="progressText">1 / 3</span></div><div class="progress-track"><div class="progress-fill" id="progressFill"></div></div></div>
+    <div>
+      <div class="missions">
+        <div class="mission active" data-step="1"><div class="mission-no">01</div><div><strong>汇集 · 实验数据</strong><p>从云端汇集各组真实实验数据。</p></div></div>
+        <div class="mission" data-step="2"><div class="mission-no">02</div><div><strong>单组 · 寻找规律</strong><p>比较角度比、cos 比、tan 比、sin 比并拟合。</p></div></div>
+        <div class="mission" data-step="3"><div class="mission-no">03</div><div><strong>双组 · 比较规律</strong><p>比较两组数据的 sin 比与正弦拟合。</p></div></div>
+      </div>
+      <div class="task-card">
+        <div class="task-kicker" id="taskKicker">MISSION 01 · CLOUD DATA</div>
+        <div class="task-title" id="taskTitle">把全班真实实验数据汇集到同一个分析入口。</div>
+        <div class="task-text" id="taskText">优先从课堂数据采集网站读取各组已经提交的入射角 i 与折射角 r。选择班级、勾选实验组后即可一键导入；手动输入和 CSV 仅作为备用入口。</div>
+        <ul class="goal-list" id="goalList"><li>读取云端班级实验数据</li><li>默认同组只保留最新一次提交</li><li>勾选实验组后直接进入分析</li></ul>
+      </div>
+    </div>
+    <div></div>
+    <div class="side-foot"><div class="side-stat"><span>数据组</span><b id="groupCountSide">1</b></div><div class="side-stat"><span>总样本数</span><b id="sampleCountSide">0</b></div></div>
+  </aside>
+
+  <main class="panel workspace">
+    <div class="workspace-head"><div><strong id="workspaceTitle">真实实验数据汇集</strong> <span class="tag" id="workspaceTag">CLOUD / BACKUP</span></div><div class="head-right" id="workspaceHint">云端班级数据为主 · 手动 / CSV 为备用</div></div>
+
+    <section class="view active" id="view1">
+
+      <div class="source-stage">
+        <div class="source-tabs">
+          <button class="source-tab active" id="cloudSourceTab" type="button">☁ 云端班级数据</button>
+          <button class="source-tab" id="manualSourceTab" type="button">⌨ 手动 / CSV 备用</button>
+          <span class="source-tab-note">教师端登录后可直接读取学生提交，无需下载再导入</span>
+        </div>
+        <div class="source-panels">
+          <div class="source-panel active" id="cloudSourcePanel">
+            <div class="cloud-layout">
+              <div class="card cloud-card">
+                <div class="card-head"><div><h3>云端班级数据</h3><small>Supabase · 教师权限读取</small></div><span class="count-badge">已识别 <b id="cloudGroupCountBadge">0</b> 组</span></div>
+                <div class="cloud-card-body">
+                  <div class="cloud-auth"><span id="cloudAuthText"><b>连接状态：</b>正在检查教师登录…</span><a href="teacher.html" id="cloudLoginLink">教师端登录 ↗</a></div>
+                  <div class="cloud-toolbar"><select class="select" id="cloudClassSelect" aria-label="选择班级"><option value="">等待读取班级…</option></select><button class="action" id="cloudRefreshBtn" type="button">↻ 刷新云端数据</button></div>
+                  <div class="cloud-stats"><div class="cloud-stat"><span>当前班级提交</span><b id="cloudSubmissionCount">0</b></div><div class="cloud-stat"><span>实验组</span><b id="cloudGroupCount">0</b></div><div class="cloud-stat"><span>有效数据点</span><b id="cloudPointCount">0</b></div></div>
+                  <div class="cloud-options"><label class="cloud-check"><input id="cloudLatestOnly" type="checkbox" checked> 同组只保留最新一次提交</label><span id="cloudClassHint">选择班级后显示各组数据</span></div>
+                  <div class="cloud-groups" id="cloudGroupList"><div class="cloud-empty">正在等待云端数据…</div></div>
+                  <div class="cloud-actions"><button class="action" id="cloudSelectAllBtn" type="button">全选</button><button class="action" id="cloudSelectNoneBtn" type="button">取消全选</button><button class="action primary" id="cloudImportBtn" type="button">↓ 导入所选实验组</button><span class="cloud-import-status" id="cloudImportStatus">尚未导入</span></div>
+                </div>
+              </div>
+              <div class="card cloud-card">
+                <div class="card-head"><div><h3 id="cloudPreviewTitle">实验组数据预览</h3><small>点击左侧实验组查看原始 i、r</small></div><span class="count-badge">样本 <b id="cloudPreviewCount">0</b></span></div>
+                <div class="cloud-preview-meta" id="cloudPreviewMeta"><span>尚未选择实验组</span></div>
+                <div class="cloud-preview-table"><table><thead><tr><th>#</th><th>入射角 i /°</th><th>折射角 r /°</th></tr></thead><tbody id="cloudPreviewBody"><tr><td colspan="3" class="cloud-empty">读取云端数据后，在左侧点击实验组预览。</td></tr></tbody></table></div>
+              </div>
+            </div>
+          </div>
+          <div class="source-panel manual-source" id="manualSourcePanel">
+
+      <div class="input-grid">
+        <div class="card group-list">
+          <div class="card-head"><div><h3>实验数据组</h3><small>每组可代表不同介质或不同实验条件</small></div><span class="count-badge">已识别 <b id="groupCountBadge">1</b> 组</span></div>
+          <div class="group-tools"><button class="action primary" id="addGroupBtn">＋ 新增数据组</button><button class="action danger" id="deleteGroupBtn">删除当前组</button></div>
+          <div class="groups" id="groupList"></div>
+        </div>
+        <div class="card editor">
+          <div class="card-head"><div><h3>录入实验样本</h3><small>手动输入 / CSV 批量导入 · 角度单位：°</small></div><div class="btn-row"><button class="action primary" id="importCsvBtn">⇧ 导入 CSV</button><input id="csvFileInput" type="file" accept=".csv,text/csv" hidden><button class="action warn" id="clearCurrentBtn">清空当前组</button><button class="action" id="exportBtn">导出全部 CSV</button></div></div>
+          <div>
+            <div class="editor-toolbar"><input class="input" id="groupNameInput" placeholder="数据组名称，例如：水 / 玻璃 / 第1组"/><div class="count-badge">当前组 <b id="currentGroupCount">0</b> 个样本</div></div>
+            <div class="csv-hint"><span><b>CSV 自动识别：</b>支持 <code>数据组, 入射角i, 折射角r</code>，也支持只有 <code>i,r</code> 两列。导入后平台会重新计算四种比值。</span><span class="import-status" id="csvImportStatus">未导入</span></div>
+            <div class="sample-entry">
+              <label>入射角 i<input class="input" id="inputI" type="number" min="0" max="89.9" step="0.1" placeholder="如 20.0"/></label>
+              <label>折射角 r<input class="input" id="inputR" type="number" min="0" max="89.9" step="0.1" placeholder="如 14.8"/></label>
+              <button class="action good" id="addSampleBtn">＋ 添加样本</button>
+            </div>
+          </div>
+          <div class="sample-table-wrap"><table class="data-table"><thead><tr><th>#</th><th>i /°</th><th>r /°</th><th>i/r</th><th>cos i/cos r</th><th>tan i/tan r</th><th>sin i/sin r</th><th></th></tr></thead><tbody id="inputTableBody"></tbody></table></div>
+        </div>
+      </div>
+          </div>
+        </div>
+      </div>
+    
+    </section>
+
+    <section class="view" id="view2">
+      <div class="analysis-layout">
+        <div class="control-stack">
+          <div class="card control-card"><h4>选择一组数据</h4><p>平台已识别当前录入的数据组。选择其中一组，在同一张图上逐步叠加不同数学处理结果。</p><select class="select" id="singleGroupSelect" style="width:100%"></select><div class="result-strip"><div class="result-chip"><span>已识别数据组</span><b id="singleGroupCount">0</b></div><div class="result-chip"><span>当前样本数</span><b id="singleSampleCount">0</b></div><div class="result-chip"><span>当前分析</span><b id="singleMetricName">比值比较</b></div></div></div>
+          <div class="card control-card"><h4>选择分析方式</h4><p>“比值比较”把四种比值画在同一坐标系中，但每一条都由你自己决定何时出现；“正弦拟合”单独完成散点与拟合。</p><div class="metric-tabs" id="singleMetricTabs"><button class="metric-tab active" data-metric="ratios">比值比较</button><button class="metric-tab" data-metric="fit">正弦拟合</button></div></div>
+          <div class="card control-card" id="singleRatioControls"><h4>分步绘制四种比值</h4><p id="singleActionText">按“角度比 → cos 比 → tan 比 → sin 比”逐步加入同一坐标系，最后观察哪一种比值更接近稳定。</p><div class="ratio-draw-grid"><button class="action primary cycle-btn" id="drawAngleRatio" title="点击开始；绘制中再点立即补齐；完成后再点清空；清空后再点重新绘制">① 绘制 i/r</button><button class="action cycle-btn" id="drawCosRatio" title="点击开始；绘制中再点立即补齐；完成后再点清空；清空后再点重新绘制">② 绘制 cos 比</button><button class="action cycle-btn" id="drawTanRatio" title="点击开始；绘制中再点立即补齐；完成后再点清空；清空后再点重新绘制">③ 绘制 tan 比</button><button class="action cycle-btn" id="drawSinRatio" title="点击开始；绘制中再点立即补齐；完成后再点清空；清空后再点重新绘制">④ 绘制 sin 比</button></div><div class="btn-row" style="margin-top:7px"><button class="action warn" id="clearRatioChart">清空比值图</button></div></div>
+          <div class="card control-card" id="singleFitControls" style="display:none"><h4>正弦拟合</h4><p>先动态绘制 sin r–sin i 散点；散点完成后，再由你点击“拟合直线”。</p><div class="btn-row"><button class="action primary cycle-btn" id="singleDrawBtn" title="点击开始；绘制中再点立即补齐；完成后再点清空；清空后再点重新绘制">▶ 绘制正弦散点</button><button class="action good cycle-btn fit-cycle" id="singleFitBtn" disabled title="点击开始拟合；拟合中再点立即完成；完成后再点清空；清空后再点重新拟合">∿ 拟合直线</button></div><div class="result-strip" id="singleFitResults" style="display:none"><div class="result-chip em"><span>拟合斜率 k</span><b id="singleSlope">—</b></div><div class="result-chip"><span>R²</span><b id="singleR2">—</b></div><div class="result-chip"><span>样本数 N</span><b id="singleN">—</b></div></div></div>
+        </div>
+        <div class="card chart-card">
+          <div class="card-head"><div><h3 id="singleChartTitle">四种比值 · 同图比较</h3><small id="singleChartSubtitle">最后绘制 sin 比，逐步寻找稳定关系</small></div><div class="legend" id="singleRatioLegend"><span><i class="a"></i>i/r</span><span><i class="b"></i>cos i/cos r</span><span><i class="d"></i>tan i/tan r</span><span><i class="c"></i>sin i/sin r</span></div><div class="legend" id="singleFitLegend" style="display:none"><span><i class="a"></i><span id="singleLegendName">当前数据组</span></span></div></div>
+          <div class="chart-wrap"><canvas id="singleChart"></canvas></div>
+          <div class="chart-note" id="singleChartNote">先选择一组真实实验数据，再点击“动态绘图”。</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="view" id="view3">
+      <div class="analysis-layout">
+        <div class="control-stack">
+          <div class="card control-card compare-control-card"><h4>选择两组数据</h4><p>选择两组真实实验数据，用同一种数学方式进行比较。两组数据分开绘制，便于课堂逐步呈现。</p><div class="compare-selects"><select class="select" id="compareA"></select><select class="select" id="compareB"></select></div><div class="result-strip"><div class="result-chip"><span>第1组样本</span><b id="compareAN">0</b></div><div class="result-chip"><span>第2组样本</span><b id="compareBN">0</b></div><div class="result-chip"><span>比较方式</span><b id="compareModeName">sin 比</b></div></div></div>
+          <div class="card control-card compare-control-card"><h4>比较内容</h4><p>先比较两组数据的 sin i/sin r，再比较两组 sin r–sin i 的拟合关系。</p><div class="metric-tabs"><button class="metric-tab active" id="compareSinTab">sin 比比较</button><button class="metric-tab" id="compareFitTab">正弦拟合比较</button></div></div>
+          <div class="card control-card compare-control-card"><h4>分步绘制</h4><p id="compareActionText">先画第1组，再画第2组，观察两组 sin 比水平是否相同。</p><div class="btn-row"><button class="action primary cycle-btn" id="drawA" title="点击开始；绘制中再点立即补齐；完成后再点清空；清空后再点重新绘制">① 绘制第1组</button><button class="action cycle-btn" id="drawB" title="点击开始；绘制中再点立即补齐；完成后再点清空；清空后再点重新绘制">② 绘制第2组</button></div><div class="btn-row" id="compareFitButtons" style="display:none;margin-top:7px"><button class="action good cycle-btn fit-cycle" id="fitA" disabled title="点击开始拟合；拟合中再点立即完成；完成后再点清空；清空后再点重新拟合">∿ 拟合第1组</button><button class="action good cycle-btn fit-cycle" id="fitB" disabled title="点击开始拟合；拟合中再点立即完成；完成后再点清空；清空后再点重新拟合">∿ 拟合第2组</button></div><div class="result-strip" id="compareFitResults" style="display:none"><div class="result-chip em"><span id="slopeALabel">第1组斜率</span><b id="slopeA">—</b></div><div class="result-chip em"><span id="slopeBLabel">第2组斜率</span><b id="slopeB">—</b></div><div class="result-chip"><span>斜率差</span><b id="slopeDiff">—</b></div></div><div class="btn-row" id="refractionLabAction" style="display:none;margin-top:8px"><button class="action primary" id="showRefractionLabBtn" type="button">◎ 展示数字折射实验台</button></div></div>
+          <div class="card" id="refractionLabCard">
+            <div class="card-head"><div><h3>数字折射实验台</h3><small>拟合结果可视化</small></div><button class="action" id="exitRefractionLabBtn" type="button">← 返回拟合</button></div>
+            <div class="refraction-lab-body">
+              <div class="lab-angle-control"><label for="labAngleSlider">入射角 i</label><input id="labAngleSlider" type="range" min="5" max="80" step="0.5" value="45"/><b id="labAngleValue">45.0°</b><select class="select lab-step-select" id="labAutoStepSelect" aria-label="自动演示角度步长" title="自动步长"><option value="1">1°/步</option><option value="2">2°/步</option><option value="5" selected>5°/步</option><option value="10">10°/步</option></select><button class="action lab-auto-btn" id="labAutoBtn" type="button" aria-pressed="false" title="按所选步长自动改变入射角">▶ 自动</button></div>
+              <div class="refraction-canvas-wrap"><canvas id="refractionLabCanvas"></canvas></div>
+              <div class="lab-result-grid">
+                <div class="lab-result-card a"><div class="name" id="labNameA">第1组</div><div class="vals"><b id="labNA">n = —</b><span id="labRA">r = —</span></div></div>
+                <div class="lab-result-card b"><div class="name" id="labNameB">第2组</div><div class="vals"><b id="labNB">n = —</b><span id="labRB">r = —</span></div></div>
+              </div>
+              <div class="lab-physics-note" id="labPhysicsNote"><b>观察：</b>同角入射，比较 r₁ 与 r₂。</div>
+            </div>
+          </div>
+        </div>
+        <div class="lab-splitter" id="labSplitter" role="separator" aria-orientation="vertical" aria-label="调节数字折射实验台与两组数据图宽度" title="拖动调节左右比例；双击恢复 60:40" tabindex="0"><span></span><span></span><span></span></div>
+        <div class="card chart-card">
+          <div class="card-head"><div><h3 id="compareChartTitle">两组数据 · sin 比比较</h3><small id="compareChartSubtitle">两组数据分步绘制</small></div><div class="legend"><span><i class="a"></i><span id="legendA">第1组</span></span><span><i class="b"></i><span id="legendB">第2组</span></span></div></div>
+          <div class="chart-wrap"><canvas id="compareChart"></canvas></div>
+          <div class="chart-note" id="compareChartNote">先点击“绘制第1组”，再点击“绘制第2组”。</div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+<footer><span>人教版（2019）选择性必修第一册 · 4.1 光的折射</span><span>真实实验数据 · 云端班级汇集 · CSV 备用 · 动态作图 · 数学建模 · 单屏自适应 · 四比值寻律 · 双折射角叠加比较 · 入射角自动演示 · 绘图快进 · 完成态清空循环</span></footer>
+</div>
+<div class="toast" id="toast"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script>
+(()=>{
+'use strict';
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const rad=d=>d*Math.PI/180;
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const state={
+  step:1,inputSource:'cloud',
+  groups:[{id:1,name:'第1组',rows:[]}],
+  currentGroupId:1,
+  nextGroupId:2,
+  singleMetric:'ratios',singleVisible:0,singleFitProgress:0,singleTimer:null,singleRaf:null,
+  singleRatioVisible:{angle:0,cos:0,sin:0,tan:0},singleRatioTimers:{angle:null,cos:null,sin:null,tan:null},
+  compareMode:'sin',compareVisibleA:0,compareVisibleB:0,compareFitA:0,compareFitB:0,compareTimerA:null,compareTimerB:null,compareRafA:null,compareRafB:null,labActive:false,labAngle:45,labSplit:.60,labAutoStep:5,labAutoTimer:null,labAutoDirection:1
+};
+const tasks={
+  1:{k:'MISSION 01 · CLOUD DATA',t:'把全班真实实验数据汇集到同一个分析入口。',x:'优先从课堂数据采集网站读取各组已经提交的入射角 i 与折射角 r。选择班级、勾选实验组后即可一键导入；手动输入和 CSV 仅作为备用入口。',g:['读取云端班级实验数据','默认同组只保留最新一次提交','勾选需要分析的实验组并一键导入','必要时使用手动或 CSV 备用入口'],title:'真实实验数据汇集',tag:'CLOUD / BACKUP',hint:'云端班级数据为主 · 手动 / CSV 为备用'},
+  2:{k:'MISSION 02 · SINGLE GROUP',t:'一组数据里，哪一种数学关系更稳定？',x:'选择一组真实实验数据，在同一坐标系中依次加入角度比、cos 比、tan 比和 sin 比。四条曲线由你分别控制出现，再通过正弦拟合建立定量关系。',g:['在同一张图上逐条绘制 i/r、cos 比、tan 比、sin 比','保留已绘曲线，直接比较四种比值的变化','绘制 sin r–sin i 散点','需要时再生成拟合直线'],title:'单组数据寻律',tag:'SINGLE DATASET',hint:'一组数据 · 同图逐步比较'},
+  3:{k:'MISSION 03 · TWO GROUPS',t:'两组实验数据，规律相同还是不同？',x:'选择两组数据，先后绘制 sin 比，再比较两组正弦拟合结果。完成两组拟合后，把得到的折射率带回光路，在同一入射角下直观看两个折射角的差异。',g:['选择两组真实实验数据','先画第1组，再画第2组','比较两组 sin 比与正弦拟合斜率','用拟合折射率比较同一入射角下的折射光路'],title:'双组数据比较',tag:'TWO DATASETS',hint:'两组数据 · 从数学规律回到物理图景'}
+};
+function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove('show'),1900)}
+function currentGroup(){return state.groups.find(g=>g.id===state.currentGroupId)||state.groups[0]}
+function validGroups(){return state.groups.filter(g=>g.rows.length>0)}
+function totalSamples(){return state.groups.reduce((s,g)=>s+g.rows.length,0)}
+function ratioRow(i,r){
+  const si=Math.sin(rad(i)), sr=Math.sin(rad(r)), ci=Math.cos(rad(i)), cr=Math.cos(rad(r)), ti=Math.tan(rad(i)), tr=Math.tan(rad(r));
+  return {i,r,angle:r!==0?i/r:null,cos:Math.abs(cr)>1e-12?ci/cr:null,sin:Math.abs(sr)>1e-12?si/sr:null,tan:Math.abs(tr)>1e-12?ti/tr:null};
+}
+
+
+// ===== 云端班级数据耦合：复用同一 GitHub Pages 域名下的 Supabase 登录会话 =====
+const cloudCfg=window.APP_CONFIG||{};
+const cloudConfigured=!!(cloudCfg.supabaseUrl&&cloudCfg.supabaseAnonKey&&!String(cloudCfg.supabaseUrl).includes('YOUR_')&&!String(cloudCfg.supabaseAnonKey).includes('YOUR_')&&window.supabase);
+const cloudDb=cloudConfigured?window.supabase.createClient(cloudCfg.supabaseUrl,cloudCfg.supabaseAnonKey):null;
+let cloudSubmissions=[],cloudClassRows=[],cloudActiveId=null,cloudSelectedIds=new Set(),cloudLoaded=false;
+function fmtCloudTime(v){try{return new Date(v).toLocaleString('zh-CN',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false})}catch(_){return ''}}
+function cloudMeasurements(x){return Array.isArray(x&&x.measurements)?x.measurements:[]}
+function validCloudMeasurements(x){return cloudMeasurements(x).map(p=>({i:Number(p.i),r:Number(p.r)})).filter(p=>Number.isFinite(p.i)&&Number.isFinite(p.r)&&p.i>=0&&p.i<90&&p.r>=0&&p.r<90&&!(p.r===0&&p.i!==0))}
+function setInputSource(mode){
+  state.inputSource=mode==='manual'?'manual':'cloud';
+  $('#cloudSourceTab').classList.toggle('active',state.inputSource==='cloud');$('#manualSourceTab').classList.toggle('active',state.inputSource==='manual');
+  $('#cloudSourcePanel').classList.toggle('active',state.inputSource==='cloud');$('#manualSourcePanel').classList.toggle('active',state.inputSource==='manual');
+  if(state.inputSource==='cloud'&&!cloudLoaded)loadCloudData();
+}
+function cloudRowsForClass(){
+  const cls=$('#cloudClassSelect').value;
+  let rows=cloudSubmissions.filter(x=>String(x.class_name||'')===cls);
+  if($('#cloudLatestOnly').checked){const seen=new Set();rows=rows.filter(x=>{const key=String(x.group_name||'未命名组').trim()||'未命名组';if(seen.has(key))return false;seen.add(key);return true})}
+  return rows;
+}
+function updateCloudClassOptions(preserve=true){
+  const sel=$('#cloudClassSelect'),old=preserve?sel.value:'';
+  const classes=[];const seen=new Set();for(const x of cloudSubmissions){const c=String(x.class_name||'').trim();if(c&&!seen.has(c)){seen.add(c);classes.push(c)}}
+  sel.innerHTML=classes.length?classes.map(c=>`<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join(''):'<option value="">暂无班级数据</option>';
+  if(old&&classes.includes(old))sel.value=old;
+  renderCloudClass(true);
+}
+function renderCloudClass(resetSelection=false){
+  cloudClassRows=cloudRowsForClass();
+  if(resetSelection){cloudSelectedIds=new Set(cloudClassRows.map(x=>String(x.id)));cloudActiveId=cloudClassRows[0]?String(cloudClassRows[0].id):null}
+  else{const ids=new Set(cloudClassRows.map(x=>String(x.id)));cloudSelectedIds=new Set([...cloudSelectedIds].filter(id=>ids.has(id)));if(!cloudSelectedIds.size)cloudClassRows.forEach(x=>cloudSelectedIds.add(String(x.id)));if(!ids.has(String(cloudActiveId)))cloudActiveId=cloudClassRows[0]?String(cloudClassRows[0].id):null}
+  const pts=cloudClassRows.reduce((s,x)=>s+validCloudMeasurements(x).length,0);
+  $('#cloudSubmissionCount').textContent=cloudClassRows.length;$('#cloudGroupCount').textContent=new Set(cloudClassRows.map(x=>x.group_name)).size;$('#cloudGroupCountBadge').textContent=new Set(cloudClassRows.map(x=>x.group_name)).size;$('#cloudPointCount').textContent=pts;
+  $('#cloudClassHint').textContent=$('#cloudClassSelect').value?`当前：${$('#cloudClassSelect').value}`:'暂无班级';
+  renderCloudGroups();renderCloudPreview();
+}
+function renderCloudGroups(){
+  const host=$('#cloudGroupList');
+  if(!cloudClassRows.length){host.innerHTML='<div class="cloud-empty">当前班级还没有可读取的实验提交。<br>可点击“刷新云端数据”重新检查。</div>';return}
+  host.innerHTML=cloudClassRows.map(x=>{const id=String(x.id),m=validCloudMeasurements(x),meta=[x.student_code?`学生：${escapeHtml(x.student_code)}`:'',x.medium?`介质：${escapeHtml(x.medium)}`:''].filter(Boolean).join(' · ');return `<div class="cloud-group ${id===String(cloudActiveId)?'active':''}" data-id="${escapeHtml(id)}"><input class="cloud-group-check" type="checkbox" ${cloudSelectedIds.has(id)?'checked':''} aria-label="选择${escapeHtml(x.group_name||'实验组')}"><div class="cloud-group-main"><b>${escapeHtml(x.group_name||'未命名组')}</b><span>${m.length} 个数据点${meta?' · '+meta:''}</span></div><div class="cloud-group-time">${fmtCloudTime(x.created_at)}</div></div>`}).join('');
+  host.querySelectorAll('.cloud-group').forEach(el=>{el.addEventListener('click',e=>{if(e.target.classList.contains('cloud-group-check'))return;cloudActiveId=el.dataset.id;renderCloudGroups();renderCloudPreview()});const cb=el.querySelector('.cloud-group-check');cb.addEventListener('change',()=>{cb.checked?cloudSelectedIds.add(el.dataset.id):cloudSelectedIds.delete(el.dataset.id)})});
+}
+function renderCloudPreview(){
+  const x=cloudClassRows.find(r=>String(r.id)===String(cloudActiveId));const body=$('#cloudPreviewBody');
+  if(!x){$('#cloudPreviewTitle').textContent='实验组数据预览';$('#cloudPreviewCount').textContent='0';$('#cloudPreviewMeta').innerHTML='<span>尚未选择实验组</span>';body.innerHTML='<tr><td colspan="3" class="cloud-empty">在左侧点击实验组即可预览原始测量数据。</td></tr>';return}
+  const rows=validCloudMeasurements(x);$('#cloudPreviewTitle').textContent=x.group_name||'未命名组';$('#cloudPreviewCount').textContent=rows.length;
+  $('#cloudPreviewMeta').innerHTML=`<b>${escapeHtml(x.class_name||'')}</b><span>${fmtCloudTime(x.created_at)} 提交</span>${x.student_code?`<span>学生：${escapeHtml(x.student_code)}</span>`:''}${x.medium?`<span>介质：${escapeHtml(x.medium)}</span>`:''}${x.note?`<span>备注：${escapeHtml(x.note)}</span>`:''}`;
+  body.innerHTML=rows.length?rows.map((p,i)=>`<tr><td>${i+1}</td><td>${p.i.toFixed(3)}</td><td>${p.r.toFixed(3)}</td></tr>`).join(''):'<tr><td colspan="3" class="cloud-empty">这次提交没有有效的 i、r 数据。</td></tr>';
+}
+async function loadCloudData(){
+  if(!cloudConfigured){$('#cloudAuthText').innerHTML='<b>连接状态：</b>未找到 config.js 配置';$('#cloudGroupList').innerHTML='<div class="cloud-empty">请把 analysis.html 与网站现有的 config.js 放在同一 GitHub Pages 仓库根目录。</div>';return}
+  $('#cloudAuthText').innerHTML='<b>连接状态：</b>正在检查教师登录…';
+  const {data:{session}}=await cloudDb.auth.getSession();
+  if(!session){cloudLoaded=false;cloudSubmissions=[];$('#cloudAuthText').innerHTML='<b>连接状态：</b>尚未登录教师账号';$('#cloudGroupList').innerHTML='<div class="cloud-empty">请先进入教师端登录。登录成功后回到本页，点击“刷新云端数据”。</div>';$('#cloudClassSelect').innerHTML='<option value="">未登录</option>';renderCloudClass(true);return}
+  $('#cloudAuthText').innerHTML=`<b>教师已登录：</b>${escapeHtml(session.user.email||'已认证账号')}`;
+  $('#cloudRefreshBtn').disabled=true;$('#cloudRefreshBtn').textContent='读取中…';
+  const {data,error}=await cloudDb.from('submissions').select('*').order('created_at',{ascending:false});
+  $('#cloudRefreshBtn').disabled=false;$('#cloudRefreshBtn').textContent='↻ 刷新云端数据';
+  if(error){cloudLoaded=false;$('#cloudGroupList').innerHTML=`<div class="cloud-empty">读取失败：${escapeHtml(error.message)}<br>请确认当前账号已加入 teacher_allowlist。</div>`;toast('云端数据读取失败');return}
+  cloudSubmissions=data||[];cloudLoaded=true;updateCloudClassOptions(true);$('#cloudImportStatus').textContent=`云端已读取 ${cloudSubmissions.length} 次提交`;
+}
+function importCloudSelected(){
+  const chosen=cloudClassRows.filter(x=>cloudSelectedIds.has(String(x.id)));
+  if(!chosen.length){toast('请至少勾选一个实验组');return}
+  const used=new Map(),groups=[];let bad=0;
+  for(const x of chosen){const rows=validCloudMeasurements(x).map(p=>ratioRow(p.i,p.r)).sort((a,b)=>a.i-b.i);if(!rows.length){bad++;continue}let base=String(x.group_name||'未命名组').trim()||'未命名组';const n=(used.get(base)||0)+1;used.set(base,n);const name=n===1?base:`${base}（${n}）`;groups.push({id:groups.length+1,name,rows})}
+  if(!groups.length){toast('所选实验组没有有效数据');return}
+  state.groups=groups;state.nextGroupId=groups.length+1;state.currentGroupId=groups[0].id;renderAllInput();refreshSelectors();resetSingleChart();resetCompareChart();
+  $('#cloudImportStatus').textContent=`已导入 ${groups.length} 组 / ${totalSamples()} 点`;toast(`已导入 ${groups.length} 个实验组${bad?`，跳过 ${bad} 组无效数据`:''}`);
+}
+function initCloudIntegration(){
+  $('#cloudSourceTab').addEventListener('click',()=>setInputSource('cloud'));$('#manualSourceTab').addEventListener('click',()=>setInputSource('manual'));
+  $('#cloudRefreshBtn').addEventListener('click',loadCloudData);$('#cloudClassSelect').addEventListener('change',()=>renderCloudClass(true));$('#cloudLatestOnly').addEventListener('change',()=>renderCloudClass(true));
+  $('#cloudSelectAllBtn').addEventListener('click',()=>{cloudSelectedIds=new Set(cloudClassRows.map(x=>String(x.id)));renderCloudGroups()});$('#cloudSelectNoneBtn').addEventListener('click',()=>{cloudSelectedIds.clear();renderCloudGroups()});$('#cloudImportBtn').addEventListener('click',importCloudSelected);
+  setInputSource('cloud');
+}
+function setStep(n){
+  state.step=clamp(n,1,3);cancelAnimations();
+  $$('.mission').forEach(m=>m.classList.toggle('active',+m.dataset.step===state.step));
+  $$('.view').forEach((v,i)=>v.classList.toggle('active',i===state.step-1));
+  $('#progressText').textContent=`${state.step} / 3`;$('#progressFill').style.width=(state.step*33.333)+'%';
+  const t=tasks[state.step];$('#taskKicker').textContent=t.k;$('#taskTitle').textContent=t.t;$('#taskText').textContent=t.x;$('#goalList').innerHTML=t.g.map(x=>`<li>${x}</li>`).join('');
+  $('#workspaceTitle').textContent=t.title;$('#workspaceTag').textContent=t.tag;$('#workspaceHint').textContent=t.hint;
+  if(state.step===1&&state.inputSource==='cloud'&&!cloudLoaded){loadCloudData()}
+  if(state.step===2){refreshSelectors();resetSingleChart();setTimeout(drawSingleChart,50)}
+  if(state.step===3){refreshSelectors();exitRefractionLab(false);resetCompareChart();setTimeout(drawCompareChart,50)}
+}
+$$('.mission').forEach(m=>m.addEventListener('click',()=>setStep(+m.dataset.step)));
+function renderCounts(){
+  $('#groupCountSide').textContent=state.groups.length;$('#sampleCountSide').textContent=totalSamples();$('#groupCountBadge').textContent=state.groups.length;
+  $('#headerStatus').textContent=totalSamples()?`已录入 ${state.groups.length} 组，共 ${totalSamples()} 个样本`:'等待录入真实实验数据';
+}
+function renderGroupList(){
+  $('#groupList').innerHTML=state.groups.map(g=>`<div class="group-item ${g.id===state.currentGroupId?'active':''}" data-id="${g.id}"><div class="group-item-top"><b>${escapeHtml(g.name||('第'+g.id+'组'))}</b><span>${g.rows.length} 个样本</span></div><div class="group-meta">${g.rows.length?`i：${Math.min(...g.rows.map(r=>r.i)).toFixed(1)}°–${Math.max(...g.rows.map(r=>r.i)).toFixed(1)}°`:'尚未录入数据'}</div></div>`).join('');
+  $$('.group-item').forEach(x=>x.addEventListener('click',()=>{state.currentGroupId=+x.dataset.id;renderAllInput()}));
+}
+function renderInputTable(){
+  const g=currentGroup();$('#groupNameInput').value=g.name;$('#currentGroupCount').textContent=g.rows.length;
+  $('#inputTableBody').innerHTML=g.rows.length?g.rows.map((r,idx)=>`<tr><td>${idx+1}</td><td>${r.i.toFixed(3)}</td><td>${r.r.toFixed(3)}</td><td>${r.angle==null?'—':r.angle.toFixed(5)}</td><td>${r.cos==null?'—':r.cos.toFixed(5)}</td><td>${r.tan==null?'—':r.tan.toFixed(5)}</td><td>${r.sin==null?'—':r.sin.toFixed(5)}</td><td><button class="row-delete" data-idx="${idx}" title="删除">✕</button></td></tr>`).join(''):'<tr><td colspan="8" class="empty">当前数据组还没有样本，请在上方输入 i 和 r。</td></tr>';
+  $$('.row-delete').forEach(b=>b.addEventListener('click',()=>{g.rows.splice(+b.dataset.idx,1);renderAllInput();refreshSelectors()}));
+}
+function renderAllInput(){renderGroupList();renderInputTable();renderCounts()}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+$('#addGroupBtn').addEventListener('click',()=>{const id=state.nextGroupId++;state.groups.push({id,name:`第${state.groups.length+1}组`,rows:[]});state.currentGroupId=id;renderAllInput();refreshSelectors();toast('已新增数据组')});
+$('#deleteGroupBtn').addEventListener('click',()=>{if(state.groups.length===1){toast('至少保留一个数据组');return;}const idx=state.groups.findIndex(g=>g.id===state.currentGroupId);state.groups.splice(idx,1);state.currentGroupId=state.groups[Math.max(0,idx-1)].id;renderAllInput();refreshSelectors();toast('当前数据组已删除')});
+$('#groupNameInput').addEventListener('input',e=>{currentGroup().name=e.target.value.trim()||`第${state.groups.indexOf(currentGroup())+1}组`;renderGroupList();refreshSelectors()});
+function addSample(){
+  const i=Number($('#inputI').value),r=Number($('#inputR').value);
+  if(!Number.isFinite(i)||!Number.isFinite(r)){toast('请输入有效的 i 和 r');return}
+  if(i<0||i>=90||r<0||r>=90){toast('角度请输入 0°–90° 之间的数值');return}
+  if(r===0&&i!==0){toast('折射角 r 不能为 0°');return}
+  const row=ratioRow(i,r);currentGroup().rows.push(row);currentGroup().rows.sort((a,b)=>a.i-b.i);
+  $('#inputI').value='';$('#inputR').value='';$('#inputI').focus();renderAllInput();refreshSelectors();
+}
+$('#addSampleBtn').addEventListener('click',addSample);['inputI','inputR'].forEach(id=>$('#'+id).addEventListener('keydown',e=>{if(e.key==='Enter')addSample()}));
+$('#clearCurrentBtn').addEventListener('click',()=>{currentGroup().rows=[];renderAllInput();refreshSelectors();toast('当前组数据已清空')});
+
+function normalizeCsvHeader(v){
+  return String(v??'').replace(/^\ufeff/,'').trim().toLowerCase().replace(/\s+/g,'').replace(/[（）()°º˚]/g,'').replace(/[＿_\-]/g,'');
+}
+function csvDelimiter(text){
+  const line=(text.replace(/^\ufeff/,'').split(/\r?\n/).find(x=>x.trim())||'');
+  const candidates=[',','\t',';'];
+  let best=',',bestCount=-1;
+  for(const d of candidates){
+    let count=0,quoted=false;
+    for(let i=0;i<line.length;i++){
+      if(line[i]==='"'){
+        if(quoted&&line[i+1]==='"'){i++;continue}
+        quoted=!quoted;
+      }else if(!quoted&&line[i]===d) count++;
+    }
+    if(count>bestCount){best=d;bestCount=count}
+  }
+  return best;
+}
+function parseCsvText(text){
+  text=String(text||'').replace(/^\ufeff/,'');
+  const d=csvDelimiter(text), rows=[];let row=[],cell='',quoted=false;
+  for(let i=0;i<text.length;i++){
+    const ch=text[i];
+    if(ch==='"'){
+      if(quoted&&text[i+1]==='"'){cell+='"';i++;}
+      else quoted=!quoted;
+    }else if(ch===d&&!quoted){row.push(cell.trim());cell='';}
+    else if((ch==='\n'||ch==='\r')&&!quoted){
+      if(ch==='\r'&&text[i+1]==='\n')i++;
+      row.push(cell.trim());cell='';
+      if(row.some(v=>String(v).trim()!==''))rows.push(row);
+      row=[];
+    }else cell+=ch;
+  }
+  row.push(cell.trim());
+  if(row.some(v=>String(v).trim()!==''))rows.push(row);
+  return rows;
+}
+function headerIndex(headers,candidates){
+  const hs=headers.map(normalizeCsvHeader);
+  for(const c of candidates){const idx=hs.indexOf(c);if(idx>=0)return idx}
+  return -1;
+}
+function csvNumber(v){
+  const cleaned=String(v??'').trim().replace(/[°º˚]/g,'').replace(/\s+/g,'');
+  if(!cleaned)return NaN;
+  const n=Number(cleaned);return Number.isFinite(n)?n:NaN;
+}
+function uniqueImportedName(base){
+  base=(String(base||'').trim()||'CSV导入数据');
+  const names=new Set(state.groups.map(g=>g.name));
+  if(!names.has(base))return base;
+  let n=2;while(names.has(`${base}（导入${n}）`))n++;
+  return `${base}（导入${n}）`;
+}
+async function importCsvFile(file){
+  if(!file)return;
+  let text='';
+  try{text=await file.text()}catch(e){toast('CSV 文件读取失败');return}
+  const records=parseCsvText(text);
+  if(!records.length){toast('CSV 中没有可识别的数据');return}
+
+  const first=records[0],h=first.map(normalizeCsvHeader);
+  const groupCandidates=['数据组','组名','组','group','groupname','dataset','datasetname','介质','medium'];
+  const iCandidates=['i','入射角','入射角i','incident','incidentangle','anglei'];
+  const rCandidates=['r','折射角','折射角r','refractedangle','refractionangle','angler'];
+  let gi=headerIndex(first,groupCandidates),ii=headerIndex(first,iCandidates),ri=headerIndex(first,rCandidates),start=1;
+  let hasHeader=ii>=0&&ri>=0;
+  if(!hasHeader){
+    start=0;
+    if(first.length>=3 && !Number.isFinite(csvNumber(first[0])) && Number.isFinite(csvNumber(first[1])) && Number.isFinite(csvNumber(first[2]))){gi=0;ii=1;ri=2}
+    else if(first.length>=2 && Number.isFinite(csvNumber(first[0])) && Number.isFinite(csvNumber(first[1]))){gi=-1;ii=0;ri=1}
+    else {toast('未识别到入射角 i 和折射角 r 列');$('#csvImportStatus').textContent='识别失败';return}
+  }
+
+  const fileBase=(file.name||'CSV导入数据').replace(/\.csv$/i,'').trim()||'CSV导入数据';
+  const buckets=new Map();let skipped=0,valid=0;
+  for(let idx=start;idx<records.length;idx++){
+    const rec=records[idx];const i=csvNumber(rec[ii]),r=csvNumber(rec[ri]);
+    if(!Number.isFinite(i)||!Number.isFinite(r)||i<0||i>=90||r<0||r>=90||(r===0&&i!==0)){skipped++;continue}
+    const rawName=gi>=0?String(rec[gi]??'').trim():fileBase;
+    const name=rawName||fileBase;
+    if(!buckets.has(name))buckets.set(name,[]);
+    buckets.get(name).push(ratioRow(i,r));valid++;
+  }
+  if(!valid){toast('CSV 中没有有效的 i、r 数据');$('#csvImportStatus').textContent='0 条有效数据';return}
+
+  const importingIntoBlank=totalSamples()===0&&state.groups.length===1&&state.groups[0].rows.length===0;
+  const imported=[];
+  if(importingIntoBlank){state.groups=[];state.currentGroupId=null}
+  for(const [rawName,rows] of buckets){
+    const id=state.nextGroupId++;
+    const name=uniqueImportedName(rawName);
+    rows.sort((a,b)=>a.i-b.i);
+    state.groups.push({id,name,rows});imported.push(id);
+  }
+  if(!state.groups.length){state.groups=[{id:state.nextGroupId++,name:'第1组',rows:[]}];}
+  state.currentGroupId=imported[0]||state.groups[0].id;
+  renderAllInput();refreshSelectors();resetSingleChart();resetCompareChart();
+  $('#csvImportStatus').textContent=`已导入 ${buckets.size} 组 / ${valid} 条`;
+  toast(`CSV 导入成功：${buckets.size} 组，${valid} 条样本${skipped?`，跳过 ${skipped} 行`:''}`);
+}
+$('#importCsvBtn').addEventListener('click',()=>$('#csvFileInput').click());
+$('#csvFileInput').addEventListener('change',async e=>{const file=e.target.files&&e.target.files[0];await importCsvFile(file);e.target.value='';});
+
+$('#exportBtn').addEventListener('click',()=>{
+  const rows=[['数据组','序号','入射角i(°)','折射角r(°)','i/r','cos i/cos r','sin i/sin r','tan i/tan r']];
+  state.groups.forEach(g=>g.rows.forEach((r,idx)=>rows.push([g.name,idx+1,r.i.toFixed(8),r.r.toFixed(8),r.angle==null?'':r.angle.toFixed(8),r.cos==null?'':r.cos.toFixed(8),r.sin==null?'':r.sin.toFixed(8),r.tan==null?'':r.tan.toFixed(8)])));
+  if(rows.length===1){toast('暂无数据可导出');return}
+  const csv='\ufeff'+rows.map(row=>row.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='光的折射_真实实验数据.csv';a.click();URL.revokeObjectURL(url);
+});
+function refreshSelectors(){
+  const groups=validGroups();
+  const opts=groups.length?groups.map(g=>`<option value="${g.id}">${escapeHtml(g.name)}（${g.rows.length}点）</option>`).join(''):'<option value="">暂无有效数据组</option>';
+  const ids=['singleGroupSelect','compareA','compareB'];ids.forEach(id=>{const old=$('#'+id).value;$('#'+id).innerHTML=opts;if(groups.some(g=>String(g.id)===old))$('#'+id).value=old});
+  if(groups.length>1 && (!$('#compareB').value || $('#compareB').value===$('#compareA').value)) $('#compareB').value=String(groups[1].id);
+  $('#singleGroupCount').textContent=groups.length;
+  updateSingleSummary();updateCompareSummary();
+}
+function groupBySelect(id){const v=+$('#'+id).value;return state.groups.find(g=>g.id===v)||null}
+function updateSingleSummary(){const g=groupBySelect('singleGroupSelect');$('#singleSampleCount').textContent=g?g.rows.length:0;$('#singleLegendName').textContent=g?g.name:'当前数据组'}
+function updateCompareSummary(){const a=groupBySelect('compareA'),b=groupBySelect('compareB');$('#compareAN').textContent=a?a.rows.length:0;$('#compareBN').textContent=b?b.rows.length:0;$('#legendA').textContent=a?a.name:'第1组';$('#legendB').textContent=b?b.name:'第2组';$('#slopeALabel').textContent=(a?a.name:'第1组')+'斜率';$('#slopeBLabel').textContent=(b?b.name:'第2组')+'斜率'}
+['singleGroupSelect'].forEach(id=>$('#'+id).addEventListener('change',()=>{updateSingleSummary();resetSingleChart();drawSingleChart()}));
+['compareA','compareB'].forEach(id=>$('#'+id).addEventListener('change',()=>{exitRefractionLab(false);updateCompareSummary();resetCompareChart();drawCompareChart()}));
+function cancelAnimations(){clearInterval(state.singleTimer);Object.values(state.singleRatioTimers).forEach(t=>clearInterval(t));clearInterval(state.compareTimerA);clearInterval(state.compareTimerB);clearInterval(state.labAutoTimer);cancelAnimationFrame(state.singleRaf);cancelAnimationFrame(state.compareRafA);cancelAnimationFrame(state.compareRafB);state.singleTimer=state.compareTimerA=state.compareTimerB=state.labAutoTimer=null;state.singleRaf=state.compareRafA=state.compareRafB=null;state.singleRatioTimers={angle:null,cos:null,sin:null,tan:null};$$('.cycle-btn.running').forEach(b=>b.classList.remove('running'));const b=$('#labAutoBtn');if(b){b.textContent='▶ 自动';b.classList.remove('running');b.setAttribute('aria-pressed','false')}}
+const metricMeta={
+  ratios:{name:'比值比较',title:'四种比值 · 同图比较',yl:'比值',note:'在同一坐标系中依次加入 i/r、cos i/cos r、tan i/tan r、sin i/sin r，最后观察正弦比是否更稳定。'},
+  fit:{name:'正弦拟合',title:'sin r – sin i 正弦拟合',yl:'sin i',note:'先动态绘制散点；散点完成后，再点击“拟合直线”。'}
+};
+function clearSingleRatioTimers(){Object.keys(state.singleRatioTimers).forEach(k=>{clearInterval(state.singleRatioTimers[k]);state.singleRatioTimers[k]=null})}
+function resetSingleChart(){
+  clearInterval(state.singleTimer);clearSingleRatioTimers();cancelAnimationFrame(state.singleRaf);state.singleRaf=null;
+  state.singleVisible=0;state.singleFitProgress=0;state.singleRatioVisible={angle:0,cos:0,sin:0,tan:0};
+  $('#singleFitBtn').disabled=true;$('#singleFitResults').style.display='none';$('#singleSlope').textContent='—';$('#singleR2').textContent='—';$('#singleN').textContent='—';
+  ['drawAngleRatio','drawCosRatio','drawTanRatio','drawSinRatio','singleDrawBtn','singleFitBtn'].forEach(id=>$('#'+id).classList.remove('done','running'));
+}
+function syncSingleModeUI(){
+  const fit=state.singleMetric==='fit';
+  $('#singleRatioControls').style.display=fit?'none':'block';
+  $('#singleFitControls').style.display=fit?'block':'none';
+  $('#singleRatioLegend').style.display=fit?'none':'flex';
+  $('#singleFitLegend').style.display=fit?'flex':'none';
+  $('#singleMetricName').textContent=fit?'正弦拟合':'比值比较';
+  $('#singleChartTitle').textContent=fit?'sin r – sin i 正弦拟合':'四种比值 · 同图比较';
+  $('#singleChartSubtitle').textContent=fit?'先散点，后拟合':'按按钮顺序逐条叠加';
+}
+$$('#singleMetricTabs .metric-tab').forEach(b=>b.addEventListener('click',()=>{
+  state.singleMetric=b.dataset.metric;
+  $$('#singleMetricTabs .metric-tab').forEach(x=>x.classList.toggle('active',x===b));
+  resetSingleChart();syncSingleModeUI();drawSingleChart();
+}));
+function animateSingleRatio(key){
+  const g=groupBySelect('singleGroupSelect');if(!g||!g.rows.length){toast('请先录入并选择一组数据');return}
+  const buttonId={angle:'drawAngleRatio',cos:'drawCosRatio',sin:'drawSinRatio',tan:'drawTanRatio'}[key];
+  const btn=$('#'+buttonId);
+  // 绘制中再次点击：立即补齐，并进入“实心完成态”。
+  if(state.singleRatioTimers[key]){
+    clearInterval(state.singleRatioTimers[key]);state.singleRatioTimers[key]=null;
+    state.singleRatioVisible[key]=g.rows.length;btn.classList.remove('running');btn.classList.add('done');drawSingleChart();return;
+  }
+  // 已完成再次点击：只清空这一条，不自动重播；按钮恢复透明。
+  if(state.singleRatioVisible[key]>=g.rows.length && g.rows.length){
+    state.singleRatioVisible[key]=0;btn.classList.remove('done','running');drawSingleChart();return;
+  }
+  // 透明待执行态：从头逐点绘制。
+  state.singleRatioVisible[key]=0;btn.classList.remove('done');btn.classList.add('running');drawSingleChart();
+  state.singleRatioTimers[key]=setInterval(()=>{
+    state.singleRatioVisible[key]++;drawSingleChart();
+    if(state.singleRatioVisible[key]>=g.rows.length){
+      clearInterval(state.singleRatioTimers[key]);state.singleRatioTimers[key]=null;
+      btn.classList.remove('running');btn.classList.add('done');
+    }
+  },180);
+}
+$('#drawAngleRatio').addEventListener('click',()=>animateSingleRatio('angle'));
+$('#drawCosRatio').addEventListener('click',()=>animateSingleRatio('cos'));
+$('#drawTanRatio').addEventListener('click',()=>animateSingleRatio('tan'));
+$('#drawSinRatio').addEventListener('click',()=>animateSingleRatio('sin'));
+$('#clearRatioChart').addEventListener('click',()=>{clearSingleRatioTimers();state.singleRatioVisible={angle:0,cos:0,sin:0,tan:0};['drawAngleRatio','drawCosRatio','drawTanRatio','drawSinRatio'].forEach(id=>$('#'+id).classList.remove('done','running'));drawSingleChart()});
+$('#singleDrawBtn').addEventListener('click',()=>{
+  const g=groupBySelect('singleGroupSelect');if(!g||!g.rows.length){toast('请先录入并选择一组数据');return}
+  const btn=$('#singleDrawBtn'),fitBtn=$('#singleFitBtn');
+  // 绘制中再次点击：立即补齐全部散点。
+  if(state.singleTimer){
+    clearInterval(state.singleTimer);state.singleTimer=null;state.singleVisible=g.rows.length;
+    btn.classList.remove('running');btn.classList.add('done');fitBtn.disabled=false;drawSingleChart();return;
+  }
+  // 散点已完成再次点击：只清空散点及依赖的拟合，不自动重播。
+  if(state.singleVisible>=g.rows.length && g.rows.length){
+    cancelAnimationFrame(state.singleRaf);state.singleRaf=null;state.singleVisible=0;state.singleFitProgress=0;
+    btn.classList.remove('done','running');fitBtn.classList.remove('done','running');fitBtn.disabled=true;
+    $('#singleFitResults').style.display='none';$('#singleSlope').textContent='—';$('#singleR2').textContent='—';$('#singleN').textContent='—';
+    drawSingleChart();return;
+  }
+  // 透明待执行态：正常逐点动态绘图。
+  state.singleVisible=0;state.singleFitProgress=0;btn.classList.remove('done');btn.classList.add('running');
+  fitBtn.classList.remove('done','running');fitBtn.disabled=true;$('#singleFitResults').style.display='none';drawSingleChart();
+  state.singleTimer=setInterval(()=>{
+    state.singleVisible++;drawSingleChart();
+    if(state.singleVisible>=g.rows.length){clearInterval(state.singleTimer);state.singleTimer=null;btn.classList.remove('running');btn.classList.add('done');fitBtn.disabled=false}
+  },180);
+});
+$('#singleFitBtn').addEventListener('click',()=>{const g=groupBySelect('singleGroupSelect');if(!g||state.singleVisible<g.rows.length){toast('请先完成正弦散点绘制');return}fitCycle('single',g)});
+function fitStats(g){
+  if(!g||g.rows.length<2)return null;let sxy=0,sxx=0;const ys=[];g.rows.forEach(r=>{const x=Math.sin(rad(r.r)),y=Math.sin(rad(r.i));sxy+=x*y;sxx+=x*x;ys.push(y)});if(!sxx)return null;const k=sxy/sxx,mean=ys.reduce((a,b)=>a+b,0)/ys.length;let ssr=0,sst=0;g.rows.forEach((r,j)=>{const x=Math.sin(rad(r.r)),y=ys[j];ssr+=(y-k*x)**2;sst+=(y-mean)**2});return {k,r2:sst?1-ssr/sst:1}}
+function fitKeys(which){
+  if(which==='single')return {progress:'singleFitProgress',raf:'singleRaf'};
+  return which==='A'?{progress:'compareFitA',raf:'compareRafA'}:{progress:'compareFitB',raf:'compareRafB'};
+}
+function drawFitTarget(which){if(which==='single')drawSingleChart();else drawCompareChart()}
+function fitButton(which){return $(which==='single'?'#singleFitBtn':which==='A'?'#fitA':'#fitB')}
+function revealFitResult(which,g){
+  if(which==='single'){
+    const s=fitStats(g);$('#singleFitResults').style.display='grid';$('#singleSlope').textContent=s?s.k.toFixed(5):'—';$('#singleR2').textContent=s?s.r2.toFixed(5):'—';$('#singleN').textContent=g.rows.length;
+  }else updateCompareFitResults();
+}
+function resetFitResultForReplay(which){
+  if(which==='single'){
+    $('#singleFitResults').style.display='none';$('#singleSlope').textContent='—';$('#singleR2').textContent='—';$('#singleN').textContent='—';
+  }else updateCompareFitResults();
+}
+function fitCycle(which,g){
+  const k=fitKeys(which),btn=fitButton(which);
+  // 拟合线正在生长时再次点击：立即补齐，并进入实心完成态。
+  if(state[k.raf]){
+    cancelAnimationFrame(state[k.raf]);state[k.raf]=null;state[k.progress]=1;
+    btn.classList.remove('running');btn.classList.add('done');drawFitTarget(which);revealFitResult(which,g);return;
+  }
+  // 拟合已完成再次点击：只清空拟合线和结果，不自动重新拟合。
+  if(state[k.progress]>=1){
+    state[k.progress]=0;btn.classList.remove('done','running');resetFitResultForReplay(which);drawFitTarget(which);return;
+  }
+  // 透明待执行态：从头动态生成拟合直线。
+  state[k.progress]=0;btn.classList.remove('done');btn.classList.add('running');resetFitResultForReplay(which);drawFitTarget(which);
+  const start=performance.now(),dur=900;
+  function frame(now){
+    const p=clamp((now-start)/dur,0,1);state[k.progress]=p;drawFitTarget(which);
+    if(p<1){state[k.raf]=requestAnimationFrame(frame)}
+    else{state[k.raf]=null;state[k.progress]=1;btn.classList.remove('running');btn.classList.add('done');revealFitResult(which,g)}
+  }
+  state[k.raf]=requestAnimationFrame(frame);
+}
+function setupCanvas(canvas){const rect=canvas.getBoundingClientRect(),dpr=window.devicePixelRatio||1;canvas.width=Math.max(1,Math.round(rect.width*dpr));canvas.height=Math.max(1,Math.round(rect.height*dpr));const c=canvas.getContext('2d');c.setTransform(dpr,0,0,dpr,0,0);return {ctx:c,w:rect.width,h:rect.height}}
+function niceRange(vals,includeZero=false){let lo=Math.min(...vals),hi=Math.max(...vals);if(includeZero)lo=Math.min(0,lo);if(!Number.isFinite(lo)||!Number.isFinite(hi)){lo=0;hi=1}if(Math.abs(hi-lo)<1e-8){lo-=.1;hi+=.1}const pad=(hi-lo)*.14;return [Math.max(includeZero?0:-Infinity,lo-pad),hi+pad]}
+function axes(ctx,w,h,xMin,xMax,yMin,yMax,xLabel,yLabel,xTicks=6,yTicks=6){const pad={l:58,r:20,t:22,b:62},iw=w-pad.l-pad.r,ih=h-pad.t-pad.b,X=x=>pad.l+(x-xMin)/(xMax-xMin)*iw,Y=y=>pad.t+ih-(y-yMin)/(yMax-yMin)*ih;ctx.clearRect(0,0,w,h);ctx.font='10px Microsoft YaHei';ctx.lineWidth=1;for(let j=0;j<=yTicks;j++){const v=yMin+(yMax-yMin)*j/yTicks,y=Y(v);ctx.strokeStyle='rgba(127,178,214,.10)';ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(w-pad.r,y);ctx.stroke();ctx.fillStyle='#7392a7';ctx.textAlign='right';ctx.textBaseline='middle';ctx.fillText(formatTick(v),pad.l-7,y)}for(let j=0;j<=xTicks;j++){const v=xMin+(xMax-xMin)*j/xTicks,x=X(v);ctx.strokeStyle='rgba(127,178,214,.10)';ctx.beginPath();ctx.moveTo(x,pad.t);ctx.lineTo(x,pad.t+ih);ctx.stroke();ctx.fillStyle='#7392a7';ctx.textAlign='center';ctx.textBaseline='top';ctx.fillText(formatTick(v),x,pad.t+ih+7)}ctx.strokeStyle='rgba(127,178,214,.24)';ctx.strokeRect(pad.l,pad.t,iw,ih);ctx.fillStyle='#7897ab';ctx.textAlign='center';ctx.textBaseline='alphabetic';ctx.font='10.5px Microsoft YaHei';ctx.fillText(xLabel,pad.l+iw/2,h-18);ctx.font='10px Microsoft YaHei';ctx.save();ctx.translate(13,pad.t+ih/2);ctx.rotate(-Math.PI/2);ctx.fillText(yLabel,0,0);ctx.restore();return {X,Y,pad,iw,ih}}
+function formatTick(v){if(Math.abs(v)>=10)return v.toFixed(0);if(Math.abs(v)>=1)return v.toFixed(2).replace(/0+$/,'').replace(/\.$/,'');return v.toFixed(2)}
+function drawSeries(ctx,pts,X,Y,color,connect=true){if(connect&&pts.length>1){ctx.strokeStyle=color;ctx.globalAlpha=.6;ctx.lineWidth=1.6;ctx.beginPath();pts.forEach((p,i)=>i?ctx.lineTo(X(p.x),Y(p.y)):ctx.moveTo(X(p.x),Y(p.y)));ctx.stroke();ctx.globalAlpha=1}pts.forEach(p=>{ctx.beginPath();ctx.fillStyle=color;ctx.arc(X(p.x),Y(p.y),4,0,Math.PI*2);ctx.fill();ctx.strokeStyle=color;ctx.globalAlpha=.28;ctx.beginPath();ctx.arc(X(p.x),Y(p.y),7,0,Math.PI*2);ctx.stroke();ctx.globalAlpha=1})}
+function drawSingleChart(){
+  const {ctx,w,h}=setupCanvas($('#singleChart')),g=groupBySelect('singleGroupSelect');
+  syncSingleModeUI();$('#singleLegendName').textContent=g?g.name:'当前数据组';
+  if(!g||!g.rows.length){
+    const a=axes(ctx,w,h,0,90,0,2,'入射角 i / °',state.singleMetric==='fit'?'sin i':'比值');
+    ctx.fillStyle='#58758a';ctx.textAlign='center';ctx.fillText('请先录入并选择一组数据',a.pad.l+a.iw/2,a.pad.t+a.ih/2);return;
+  }
+  const rows=g.rows;
+  if(state.singleMetric==='fit'){
+    $('#singleChartNote').textContent='先动态生成 sin r–sin i 散点，散点完成后再点击“拟合直线”。';
+    const xs=rows.map(r=>Math.sin(rad(r.r))),ys=rows.map(r=>Math.sin(rad(r.i))),xMax=Math.min(1.05,Math.max(.25,Math.max(...xs)*1.14)),yMax=Math.min(1.05,Math.max(.25,Math.max(...ys)*1.14));
+    const a=axes(ctx,w,h,0,xMax,0,yMax,'sin r','sin i');
+    const pts=rows.slice(0,state.singleVisible).map(r=>({x:Math.sin(rad(r.r)),y:Math.sin(rad(r.i))}));
+    drawSeries(ctx,pts,a.X,a.Y,'#48d8ff',false);
+    if(state.singleFitProgress>0){const s=fitStats(g);if(s){const endX=Math.min(xMax,yMax/s.k)*state.singleFitProgress;ctx.strokeStyle='#69e6b2';ctx.lineWidth=2;ctx.setLineDash([6,4]);ctx.beginPath();ctx.moveTo(a.X(0),a.Y(0));ctx.lineTo(a.X(endX),a.Y(s.k*endX));ctx.stroke();ctx.setLineDash([])}}
+    if(!state.singleVisible){ctx.fillStyle='#58758a';ctx.textAlign='center';ctx.fillText('点击“绘制正弦散点”开始',a.pad.l+a.iw/2,a.pad.t+a.ih/2)}
+    return;
+  }
+  $('#singleChartNote').textContent='四种比值共用同一坐标系；按角度比、cos 比、tan 比、sin 比逐步加入，最后观察 sin 比是否更稳定。';
+  const keys=['angle','cos','tan','sin'];
+  const vals=rows.flatMap(r=>keys.map(k=>r[k])).filter(Number.isFinite),xVals=rows.map(r=>r.i);
+  const [yMin,yMax]=niceRange(vals,false),xMin=Math.max(0,Math.min(...xVals)-5),xMax=Math.min(90,Math.max(...xVals)+5);
+  const a=axes(ctx,w,h,xMin,xMax,yMin,yMax,'入射角 i / °','比值');
+  const colors={angle:'#48d8ff',cos:'#ffd36b',sin:'#69e6b2',tan:'#b993ff'};
+  keys.forEach(k=>{
+    const pts=rows.slice(0,state.singleRatioVisible[k]).filter(r=>Number.isFinite(r[k])).map(r=>({x:r.i,y:r[k]}));
+    drawSeries(ctx,pts,a.X,a.Y,colors[k],true);
+  });
+  if(!state.singleRatioVisible.angle&&!state.singleRatioVisible.cos&&!state.singleRatioVisible.sin&&!state.singleRatioVisible.tan){ctx.fillStyle='#58758a';ctx.textAlign='center';ctx.fillText('请选择一种比值开始绘制',a.pad.l+a.iw/2,a.pad.t+a.ih/2)}
+}
+function resetCompareChart(){clearInterval(state.compareTimerA);clearInterval(state.compareTimerB);cancelAnimationFrame(state.compareRafA);cancelAnimationFrame(state.compareRafB);state.compareTimerA=state.compareTimerB=null;state.compareRafA=null;state.compareRafB=null;state.compareVisibleA=0;state.compareVisibleB=0;state.compareFitA=0;state.compareFitB=0;['drawA','drawB','fitA','fitB'].forEach(id=>$('#'+id).classList.remove('done','running'));$('#fitA').disabled=true;$('#fitB').disabled=true;$('#compareFitResults').style.display='none';$('#refractionLabAction').style.display='none';$('#slopeA').textContent='—';$('#slopeB').textContent='—';$('#slopeDiff').textContent='—';exitRefractionLab(false)}
+$('#compareSinTab').addEventListener('click',()=>{state.compareMode='sin';$('#compareSinTab').classList.add('active');$('#compareFitTab').classList.remove('active');$('#compareFitButtons').style.display='none';$('#compareModeName').textContent='sin 比';$('#compareChartTitle').textContent='两组数据 · sin 比比较';$('#compareActionText').textContent='先画第1组，再画第2组，观察两组 sin 比水平是否相同。';resetCompareChart();drawCompareChart()});
+$('#compareFitTab').addEventListener('click',()=>{state.compareMode='fit';$('#compareFitTab').classList.add('active');$('#compareSinTab').classList.remove('active');$('#compareFitButtons').style.display='flex';$('#compareModeName').textContent='正弦拟合';$('#compareChartTitle').textContent='两组数据 · 正弦拟合比较';$('#compareActionText').textContent='先后绘制两组 sin r–sin i 散点，再分别生成拟合直线。';resetCompareChart();drawCompareChart()});
+function animateGroup(which){
+  const g=groupBySelect(which==='A'?'compareA':'compareB');if(!g||!g.rows.length){toast('请选择有效的数据组');return}
+  const key=which==='A'?'compareVisibleA':'compareVisibleB',timerKey=which==='A'?'compareTimerA':'compareTimerB';
+  const fitKey=which==='A'?'compareFitA':'compareFitB',fitBtn=which==='A'?'#fitA':'#fitB',rafKey=which==='A'?'compareRafA':'compareRafB';
+  const drawBtn=$(which==='A'?'#drawA':'#drawB'),fbtn=$(fitBtn);
+  // 正在逐点绘制时再次点击：立即补齐。
+  if(state[timerKey]){
+    clearInterval(state[timerKey]);state[timerKey]=null;state[key]=g.rows.length;
+    drawBtn.classList.remove('running');drawBtn.classList.add('done');drawCompareChart();
+    if(state.compareMode==='fit')fbtn.disabled=false;return;
+  }
+  // 已完整显示再次点击：只清空这一组，并撤销这一组已有拟合；不自动重播。
+  if(state[key]>=g.rows.length && g.rows.length){
+    cancelAnimationFrame(state[rafKey]);state[rafKey]=null;state[fitKey]=0;state[key]=0;
+    drawBtn.classList.remove('done','running');fbtn.classList.remove('done','running');
+    if(state.compareMode==='fit')fbtn.disabled=true;
+    updateCompareFitResults();drawCompareChart();return;
+  }
+  // 透明待执行态：正常逐点动态绘图。
+  cancelAnimationFrame(state[rafKey]);state[rafKey]=null;state[fitKey]=0;state[key]=0;
+  drawBtn.classList.remove('done');drawBtn.classList.add('running');fbtn.classList.remove('done','running');
+  if(state.compareMode==='fit')fbtn.disabled=true;
+  updateCompareFitResults();drawCompareChart();
+  state[timerKey]=setInterval(()=>{
+    state[key]++;drawCompareChart();
+    if(state[key]>=g.rows.length){
+      clearInterval(state[timerKey]);state[timerKey]=null;drawBtn.classList.remove('running');drawBtn.classList.add('done');
+      if(state.compareMode==='fit')fbtn.disabled=false;
+    }
+  },190)
+}
+$('#drawA').addEventListener('click',()=>animateGroup('A'));$('#drawB').addEventListener('click',()=>animateGroup('B'));$('#fitA').addEventListener('click',()=>{const g=groupBySelect('compareA');if(g&&state.compareVisibleA>=g.rows.length)fitCycle('A',g)});$('#fitB').addEventListener('click',()=>{const g=groupBySelect('compareB');if(g&&state.compareVisibleB>=g.rows.length)fitCycle('B',g)});
+function updateCompareFitResults(){const a=fitStats(groupBySelect('compareA')),b=fitStats(groupBySelect('compareB')),any=state.compareFitA>=1||state.compareFitB>=1;$('#compareFitResults').style.display=any?'grid':'none';$('#slopeA').textContent=state.compareFitA>=1&&a?a.k.toFixed(5):'—';$('#slopeB').textContent=state.compareFitB>=1&&b?b.k.toFixed(5):'—';$('#slopeDiff').textContent=state.compareFitA>=1&&state.compareFitB>=1&&a&&b?Math.abs(a.k-b.k).toFixed(5):'—';const ready=state.compareMode==='fit'&&state.compareFitA>=1&&state.compareFitB>=1&&a&&b;$('#refractionLabAction').style.display=ready?'flex':'none';if(state.labActive&&ready)updateRefractionLab()}
+
+function degFromRad(v){return v*180/Math.PI}
+function refractedAngleFromN(iDeg,n){
+  if(!Number.isFinite(n)||n<=0)return NaN;
+  const q=Math.sin(rad(iDeg))/n;
+  if(q<-1||q>1)return NaN;
+  return degFromRad(Math.asin(q));
+}
+function exitRefractionLab(redraw=true){
+  stopLabAuto();
+  state.labActive=false;
+  const view=$('#view3');
+  const layout=$('#view3 .analysis-layout');
+  if(view)view.classList.remove('lab-active');
+  // 数字实验台使用的是临时分栏变量；返回比较时必须完全撤销，恢复原来的 32:68 页面比例。
+  if(layout){
+    layout.style.removeProperty('--lab-left');
+    layout.style.removeProperty('--lab-right');
+    layout.style.removeProperty('grid-template-columns');
+  }
+  if(redraw&&state.step===3){
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      drawCompareChart();
+    }));
+  }
+}
+function enterRefractionLab(){
+  stopLabAuto();
+  const ga=groupBySelect('compareA'),gb=groupBySelect('compareB'),sa=fitStats(ga),sb=fitStats(gb);
+  if(state.compareMode!=='fit'||state.compareFitA<1||state.compareFitB<1||!sa||!sb){toast('请先完成两组正弦拟合');return}
+  state.labActive=true;
+  state.labAutoStep=Number($('#labAutoStepSelect').value)||5;
+  syncLabAutoButton();
+  const layout=$('#view3 .analysis-layout');
+  if(layout){layout.style.removeProperty('--lab-left');layout.style.removeProperty('--lab-right');}
+  $('#view3').classList.add('lab-active');
+  // 每次进入先按当前容器宽度重新建立实验台分栏，避免继承返回前的异常尺寸。
+  state.labSplit=.60;
+  requestAnimationFrame(()=>applyLabSplit());
+  $('#compareChartNote').textContent='右侧保留两组正弦拟合结果；左侧将两种介质的折射光叠加在同一张光路图中直接比较。';
+  setTimeout(()=>{updateRefractionLab();drawCompareChart()},30);
+}
+function updateRefractionLab(){
+  const ga=groupBySelect('compareA'),gb=groupBySelect('compareB'),sa=fitStats(ga),sb=fitStats(gb);
+  if(!ga||!gb||!sa||!sb)return;
+  const i=state.labAngle,rA=refractedAngleFromN(i,sa.k),rB=refractedAngleFromN(i,sb.k);
+  $('#labAngleSlider').value=String(i);$('#labAngleValue').textContent=i.toFixed(1)+'°';
+  $('#labNameA').textContent=ga.name;$('#labNameB').textContent=gb.name;
+  $('#labNA').textContent='n = '+sa.k.toFixed(4);$('#labNB').textContent='n = '+sb.k.toFixed(4);
+  $('#labRA').textContent='r = '+(Number.isFinite(rA)?rA.toFixed(1)+'°':'无实数解');
+  $('#labRB').textContent='r = '+(Number.isFinite(rB)?rB.toFixed(1)+'°':'无实数解');
+  let note='同角入射，直接比较 r₁ 与 r₂。';
+  if(Number.isFinite(rA)&&Number.isFinite(rB)&&Math.abs(sa.k-sb.k)>1e-6){
+    const larger=sa.k>sb.k?ga.name:gb.name;
+    note=`${larger}：n 较大，r 较小，更靠近法线。`;
+  }
+  $('#labPhysicsNote').innerHTML='<b>观察：</b>'+escapeHtml(note);
+  drawRefractionLab();
+}
+function drawRefractionLab(){
+  const canvas=$('#refractionLabCanvas');if(!canvas||!state.labActive)return;
+  const ga=groupBySelect('compareA'),gb=groupBySelect('compareB'),sa=fitStats(ga),sb=fitStats(gb);if(!ga||!gb||!sa||!sb)return;
+  const {ctx,w,h}=setupCanvas(canvas);ctx.clearRect(0,0,w,h);
+  const i=state.labAngle,rA=refractedAngleFromN(i,sa.k),rB=refractedAngleFromN(i,sb.k);
+  const colorA='#48d8ff',colorB='#ffd36b';
+  const pad=Math.max(16,Math.min(26,w*.04));
+  const x=pad,y=pad,pw=w-pad*2,ph=h-pad*2;
+  ctx.fillStyle='rgba(255,255,255,.018)';ctx.strokeStyle='rgba(126,181,218,.12)';ctx.lineWidth=1;roundRectPath(ctx,x,y,pw,ph,12);ctx.fill();ctx.stroke();
+
+  const cx=x+pw*.50,interfaceY=y+ph*.45;
+  const Linc=Math.min(pw*.30,ph*.34),Lrefr=Math.min(pw*.34,ph*.35);
+  // lower half is a conceptual overlay area rather than one physical medium
+  const grad=ctx.createLinearGradient(0,interfaceY,0,y+ph);
+  grad.addColorStop(0,'rgba(72,216,255,.050)');grad.addColorStop(1,'rgba(255,211,107,.028)');
+  ctx.fillStyle=grad;ctx.fillRect(x+1,interfaceY,pw-2,y+ph-interfaceY-1);
+
+  // title/legend inside the canvas
+  ctx.font='600 14px Microsoft YaHei';ctx.textAlign='left';ctx.fillStyle='#dceff8';
+  ctx.fillText('同一入射角 · 双介质折射光叠加比较',x+14,y+20);
+  const legendY=y+39;
+  ctx.strokeStyle=colorA;ctx.lineWidth=3;ctx.setLineDash([]);ctx.beginPath();ctx.moveTo(x+14,legendY);ctx.lineTo(x+36,legendY);ctx.stroke();
+  ctx.fillStyle=colorA;ctx.font='12px Microsoft YaHei';ctx.fillText(`${ga.name}  n₁=${sa.k.toFixed(4)}`,x+42,legendY+3);
+  const legendBX=Math.min(x+pw*.52,x+pw-180);
+  ctx.strokeStyle=colorB;ctx.lineWidth=3;ctx.setLineDash([6,4]);ctx.beginPath();ctx.moveTo(legendBX,legendY);ctx.lineTo(legendBX+22,legendY);ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle=colorB;ctx.font='12px Microsoft YaHei';ctx.fillText(`${gb.name}  n₂=${sb.k.toFixed(4)}`,legendBX+28,legendY+3);
+
+  // interface and normal
+  ctx.strokeStyle='rgba(183,221,241,.42)';ctx.lineWidth=1.3;ctx.beginPath();ctx.moveTo(x+18,interfaceY);ctx.lineTo(x+pw-18,interfaceY);ctx.stroke();
+  ctx.setLineDash([6,6]);ctx.strokeStyle='rgba(151,191,213,.40)';ctx.beginPath();ctx.moveTo(cx,y+56);ctx.lineTo(cx,y+ph-26);ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle='#91adbe';ctx.font='11px Microsoft YaHei';ctx.textAlign='left';ctx.fillText('空气',x+22,interfaceY-9);ctx.fillText('两种介质叠加示意',x+22,interfaceY+16);
+  ctx.textAlign='center';ctx.fillText('法线',cx+22,y+68);
+
+  // one common incident ray
+  const sx=cx-Math.sin(rad(i))*Linc,sy=interfaceY-Math.cos(rad(i))*Linc;
+  ctx.strokeStyle='#d6f5ff';ctx.lineWidth=2.6;ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(cx,interfaceY);ctx.stroke();
+  ctx.globalAlpha=.13;ctx.lineWidth=8;ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(cx,interfaceY);ctx.stroke();ctx.globalAlpha=1;
+  ctx.fillStyle='#ecfdff';ctx.beginPath();ctx.arc(sx,sy,3.3,0,Math.PI*2);ctx.fill();
+
+  // incident angle arc
+  ctx.lineWidth=1.5;ctx.strokeStyle='rgba(239,246,251,.72)';ctx.beginPath();ctx.arc(cx,interfaceY,34,-Math.PI/2-rad(i),-Math.PI/2);ctx.stroke();
+  ctx.fillStyle='#e5f4fa';ctx.font='12px Microsoft YaHei';ctx.textAlign='right';ctx.fillText('i = '+i.toFixed(1)+'°',cx-9,interfaceY-40);
+
+  const drawRefracted=(r,color,dash,label,nValue,arcRadius,labelRadius)=>{
+    if(!Number.isFinite(r))return false;
+    const ex=cx+Math.sin(rad(r))*Lrefr,ey=interfaceY+Math.cos(rad(r))*Lrefr;
+    ctx.save();ctx.strokeStyle=color;ctx.lineWidth=3;ctx.setLineDash(dash);ctx.beginPath();ctx.moveTo(cx,interfaceY);ctx.lineTo(ex,ey);ctx.stroke();
+    ctx.globalAlpha=.15;ctx.lineWidth=8;ctx.setLineDash([]);ctx.beginPath();ctx.moveTo(cx,interfaceY);ctx.lineTo(ex,ey);ctx.stroke();ctx.restore();
+    // angle arc, concentric but at different radius so both remain visible
+    ctx.strokeStyle=color;ctx.lineWidth=1.6;ctx.setLineDash(dash);ctx.beginPath();ctx.arc(cx,interfaceY,arcRadius,Math.PI/2-rad(r),Math.PI/2);ctx.stroke();ctx.setLineDash([]);
+    const a=Math.PI/2-rad(r)*.55;
+    ctx.fillStyle=color;ctx.font='600 14px Microsoft YaHei';ctx.textAlign='left';
+    ctx.fillText(`${label} = ${r.toFixed(1)}°`,cx+Math.cos(a)*labelRadius+6,interfaceY+Math.sin(a)*labelRadius+3);
+    // endpoint label
+    const tx=ex+10,ty=ey+(label==='r₁'?-6:13);
+    ctx.font='11px Microsoft YaHei';ctx.fillStyle=color;ctx.textAlign='left';ctx.fillText(`${label.replace('r','n')}=${nValue.toFixed(4)}`,tx,ty);
+    return true;
+  };
+  const okA=drawRefracted(rA,colorA,[],'r₁',sa.k,34,51);
+  const okB=drawRefracted(rB,colorB,[7,5],'r₂',sb.k,48,67);
+
+  // incident point O
+  ctx.fillStyle='#effdff';ctx.beginPath();ctx.arc(cx,interfaceY,4,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle='rgba(72,216,255,.35)';ctx.lineWidth=1;ctx.beginPath();ctx.arc(cx,interfaceY,10,0,Math.PI*2);ctx.stroke();
+  ctx.fillStyle='#101820';ctx.font='italic 14px Times New Roman';ctx.textAlign='left';ctx.fillText('O',cx+8,interfaceY-7);
+
+  if(okA&&okB){
+    const diff=Math.abs(rA-rB);
+    ctx.fillStyle='rgba(4,18,30,.72)';ctx.strokeStyle='rgba(132,188,220,.18)';ctx.lineWidth=1;
+    const bw=Math.min(270,pw*.48),bh=48,bx=x+pw-bw-14,by=y+ph-bh-14;roundRectPath(ctx,bx,by,bw,bh,9);ctx.fill();ctx.stroke();
+    ctx.fillStyle='#9fb7c7';ctx.font='11px Microsoft YaHei';ctx.textAlign='left';ctx.fillText('折射角差',bx+12,by+17);
+    ctx.fillStyle='#effcff';ctx.font='600 16px Microsoft YaHei';ctx.fillText(`Δr = ${diff.toFixed(1)}°`,bx+12,by+37);
+    ctx.fillStyle='#8da8b9';ctx.font='10px Microsoft YaHei';ctx.textAlign='right';ctx.fillText('两条光线共用同一入射光',bx+bw-12,by+35);
+  }else{
+    ctx.fillStyle='#ff9ca2';ctx.font='10px Microsoft YaHei';ctx.textAlign='center';ctx.fillText('当前拟合折射率下存在无法计算的折射角',cx,y+ph-24);
+  }
+}
+function roundRectPath(ctx,x,y,w,h,r){const rr=Math.min(r,w/2,h/2);ctx.beginPath();ctx.moveTo(x+rr,y);ctx.arcTo(x+w,y,x+w,y+h,rr);ctx.arcTo(x+w,y+h,x,y+h,rr);ctx.arcTo(x,y+h,x,y,rr);ctx.arcTo(x,y,x+w,y,rr);ctx.closePath()}
+$('#showRefractionLabBtn').addEventListener('click',enterRefractionLab);
+$('#exitRefractionLabBtn').addEventListener('click',()=>exitRefractionLab(true));
+function syncLabAutoButton(){const b=$('#labAutoBtn');if(!b)return;const running=!!state.labAutoTimer;b.textContent=running?'Ⅱ 暂停':'▶ 自动';b.classList.toggle('running',running);b.setAttribute('aria-pressed',running?'true':'false')}
+function stopLabAuto(){if(state.labAutoTimer){clearInterval(state.labAutoTimer);state.labAutoTimer=null}syncLabAutoButton()}
+function tickLabAuto(){
+  let next=state.labAngle+state.labAutoDirection*state.labAutoStep;
+  if(next>=80){next=80;state.labAutoDirection=-1}else if(next<=5){next=5;state.labAutoDirection=1}
+  state.labAngle=Number(next.toFixed(2));updateRefractionLab();
+}
+function toggleLabAuto(){
+  if(state.labAutoTimer){stopLabAuto();return}
+  state.labAutoStep=Number($('#labAutoStepSelect').value)||5;
+  state.labAutoDirection=state.labAngle>=80?-1:(state.labAngle<=5?1:state.labAutoDirection||1);
+  state.labAutoTimer=setInterval(tickLabAuto,300);syncLabAutoButton();tickLabAuto();
+}
+$('#labAngleSlider').addEventListener('input',e=>{stopLabAuto();state.labAngle=clamp(Number(e.target.value)||45,5,80);updateRefractionLab()});
+$('#labAutoStepSelect').addEventListener('change',e=>{state.labAutoStep=Number(e.target.value)||5});
+$('#labAutoBtn').addEventListener('click',toggleLabAuto);
+
+function applyLabSplit(){
+  const layout=$('#view3 .analysis-layout');
+  if(!layout||!state.labActive||window.innerWidth<=1050)return;
+  const splitter=$('#labSplitter');
+  const rect=layout.getBoundingClientRect();
+  const gap=8,splitW=splitter?splitter.getBoundingClientRect().width||9:9;
+  const usable=Math.max(0,rect.width-splitW-gap*2);
+  if(usable<=0)return;
+  const minLeft=Math.min(430,usable*.55),minRight=Math.min(360,usable*.42);
+  let left=usable*clamp(state.labSplit,.38,.76);
+  left=clamp(left,minLeft,Math.max(minLeft,usable-minRight));
+  const right=Math.max(minRight,usable-left);
+  state.labSplit=left/usable;
+  layout.style.setProperty('--lab-left',left.toFixed(1)+'px');
+  layout.style.setProperty('--lab-right',right.toFixed(1)+'px');
+}
+function resetLabSplit(){state.labSplit=.60;applyLabSplit();setTimeout(()=>{drawRefractionLab();drawCompareChart()},20)}
+const labSplitter=$('#labSplitter');
+if(labSplitter){
+  let dragging=false;
+  const move=e=>{
+    if(!dragging||!state.labActive||window.innerWidth<=1050)return;
+    const layout=$('#view3 .analysis-layout'),rect=layout.getBoundingClientRect();
+    const splitW=labSplitter.getBoundingClientRect().width||9,gap=8,usable=Math.max(1,rect.width-splitW-gap*2);
+    const x=e.clientX-rect.left;
+    state.labSplit=clamp((x-gap)/usable,.38,.76);
+    applyLabSplit();drawRefractionLab();drawCompareChart();
+  };
+  const stop=e=>{if(!dragging)return;dragging=false;labSplitter.classList.remove('dragging');try{labSplitter.releasePointerCapture(e.pointerId)}catch(_){}};
+  labSplitter.addEventListener('pointerdown',e=>{if(!state.labActive||window.innerWidth<=1050)return;dragging=true;labSplitter.classList.add('dragging');labSplitter.setPointerCapture(e.pointerId);e.preventDefault()});
+  labSplitter.addEventListener('pointermove',move);labSplitter.addEventListener('pointerup',stop);labSplitter.addEventListener('pointercancel',stop);
+  labSplitter.addEventListener('dblclick',resetLabSplit);
+  labSplitter.addEventListener('keydown',e=>{if(!state.labActive)return;if(e.key==='Home'){resetLabSplit();e.preventDefault();return}if(e.key==='ArrowLeft'||e.key==='ArrowRight'){state.labSplit=clamp(state.labSplit+(e.key==='ArrowRight'?.03:-.03),.38,.76);applyLabSplit();drawRefractionLab();drawCompareChart();e.preventDefault()}});
+}
+
+function drawCompareChart(){
+  const {ctx,w,h}=setupCanvas($('#compareChart')),ga=groupBySelect('compareA'),gb=groupBySelect('compareB');updateCompareSummary();if(!ga&&!gb){const a=axes(ctx,w,h,0,90,0,2,'入射角 i / °','sin i / sin r');ctx.fillStyle='#58758a';ctx.textAlign='center';ctx.fillText('请先录入至少两组数据',a.pad.l+a.iw/2,a.pad.t+a.ih/2);return}
+  const rows=[...(ga?ga.rows:[]),...(gb?gb.rows:[])];
+  if(state.compareMode==='sin'){
+    const vals=rows.map(r=>r.sin).filter(Number.isFinite),xs=rows.map(r=>r.i),[yMin,yMax]=niceRange(vals,false),xMin=Math.max(0,Math.min(...xs)-5),xMax=Math.min(90,Math.max(...xs)+5);const a=axes(ctx,w,h,xMin,xMax,yMin,yMax,'入射角 i / °','sin i / sin r');if(ga)drawSeries(ctx,ga.rows.slice(0,state.compareVisibleA).map(r=>({x:r.i,y:r.sin})),a.X,a.Y,'#48d8ff',true);if(gb)drawSeries(ctx,gb.rows.slice(0,state.compareVisibleB).map(r=>({x:r.i,y:r.sin})),a.X,a.Y,'#ffd36b',true);if(!state.compareVisibleA&&!state.compareVisibleB){ctx.fillStyle='#58758a';ctx.textAlign='center';ctx.fillText('先绘制第1组，再绘制第2组',a.pad.l+a.iw/2,a.pad.t+a.ih/2)}
+  }else{
+    const xs=rows.map(r=>Math.sin(rad(r.r))),ys=rows.map(r=>Math.sin(rad(r.i))),xMax=Math.min(1.05,Math.max(.25,Math.max(...xs)*1.14)),yMax=Math.min(1.05,Math.max(.25,Math.max(...ys)*1.14));const a=axes(ctx,w,h,0,xMax,0,yMax,'sin r','sin i');if(ga){drawSeries(ctx,ga.rows.slice(0,state.compareVisibleA).map(r=>({x:Math.sin(rad(r.r)),y:Math.sin(rad(r.i))})),a.X,a.Y,'#48d8ff',false);if(state.compareFitA>0){const s=fitStats(ga);if(s){const endX=Math.min(xMax,yMax/s.k)*state.compareFitA;ctx.strokeStyle='#48d8ff';ctx.lineWidth=2;ctx.setLineDash([6,4]);ctx.beginPath();ctx.moveTo(a.X(0),a.Y(0));ctx.lineTo(a.X(endX),a.Y(s.k*endX));ctx.stroke();ctx.setLineDash([])}}}if(gb){drawSeries(ctx,gb.rows.slice(0,state.compareVisibleB).map(r=>({x:Math.sin(rad(r.r)),y:Math.sin(rad(r.i))})),a.X,a.Y,'#ffd36b',false);if(state.compareFitB>0){const s=fitStats(gb);if(s){const endX=Math.min(xMax,yMax/s.k)*state.compareFitB;ctx.strokeStyle='#ffd36b';ctx.lineWidth=2;ctx.setLineDash([6,4]);ctx.beginPath();ctx.moveTo(a.X(0),a.Y(0));ctx.lineTo(a.X(endX),a.Y(s.k*endX));ctx.stroke();ctx.setLineDash([])}}}if(!state.compareVisibleA&&!state.compareVisibleB){ctx.fillStyle='#58758a';ctx.textAlign='center';ctx.fillText('分步绘制两组正弦散点',a.pad.l+a.iw/2,a.pad.t+a.ih/2)}
+  }
+}
+window.addEventListener('resize',()=>{if(state.step===2)drawSingleChart();if(state.step===3){if(state.labActive)applyLabSplit();drawCompareChart();if(state.labActive)drawRefractionLab()}});
+renderAllInput();refreshSelectors();initCloudIntegration();setStep(1);
+})();
+</script>
+</body>
+</html>
