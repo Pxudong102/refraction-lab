@@ -41,11 +41,11 @@
   async function submit(){
     if(!configured){show('网站尚未连接 Supabase，请教师先完成 config.js 配置。','err');return;}
     const class_name=$('#className').value.trim(), group_name=$('#groupName').value.trim(), student_code=$('#studentCode').value.trim(), medium=$('#medium').value.trim(), note=$('#note').value.trim();
-    if(!class_name||!group_name||!medium){show('请填写班级、组别和介质。','err');return;}
+    if(!class_name||!group_name){show('请填写班级和组别。','err');return;}
     let measurements; try{measurements=collectRows();}catch(e){show(e.message,'err');return;}
     if(measurements.length<2){show('请至少录入 2 组有效测量数据。','err');return;}
     const btn=$('#submitBtn'); btn.disabled=true; btn.textContent='正在提交…';
-    const {error}=await db.from('submissions').insert({class_name,group_name,student_code:student_code||null,medium,note:note||null,measurements});
+    const {error}=await db.from('submissions').insert({class_name,group_name,student_code:student_code||null,medium:medium||null,note:note||null,measurements});
     btn.disabled=false; btn.textContent='提交本组实验数据';
     if(error){show(`提交失败：${error.message}`,'err');return;}
     show(`提交成功：${measurements.length} 个数据点。可以关闭页面或继续修改后再次提交。`,'ok');
