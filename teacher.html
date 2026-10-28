@@ -18,19 +18,20 @@
       <div class="metric"><span>提交记录</span><b id="submissionCount">0</b></div>
       <div class="metric"><span>实验组数</span><b id="groupCount">0</b></div>
       <div class="metric"><span>数据点数</span><b id="pointCount">0</b></div>
-      <div class="metric"><span>介质种类</span><b id="mediumCount">0</b></div>
+      <div class="metric"><span>班级数量</span><b id="classCount">0</b></div>
     </div>
     <section class="card main">
       <div class="filters">
         <input class="input" id="filterClass" placeholder="筛选班级">
         <input class="input" id="filterGroup" placeholder="筛选组别">
-        <input class="input" id="filterMedium" placeholder="筛选介质">
+        <input class="input" id="filterMedium" placeholder="筛选介质（可选）">
         <button class="btn" id="refreshBtn">刷新</button>
       </div>
       <div class="row" style="margin-bottom:10px">
         <button class="btn good" id="analysisCsvBtn">下载分析平台 CSV</button>
         <button class="btn" id="detailCsvBtn">下载详细 CSV</button>
       </div>
+      <div class="hint download-hint">建议先筛选班级再下载：CSV 文件名会自动带上班级名称，分析平台中的“数据组”仅使用组别名。</div>
       <div class="table-wrap"><table class="teacher-table"><thead><tr><th>时间</th><th>班级</th><th>组别</th><th>学生</th><th>介质</th><th>i, r 数据</th><th>备注</th><th></th></tr></thead><tbody id="teacherBody"></tbody></table></div>
       <div class="status" id="dashStatus"></div>
     </section>
