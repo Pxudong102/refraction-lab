@@ -40,19 +40,35 @@ header{height:68px;display:flex;align-items:center;justify-content:space-between
 /* module 1 */
 .input-grid{display:grid;grid-template-columns:minmax(310px,.78fr) minmax(520px,1.22fr);gap:12px;height:100%;min-height:0}.group-list{display:flex;flex-direction:column;min-height:0}.group-tools{padding:10px;display:flex;gap:7px;flex-wrap:wrap}.groups{padding:0 10px 10px;display:grid;gap:7px;overflow:auto}.group-item{padding:10px;border:1px solid rgba(255,255,255,.06);border-radius:10px;background:rgba(255,255,255,.02);cursor:pointer;transition:.16s}.group-item.active{border-color:rgba(72,216,255,.32);background:rgba(72,216,255,.065)}.group-item-top{display:flex;justify-content:space-between;gap:8px;align-items:center}.group-item b{font-size:11px}.group-item span{font-size:9px;color:var(--muted)}.group-meta{font-size:9px;color:#7897ab;margin-top:5px}.editor{display:grid;grid-template-rows:auto auto 1fr;min-height:0}.editor-toolbar{padding:10px 12px;display:grid;grid-template-columns:minmax(180px,1fr) auto;gap:8px;align-items:center}.sample-entry{padding:0 12px 10px;display:grid;grid-template-columns:1fr 1fr auto;gap:8px}.sample-entry label{font-size:9px;color:var(--muted);display:grid;gap:4px}.sample-table-wrap{min-height:0;overflow:auto;padding:0 12px 12px}.data-table{width:100%;border-collapse:collapse;font-size:10px;font-variant-numeric:tabular-nums}.data-table th{position:sticky;top:0;background:#0c1e31;color:#83a5bc;font-weight:500;padding:8px 6px;border-bottom:1px solid rgba(135,183,218,.14);text-align:right}.data-table th:first-child,.data-table td:first-child{text-align:center}.data-table td{padding:7px 6px;text-align:right;color:#b9cedc;border-bottom:1px solid rgba(255,255,255,.04)}.row-delete{border:0;background:transparent;color:#ff9ba1;cursor:pointer;font-size:11px}.empty{padding:32px 12px;text-align:center;color:#5f7d91;font-size:10px}
 .csv-hint{margin:0 12px 10px;padding:8px 10px;border:1px solid rgba(72,216,255,.14);border-radius:9px;background:rgba(72,216,255,.035);display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:9px;color:#7899ad;line-height:1.55}.csv-hint b{color:#bfefff;font-weight:600}.csv-hint code{font-family:Consolas,monospace;color:#9fd5e7;font-size:8.5px}.import-status{white-space:nowrap;color:#79d9b7;font-size:9px}
-/* module 2 + 3 */
+/* modules 2–4 */
 .analysis-layout{display:grid;grid-template-columns:minmax(230px,.32fr) minmax(560px,.68fr);gap:12px;height:100%;min-height:0}.control-stack{display:grid;gap:10px;align-content:start}.control-card{padding:11px}.control-card h4{font-size:11px;margin:0 0 8px}.control-card p{font-size:9.5px;line-height:1.6;color:var(--muted);margin:0 0 9px}.metric-tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px}.metric-tab{height:34px;border-radius:9px;border:1px solid rgba(137,185,220,.13);background:rgba(255,255,255,.02);font-size:10px;color:#9ab5c7;cursor:pointer}.metric-tab.active{border-color:rgba(72,216,255,.35);background:rgba(72,216,255,.09);color:#dff9ff}.chart-card{display:grid;grid-template-rows:auto minmax(0,1fr) auto;min-height:0}.chart-toolbar{display:flex;gap:7px;align-items:center;flex-wrap:wrap}.chart-wrap{position:relative;min-height:0;margin:10px 12px;border:1px solid rgba(255,255,255,.05);border-radius:11px;background:#081727;overflow:hidden}.chart-wrap canvas{width:100%;height:100%;display:block}.chart-note{margin-top:2px;padding:9px 13px 11px;border-top:1px solid rgba(127,178,214,.08);font-size:9.5px;color:#7796aa;line-height:1.55}.result-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:8px}.result-chip{padding:8px;border-radius:9px;background:rgba(255,255,255,.026);border:1px solid rgba(255,255,255,.05)}.result-chip span{display:block;font-size:8px;color:#7692a6}.result-chip b{display:block;margin-top:3px;font-size:12px;color:#e9fbff}.result-chip.em b{color:var(--green)}.ratio-draw-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}.ratio-draw-grid .action{width:100%}.ratio-draw-grid .action.done{border-color:rgba(105,230,178,.42);background:rgba(105,230,178,.08);color:#b8f4dc}@media(max-width:760px){.ratio-draw-grid{grid-template-columns:1fr}}
 
-/* module 3 · 拟合结果回到光路：数字折射实验台（只做结果可视化，不替代真实实验） */
+
+/* module 3 · 六组四比值同屏比较 */
+.six-view-shell{height:100%;min-height:0;display:grid;grid-template-rows:auto minmax(0,1fr);gap:8px}
+.six-toolbar{min-height:44px;padding:8px 11px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.six-toolbar-left{display:flex;align-items:center;gap:9px;min-width:0}.six-toolbar-left strong{font-size:12px}.six-toolbar-left span{font-size:9px;color:var(--muted)}
+.six-toolbar-right{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.six-toolbar .legend{flex-wrap:wrap}
+.six-grid{min-height:0;height:100%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));gap:8px}
+.six-chart-card{min-width:0;min-height:0;display:grid;grid-template-rows:38px minmax(0,1fr);overflow:hidden}
+.six-card-head{padding:5px 8px;border-bottom:1px solid rgba(137,185,220,.11);display:grid;grid-template-columns:auto minmax(0,1fr);gap:7px;align-items:center}
+.six-card-head b{font-size:10px;color:#9cb7c9;white-space:nowrap}.six-card-head .select{width:100%;height:27px;padding:0 7px;font-size:9px}
+.six-canvas-wrap{position:relative;min-height:0;margin:5px;border:1px solid rgba(255,255,255,.05);border-radius:9px;background:#081727;overflow:hidden}
+.six-canvas-wrap canvas{width:100%;height:100%;display:block}
+.six-count{white-space:nowrap}
+@media(max-width:1050px){.six-view-shell{height:auto}.six-grid{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:none;grid-auto-rows:300px}.six-chart-card{min-height:300px}}
+@media(max-width:700px){.six-grid{grid-template-columns:1fr;grid-auto-rows:300px}.six-toolbar{align-items:flex-start}.six-toolbar-right{align-items:flex-start}}
+
+/* module 4 · 拟合结果回到光路：数字折射实验台（只做结果可视化，不替代真实实验） */
 #refractionLabCard{display:none;min-height:0;height:100%;overflow:hidden;flex-direction:column}
-#view3.lab-active .compare-control-card{display:none}
-#view3.lab-active .control-stack{height:100%;min-height:0;align-content:stretch;grid-template-rows:minmax(0,1fr)}
-#view3.lab-active .chart-card{height:100%;min-height:0}
-#view3.lab-active #refractionLabCard{display:flex}
-#view3.lab-active .analysis-layout{grid-template-columns:minmax(430px,var(--lab-left,1.55fr)) 9px minmax(360px,var(--lab-right,1fr));gap:8px}
-#view3 .lab-splitter{display:none}
-#view3.lab-active .lab-splitter{display:block;align-self:stretch;min-height:0;border-radius:9px;cursor:col-resize;position:relative;background:rgba(72,216,255,.045);border:1px solid rgba(120,188,229,.12);touch-action:none;user-select:none;transition:background .18s,border-color .18s}
-#view3.lab-active .lab-splitter:hover,#view3.lab-active .lab-splitter.dragging{background:rgba(72,216,255,.13);border-color:rgba(72,216,255,.40)}
+#view4.lab-active .compare-control-card{display:none}
+#view4.lab-active .control-stack{height:100%;min-height:0;align-content:stretch;grid-template-rows:minmax(0,1fr)}
+#view4.lab-active .chart-card{height:100%;min-height:0}
+#view4.lab-active #refractionLabCard{display:flex}
+#view4.lab-active .analysis-layout{grid-template-columns:minmax(430px,var(--lab-left,1.55fr)) 9px minmax(360px,var(--lab-right,1fr));gap:8px}
+#view4 .lab-splitter{display:none}
+#view4.lab-active .lab-splitter{display:block;align-self:stretch;min-height:0;border-radius:9px;cursor:col-resize;position:relative;background:rgba(72,216,255,.045);border:1px solid rgba(120,188,229,.12);touch-action:none;user-select:none;transition:background .18s,border-color .18s}
+#view4.lab-active .lab-splitter:hover,#view4.lab-active .lab-splitter.dragging{background:rgba(72,216,255,.13);border-color:rgba(72,216,255,.40)}
 .lab-splitter span{position:absolute;left:50%;width:3px;height:3px;border-radius:50%;background:#78a9c2;transform:translate(-50%,-50%)}
 .lab-splitter span:nth-child(1){top:47%}.lab-splitter span:nth-child(2){top:50%}.lab-splitter span:nth-child(3){top:53%}
 .refraction-lab-body{padding:10px 12px;display:grid;grid-template-rows:auto minmax(190px,1fr) auto auto;flex:1;min-height:0;gap:7px;overflow:hidden}
@@ -64,8 +80,8 @@ header{height:68px;display:flex;align-items:center;justify-content:space-between
 .lab-result-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.lab-result-card{padding:11px;border-radius:9px;border:1px solid rgba(255,255,255,.055);background:rgba(255,255,255,.024);min-width:0}.lab-result-card .name{font-size:10.5px;color:#9fb7c7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.lab-result-card .vals{display:flex;gap:12px;align-items:baseline;flex-wrap:wrap;margin-top:5px}.lab-result-card .vals b{font-size:16px;color:#eefcff;font-variant-numeric:tabular-nums}.lab-result-card .vals span{font-size:11.5px;color:#91aabc}.lab-result-card.a{border-color:rgba(72,216,255,.18)}.lab-result-card.b{border-color:rgba(255,211,107,.18)}
 .lab-physics-note{font-size:10.5px;line-height:1.6;color:#91aabd;padding:1px 2px}.lab-physics-note b{color:#d2f2fa;font-weight:600}
 #refractionLabAction .action{flex:1;display:flex;justify-content:center;align-items:center}
-@media(max-width:1180px){#view3.lab-active .analysis-layout{grid-template-columns:minmax(390px,var(--lab-left,1.45fr)) 8px minmax(330px,var(--lab-right,1fr))}}
-@media(max-width:1050px){html,body{height:auto;min-height:100%;overflow:auto}.app{height:auto;min-height:100vh;overflow:visible}.main,.workspace,.view{overflow:visible}.view.active{height:auto}#view3.lab-active .analysis-layout{grid-template-columns:1fr;gap:12px;height:auto}#view3.lab-active .lab-splitter{display:none}#refractionLabCard{height:auto;min-height:620px}.refraction-canvas-wrap{min-height:360px}}
+@media(max-width:1180px){#view4.lab-active .analysis-layout{grid-template-columns:minmax(390px,var(--lab-left,1.45fr)) 8px minmax(330px,var(--lab-right,1fr))}}
+@media(max-width:1050px){html,body{height:auto;min-height:100%;overflow:auto}.app{height:auto;min-height:100vh;overflow:visible}.main,.workspace,.view{overflow:visible}.view.active{height:auto}#view4.lab-active .analysis-layout{grid-template-columns:1fr;gap:12px;height:auto}#view4.lab-active .lab-splitter{display:none}#refractionLabCard{height:auto;min-height:620px}.refraction-canvas-wrap{min-height:360px}}
 @media(max-width:620px){.lab-angle-control{grid-template-columns:auto minmax(90px,1fr) 50px 62px 64px;gap:4px;padding:7px}.lab-angle-control label{font-size:10px}.lab-result-grid{grid-template-columns:1fr}}
 
 .compare-selects{display:grid;grid-template-columns:1fr 1fr;gap:6px}.legend{display:flex;gap:12px;align-items:center;font-size:9px;color:#91aabd}.legend i{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:4px}.legend .a{background:var(--cyan)}.legend .b{background:var(--amber)}.legend .c{background:var(--green)}.legend .d{background:#b993ff}
@@ -73,7 +89,7 @@ header{height:68px;display:flex;align-items:center;justify-content:space-between
 footer{height:34px;border-top:1px solid rgba(137,185,220,.12);background:#06101c;display:flex;align-items:center;justify-content:space-between;padding:0 16px;font-size:9px;color:#59758a}
 .toast{position:fixed;left:50%;top:82px;transform:translate(-50%,-10px);padding:9px 14px;border:1px solid rgba(72,216,255,.25);border-radius:10px;background:rgba(5,19,32,.96);box-shadow:0 14px 35px rgba(0,0,0,.28);font-size:11px;color:#d8f4ff;opacity:0;pointer-events:none;transition:.22s;z-index:80}.toast.show{opacity:1;transform:translate(-50%,0)}
 @media(max-width:1050px){.main{grid-template-columns:220px 1fr;overflow:visible}.input-grid,.analysis-layout{grid-template-columns:1fr;min-height:auto;height:auto}.chart-wrap{min-height:400px}.sidebar{min-height:720px}.workspace,.view{overflow:visible}}
-@media(max-width:760px){html,body{height:auto;overflow:auto}.app{height:auto;min-height:100vh;display:block;overflow:visible}.main{grid-template-columns:1fr}.sidebar{min-height:auto}.missions{grid-template-columns:repeat(3,1fr)}.mission{grid-template-columns:1fr}.mission p{display:none}.task-card{display:none}.view{padding:8px}.sample-entry{grid-template-columns:1fr 1fr}.sample-entry .action{grid-column:1/-1}.compare-selects{grid-template-columns:1fr}.chart-wrap{min-height:330px}.brand .sub,.status{display:none}}
+@media(max-width:760px){html,body{height:auto;overflow:auto}.app{height:auto;min-height:100vh;display:block;overflow:visible}.main{grid-template-columns:1fr}.sidebar{min-height:auto}.missions{grid-template-columns:repeat(2,1fr)}.mission{grid-template-columns:1fr}.mission p{display:none}.task-card{display:none}.view{padding:8px}.sample-entry{grid-template-columns:1fr 1fr}.sample-entry .action{grid-column:1/-1}.compare-selects{grid-template-columns:1fr}.chart-wrap{min-height:330px}.brand .sub,.status{display:none}}
 
 
 /* module 1 · 云端班级数据汇集 */
@@ -107,12 +123,13 @@ footer{height:34px;border-top:1px solid rgba(137,185,220,.12);background:#06101c
 <div class="main">
   <aside class="panel sidebar">
     <div class="panel-title"><span>数据探究流程</span><small>DATA INQUIRY</small></div>
-    <div class="progress"><div class="progress-label"><span>学习进度</span><span id="progressText">1 / 3</span></div><div class="progress-track"><div class="progress-fill" id="progressFill"></div></div></div>
+    <div class="progress"><div class="progress-label"><span>学习进度</span><span id="progressText">1 / 4</span></div><div class="progress-track"><div class="progress-fill" id="progressFill"></div></div></div>
     <div>
       <div class="missions">
         <div class="mission active" data-step="1"><div class="mission-no">01</div><div><strong>汇集 · 实验数据</strong><p>从云端汇集各组真实实验数据。</p></div></div>
         <div class="mission" data-step="2"><div class="mission-no">02</div><div><strong>单组 · 寻找规律</strong><p>比较角度比、cos 比、tan 比、sin 比并拟合。</p></div></div>
-        <div class="mission" data-step="3"><div class="mission-no">03</div><div><strong>双组 · 比较规律</strong><p>比较两组数据的 sin 比与正弦拟合。</p></div></div>
+        <div class="mission" data-step="3"><div class="mission-no">03</div><div><strong>六组 · 同屏验证</strong><p>六组数据同屏比较四种比值的变化。</p></div></div>
+        <div class="mission" data-step="4"><div class="mission-no">04</div><div><strong>双组 · 比较规律</strong><p>比较两组数据的 sin 比与正弦拟合。</p></div></div>
       </div>
       <div class="task-card">
         <div class="task-kicker" id="taskKicker">MISSION 01 · CLOUD DATA</div>
@@ -176,7 +193,7 @@ footer{height:34px;border-top:1px solid rgba(137,185,220,.12);background:#06101c
               <button class="action good" id="addSampleBtn">＋ 添加样本</button>
             </div>
           </div>
-          <div class="sample-table-wrap"><table class="data-table"><thead><tr><th>#</th><th>i /°</th><th>r /°</th><th>i/r</th><th>cos i/cos r</th><th>tan i/tan r</th><th>sin i/sin r</th><th></th></tr></thead><tbody id="inputTableBody"></tbody></table></div>
+          <div class="sample-table-wrap"><table class="data-table"><thead><tr><th>#</th><th>入射角 i /°</th><th>折射角 r /°</th><th></th></tr></thead><tbody id="inputTableBody"></tbody></table></div>
         </div>
       </div>
           </div>
@@ -202,6 +219,27 @@ footer{height:34px;border-top:1px solid rgba(137,185,220,.12);background:#06101c
     </section>
 
     <section class="view" id="view3">
+      <div class="six-view-shell">
+        <div class="card six-toolbar">
+          <div class="six-toolbar-left"><strong>六组数据 · 四种比值同屏比较</strong><span>六张图共用坐标尺度，便于比较不同实验组的波动与稳定性</span></div>
+          <div class="six-toolbar-right">
+            <span class="count-badge six-count">有效数据组 <b id="sixAvailableCount">0</b></span>
+            <span class="count-badge six-count">当前展示 <b id="sixSelectedCount">0</b> / 6</span>
+            <div class="legend"><span><i class="a"></i>i/r</span><span><i class="b"></i>cos i/cos r</span><span><i class="d"></i>tan i/tan r</span><span><i class="c"></i>sin i/sin r</span></div>
+          </div>
+        </div>
+        <div class="six-grid">
+          <div class="card six-chart-card"><div class="six-card-head"><b>图 1</b><select class="select six-select" id="sixSelect1"></select></div><div class="six-canvas-wrap"><canvas id="sixChart1"></canvas></div></div>
+          <div class="card six-chart-card"><div class="six-card-head"><b>图 2</b><select class="select six-select" id="sixSelect2"></select></div><div class="six-canvas-wrap"><canvas id="sixChart2"></canvas></div></div>
+          <div class="card six-chart-card"><div class="six-card-head"><b>图 3</b><select class="select six-select" id="sixSelect3"></select></div><div class="six-canvas-wrap"><canvas id="sixChart3"></canvas></div></div>
+          <div class="card six-chart-card"><div class="six-card-head"><b>图 4</b><select class="select six-select" id="sixSelect4"></select></div><div class="six-canvas-wrap"><canvas id="sixChart4"></canvas></div></div>
+          <div class="card six-chart-card"><div class="six-card-head"><b>图 5</b><select class="select six-select" id="sixSelect5"></select></div><div class="six-canvas-wrap"><canvas id="sixChart5"></canvas></div></div>
+          <div class="card six-chart-card"><div class="six-card-head"><b>图 6</b><select class="select six-select" id="sixSelect6"></select></div><div class="six-canvas-wrap"><canvas id="sixChart6"></canvas></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="view" id="view4">
       <div class="analysis-layout">
         <div class="control-stack">
           <div class="card control-card compare-control-card"><h4>选择两组数据</h4><p>选择两组真实实验数据，用同一种数学方式进行比较。两组数据分开绘制，便于课堂逐步呈现。</p><div class="compare-selects"><select class="select" id="compareA"></select><select class="select" id="compareB"></select></div><div class="result-strip"><div class="result-chip"><span>第1组样本</span><b id="compareAN">0</b></div><div class="result-chip"><span>第2组样本</span><b id="compareBN">0</b></div><div class="result-chip"><span>比较方式</span><b id="compareModeName">sin 比</b></div></div></div>
@@ -230,7 +268,7 @@ footer{height:34px;border-top:1px solid rgba(137,185,220,.12);background:#06101c
     </section>
   </main>
 </div>
-<footer><span>人教版（2019）选择性必修第一册 · 4.1 光的折射</span><span>真实实验数据 · 云端班级汇集 · CSV 备用 · 动态作图 · 数学建模 · 单屏自适应 · 四比值寻律 · 双折射角叠加比较 · 入射角自动演示 · 绘图快进 · 完成态清空循环</span></footer>
+<footer><span>人教版（2019）选择性必修第一册 · 4.1 光的折射</span><span>真实实验数据 · 云端班级汇集 · CSV 备用 · 动态作图 · 数学建模 · 单屏自适应 · 四比值寻律 · 六组同屏验证 · 双折射角叠加比较 · 入射角自动演示 · 绘图快进 · 完成态清空循环</span></footer>
 </div>
 <div class="toast" id="toast"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -251,9 +289,10 @@ const state={
   compareMode:'sin',compareVisibleA:0,compareVisibleB:0,compareFitA:0,compareFitB:0,compareTimerA:null,compareTimerB:null,compareRafA:null,compareRafB:null,labActive:false,labAngle:45,labSplit:.60,labAutoStep:5,labAutoTimer:null,labAutoDirection:1
 };
 const tasks={
-  1:{k:'MISSION 01 · CLOUD DATA',t:'把全班真实实验数据汇集到同一个分析入口。',x:'优先从课堂数据采集网站读取各组已经提交的入射角 i 与折射角 r。选择班级、勾选实验组后即可一键导入；手动输入和 CSV 仅作为备用入口。',g:['读取云端班级实验数据','默认同组只保留最新一次提交','勾选需要分析的实验组并一键导入','必要时使用手动或 CSV 备用入口'],title:'真实实验数据汇集',tag:'CLOUD / BACKUP',hint:'云端班级数据为主 · 手动 / CSV 为备用'},
+  1:{k:'MISSION 01 · CLOUD DATA',t:'把全班真实实验数据汇集到同一个分析入口。',x:'优先从课堂数据采集网站读取各组已经提交的入射角 i 与折射角 r。选择班级、勾选实验组后即可一键导入；手动输入和 CSV 仅作为备用入口。数据表只呈现真实测量的 i、r，不提前展示计算结果。',g:['读取云端班级实验数据','默认同组只保留最新一次提交','导入后只检查原始 i、r 测量值','必要时使用手动或 CSV 备用入口'],title:'真实实验数据汇集',tag:'CLOUD / BACKUP',hint:'只展示原始 i、r · 云端数据为主'},
   2:{k:'MISSION 02 · SINGLE GROUP',t:'一组数据里，哪一种数学关系更稳定？',x:'选择一组真实实验数据，在同一坐标系中依次加入角度比、cos 比、tan 比和 sin 比。四条曲线由你分别控制出现，再通过正弦拟合建立定量关系。',g:['在同一张图上逐条绘制 i/r、cos 比、tan 比、sin 比','保留已绘曲线，直接比较四种比值的变化','绘制 sin r–sin i 散点','需要时再生成拟合直线'],title:'单组数据寻律',tag:'SINGLE DATASET',hint:'一组数据 · 同图逐步比较'},
-  3:{k:'MISSION 03 · TWO GROUPS',t:'两组实验数据，规律相同还是不同？',x:'选择两组数据，先后绘制 sin 比，再比较两组正弦拟合结果。完成两组拟合后，把得到的折射率带回光路，在同一入射角下直观看两个折射角的差异。',g:['选择两组真实实验数据','先画第1组，再画第2组','比较两组 sin 比与正弦拟合斜率','用拟合折射率比较同一入射角下的折射光路'],title:'双组数据比较',tag:'TWO DATASETS',hint:'两组数据 · 从数学规律回到物理图景'}
+  3:{k:'MISSION 03 · SIX GROUPS',t:'一组得到的规律，在全班六组数据中还成立吗？',x:'同时展示六组实验数据。每张图都叠加 i/r、cos i/cos r、tan i/tan r、sin i/sin r 四条曲线，并统一坐标尺度，直接比较各组数据的一致性与实验波动。',g:['默认读取前六个有效实验组','六张图按 2 × 3 同屏排列','每张图同时显示四种比值','用跨组证据检验正弦比的稳定性'],title:'六组数据同屏验证',tag:'SIX DATASETS',hint:'六组数据 · 2 × 3 同屏 · 共用坐标尺度'},
+  4:{k:'MISSION 04 · TWO GROUPS',t:'两组实验数据，规律相同还是不同？',x:'选择两组数据，先后绘制 sin 比，再比较两组正弦拟合结果。完成两组拟合后，把得到的折射率带回光路，在同一入射角下直观看两个折射角的差异。',g:['选择两组真实实验数据','先画第1组，再画第2组','比较两组 sin 比与正弦拟合斜率','用拟合折射率比较同一入射角下的折射光路'],title:'双组数据比较',tag:'TWO DATASETS',hint:'两组数据 · 从数学规律回到物理图景'}
 };
 function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove('show'),1900)}
 function currentGroup(){return state.groups.find(g=>g.id===state.currentGroupId)||state.groups[0]}
@@ -349,15 +388,16 @@ function initCloudIntegration(){
   setInputSource('cloud');
 }
 function setStep(n){
-  state.step=clamp(n,1,3);cancelAnimations();
+  state.step=clamp(n,1,4);cancelAnimations();
   $$('.mission').forEach(m=>m.classList.toggle('active',+m.dataset.step===state.step));
   $$('.view').forEach((v,i)=>v.classList.toggle('active',i===state.step-1));
-  $('#progressText').textContent=`${state.step} / 3`;$('#progressFill').style.width=(state.step*33.333)+'%';
+  $('#progressText').textContent=`${state.step} / 4`;$('#progressFill').style.width=(state.step*25)+'%';
   const t=tasks[state.step];$('#taskKicker').textContent=t.k;$('#taskTitle').textContent=t.t;$('#taskText').textContent=t.x;$('#goalList').innerHTML=t.g.map(x=>`<li>${x}</li>`).join('');
   $('#workspaceTitle').textContent=t.title;$('#workspaceTag').textContent=t.tag;$('#workspaceHint').textContent=t.hint;
   if(state.step===1&&state.inputSource==='cloud'&&!cloudLoaded){loadCloudData()}
   if(state.step===2){refreshSelectors();resetSingleChart();setTimeout(drawSingleChart,50)}
-  if(state.step===3){refreshSelectors();exitRefractionLab(false);resetCompareChart();setTimeout(drawCompareChart,50)}
+  if(state.step===3){refreshSelectors();setTimeout(drawSixGrid,60)}
+  if(state.step===4){refreshSelectors();exitRefractionLab(false);resetCompareChart();setTimeout(drawCompareChart,50)}
 }
 $$('.mission').forEach(m=>m.addEventListener('click',()=>setStep(+m.dataset.step)));
 function renderCounts(){
@@ -370,7 +410,7 @@ function renderGroupList(){
 }
 function renderInputTable(){
   const g=currentGroup();$('#groupNameInput').value=g.name;$('#currentGroupCount').textContent=g.rows.length;
-  $('#inputTableBody').innerHTML=g.rows.length?g.rows.map((r,idx)=>`<tr><td>${idx+1}</td><td>${r.i.toFixed(3)}</td><td>${r.r.toFixed(3)}</td><td>${r.angle==null?'—':r.angle.toFixed(5)}</td><td>${r.cos==null?'—':r.cos.toFixed(5)}</td><td>${r.tan==null?'—':r.tan.toFixed(5)}</td><td>${r.sin==null?'—':r.sin.toFixed(5)}</td><td><button class="row-delete" data-idx="${idx}" title="删除">✕</button></td></tr>`).join(''):'<tr><td colspan="8" class="empty">当前数据组还没有样本，请在上方输入 i 和 r。</td></tr>';
+  $('#inputTableBody').innerHTML=g.rows.length?g.rows.map((r,idx)=>`<tr><td>${idx+1}</td><td>${r.i.toFixed(3)}</td><td>${r.r.toFixed(3)}</td><td><button class="row-delete" data-idx="${idx}" title="删除">✕</button></td></tr>`).join(''):'<tr><td colspan="4" class="empty">当前数据组还没有样本，请在上方输入 i 和 r。</td></tr>';
   $$('.row-delete').forEach(b=>b.addEventListener('click',()=>{g.rows.splice(+b.dataset.idx,1);renderAllInput();refreshSelectors()}));
 }
 function renderAllInput(){renderGroupList();renderInputTable();renderCounts()}
@@ -508,6 +548,7 @@ function refreshSelectors(){
   const ids=['singleGroupSelect','compareA','compareB'];ids.forEach(id=>{const old=$('#'+id).value;$('#'+id).innerHTML=opts;if(groups.some(g=>String(g.id)===old))$('#'+id).value=old});
   if(groups.length>1 && (!$('#compareB').value || $('#compareB').value===$('#compareA').value)) $('#compareB').value=String(groups[1].id);
   $('#singleGroupCount').textContent=groups.length;
+  refreshSixSelectors(groups);
   updateSingleSummary();updateCompareSummary();
 }
 function groupBySelect(id){const v=+$('#'+id).value;return state.groups.find(g=>g.id===v)||null}
@@ -638,6 +679,54 @@ function niceRange(vals,includeZero=false){let lo=Math.min(...vals),hi=Math.max(
 function axes(ctx,w,h,xMin,xMax,yMin,yMax,xLabel,yLabel,xTicks=6,yTicks=6){const pad={l:58,r:20,t:22,b:62},iw=w-pad.l-pad.r,ih=h-pad.t-pad.b,X=x=>pad.l+(x-xMin)/(xMax-xMin)*iw,Y=y=>pad.t+ih-(y-yMin)/(yMax-yMin)*ih;ctx.clearRect(0,0,w,h);ctx.font='10px Microsoft YaHei';ctx.lineWidth=1;for(let j=0;j<=yTicks;j++){const v=yMin+(yMax-yMin)*j/yTicks,y=Y(v);ctx.strokeStyle='rgba(127,178,214,.10)';ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(w-pad.r,y);ctx.stroke();ctx.fillStyle='#7392a7';ctx.textAlign='right';ctx.textBaseline='middle';ctx.fillText(formatTick(v),pad.l-7,y)}for(let j=0;j<=xTicks;j++){const v=xMin+(xMax-xMin)*j/xTicks,x=X(v);ctx.strokeStyle='rgba(127,178,214,.10)';ctx.beginPath();ctx.moveTo(x,pad.t);ctx.lineTo(x,pad.t+ih);ctx.stroke();ctx.fillStyle='#7392a7';ctx.textAlign='center';ctx.textBaseline='top';ctx.fillText(formatTick(v),x,pad.t+ih+7)}ctx.strokeStyle='rgba(127,178,214,.24)';ctx.strokeRect(pad.l,pad.t,iw,ih);ctx.fillStyle='#7897ab';ctx.textAlign='center';ctx.textBaseline='alphabetic';ctx.font='10.5px Microsoft YaHei';ctx.fillText(xLabel,pad.l+iw/2,h-18);ctx.font='10px Microsoft YaHei';ctx.save();ctx.translate(13,pad.t+ih/2);ctx.rotate(-Math.PI/2);ctx.fillText(yLabel,0,0);ctx.restore();return {X,Y,pad,iw,ih}}
 function formatTick(v){if(Math.abs(v)>=10)return v.toFixed(0);if(Math.abs(v)>=1)return v.toFixed(2).replace(/0+$/,'').replace(/\.$/,'');return v.toFixed(2)}
 function drawSeries(ctx,pts,X,Y,color,connect=true){if(connect&&pts.length>1){ctx.strokeStyle=color;ctx.globalAlpha=.6;ctx.lineWidth=1.6;ctx.beginPath();pts.forEach((p,i)=>i?ctx.lineTo(X(p.x),Y(p.y)):ctx.moveTo(X(p.x),Y(p.y)));ctx.stroke();ctx.globalAlpha=1}pts.forEach(p=>{ctx.beginPath();ctx.fillStyle=color;ctx.arc(X(p.x),Y(p.y),4,0,Math.PI*2);ctx.fill();ctx.strokeStyle=color;ctx.globalAlpha=.28;ctx.beginPath();ctx.arc(X(p.x),Y(p.y),7,0,Math.PI*2);ctx.stroke();ctx.globalAlpha=1})}
+
+function refreshSixSelectors(groups=validGroups()){
+  const blank='<option value="">— 未选择 —</option>';
+  const opts=groups.map(g=>`<option value="${g.id}">${escapeHtml(g.name)}（${g.rows.length}点）</option>`).join('');
+  for(let j=1;j<=6;j++){
+    const sel=$('#sixSelect'+j);if(!sel)continue;
+    const old=sel.value;
+    sel.innerHTML=blank+opts;
+    if(old&&groups.some(g=>String(g.id)===old))sel.value=old;
+    else sel.value=groups[j-1]?String(groups[j-1].id):'';
+  }
+  const av=$('#sixAvailableCount');if(av)av.textContent=groups.length;
+  updateSixSelectedCount();
+}
+function sixSelectedGroups(){
+  const out=[];
+  for(let j=1;j<=6;j++){const g=groupBySelect('sixSelect'+j);if(g)out.push(g)}
+  return out;
+}
+function updateSixSelectedCount(){const el=$('#sixSelectedCount');if(el)el.textContent=sixSelectedGroups().length}
+function compactAxes(ctx,w,h,xMin,xMax,yMin,yMax){
+  const pad={l:42,r:11,t:11,b:36},iw=Math.max(1,w-pad.l-pad.r),ih=Math.max(1,h-pad.t-pad.b),X=x=>pad.l+(x-xMin)/(xMax-xMin)*iw,Y=y=>pad.t+ih-(y-yMin)/(yMax-yMin)*ih;
+  ctx.clearRect(0,0,w,h);ctx.font='8px Microsoft YaHei';ctx.lineWidth=1;
+  const xTicks=4,yTicks=4;
+  for(let j=0;j<=yTicks;j++){const v=yMin+(yMax-yMin)*j/yTicks,y=Y(v);ctx.strokeStyle='rgba(127,178,214,.10)';ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(w-pad.r,y);ctx.stroke();ctx.fillStyle='#7392a7';ctx.textAlign='right';ctx.textBaseline='middle';ctx.fillText(formatTick(v),pad.l-5,y)}
+  for(let j=0;j<=xTicks;j++){const v=xMin+(xMax-xMin)*j/xTicks,x=X(v);ctx.strokeStyle='rgba(127,178,214,.08)';ctx.beginPath();ctx.moveTo(x,pad.t);ctx.lineTo(x,pad.t+ih);ctx.stroke();ctx.fillStyle='#7392a7';ctx.textAlign='center';ctx.textBaseline='top';ctx.fillText(formatTick(v),x,pad.t+ih+5)}
+  ctx.strokeStyle='rgba(127,178,214,.23)';ctx.strokeRect(pad.l,pad.t,iw,ih);ctx.fillStyle='#7897ab';ctx.textAlign='center';ctx.textBaseline='alphabetic';ctx.font='8.5px Microsoft YaHei';ctx.fillText('入射角 i / °',pad.l+iw/2,h-10);ctx.save();ctx.translate(10,pad.t+ih/2);ctx.rotate(-Math.PI/2);ctx.fillText('比值',0,0);ctx.restore();return {X,Y,pad,iw,ih}
+}
+function drawMiniSeries(ctx,pts,X,Y,color){
+  if(pts.length>1){ctx.strokeStyle=color;ctx.globalAlpha=.72;ctx.lineWidth=1.3;ctx.beginPath();pts.forEach((p,i)=>i?ctx.lineTo(X(p.x),Y(p.y)):ctx.moveTo(X(p.x),Y(p.y)));ctx.stroke();ctx.globalAlpha=1}
+  pts.forEach(p=>{ctx.fillStyle=color;ctx.beginPath();ctx.arc(X(p.x),Y(p.y),2.4,0,Math.PI*2);ctx.fill()})
+}
+function drawSixGrid(){
+  const groups=sixSelectedGroups(),allRows=groups.flatMap(g=>g.rows),keys=['angle','cos','tan','sin'];
+  updateSixSelectedCount();
+  const vals=allRows.flatMap(r=>keys.map(k=>r[k])).filter(Number.isFinite),xs=allRows.map(r=>r.i).filter(Number.isFinite);
+  const yr=vals.length?niceRange(vals,false):[0,2];
+  const xMin=xs.length?Math.max(0,Math.min(...xs)-5):0,xMax=xs.length?Math.min(90,Math.max(...xs)+5):90;
+  const colors={angle:'#48d8ff',cos:'#ffd36b',tan:'#b993ff',sin:'#69e6b2'};
+  for(let j=1;j<=6;j++){
+    const canvas=$('#sixChart'+j),g=groupBySelect('sixSelect'+j);if(!canvas)continue;
+    const {ctx,w,h}=setupCanvas(canvas),a=compactAxes(ctx,w,h,xMin,xMax,yr[0],yr[1]);
+    if(!g||!g.rows.length){ctx.fillStyle='#58758a';ctx.textAlign='center';ctx.textBaseline='middle';ctx.font='10px Microsoft YaHei';ctx.fillText('请选择数据组',a.pad.l+a.iw/2,a.pad.t+a.ih/2);continue}
+    keys.forEach(k=>drawMiniSeries(ctx,g.rows.filter(r=>Number.isFinite(r[k])).map(r=>({x:r.i,y:r[k]})),a.X,a.Y,colors[k]));
+  }
+}
+for(let j=1;j<=6;j++){const sel=$('#sixSelect'+j);if(sel)sel.addEventListener('change',()=>{updateSixSelectedCount();drawSixGrid()})}
+
 function drawSingleChart(){
   const {ctx,w,h}=setupCanvas($('#singleChart')),g=groupBySelect('singleGroupSelect');
   syncSingleModeUI();$('#singleLegendName').textContent=g?g.name:'当前数据组';
@@ -715,8 +804,8 @@ function refractedAngleFromN(iDeg,n){
 function exitRefractionLab(redraw=true){
   stopLabAuto();
   state.labActive=false;
-  const view=$('#view3');
-  const layout=$('#view3 .analysis-layout');
+  const view=$('#view4');
+  const layout=$('#view4 .analysis-layout');
   if(view)view.classList.remove('lab-active');
   // 数字实验台使用的是临时分栏变量；返回比较时必须完全撤销，恢复原来的 32:68 页面比例。
   if(layout){
@@ -724,7 +813,7 @@ function exitRefractionLab(redraw=true){
     layout.style.removeProperty('--lab-right');
     layout.style.removeProperty('grid-template-columns');
   }
-  if(redraw&&state.step===3){
+  if(redraw&&state.step===4){
     requestAnimationFrame(()=>requestAnimationFrame(()=>{
       drawCompareChart();
     }));
@@ -737,9 +826,9 @@ function enterRefractionLab(){
   state.labActive=true;
   state.labAutoStep=Number($('#labAutoStepSelect').value)||5;
   syncLabAutoButton();
-  const layout=$('#view3 .analysis-layout');
+  const layout=$('#view4 .analysis-layout');
   if(layout){layout.style.removeProperty('--lab-left');layout.style.removeProperty('--lab-right');}
-  $('#view3').classList.add('lab-active');
+  $('#view4').classList.add('lab-active');
   // 每次进入先按当前容器宽度重新建立实验台分栏，避免继承返回前的异常尺寸。
   state.labSplit=.60;
   requestAnimationFrame(()=>applyLabSplit());
@@ -861,7 +950,7 @@ $('#labAutoStepSelect').addEventListener('change',e=>{state.labAutoStep=Number(e
 $('#labAutoBtn').addEventListener('click',toggleLabAuto);
 
 function applyLabSplit(){
-  const layout=$('#view3 .analysis-layout');
+  const layout=$('#view4 .analysis-layout');
   if(!layout||!state.labActive||window.innerWidth<=1050)return;
   const splitter=$('#labSplitter');
   const rect=layout.getBoundingClientRect();
@@ -882,7 +971,7 @@ if(labSplitter){
   let dragging=false;
   const move=e=>{
     if(!dragging||!state.labActive||window.innerWidth<=1050)return;
-    const layout=$('#view3 .analysis-layout'),rect=layout.getBoundingClientRect();
+    const layout=$('#view4 .analysis-layout'),rect=layout.getBoundingClientRect();
     const splitW=labSplitter.getBoundingClientRect().width||9,gap=8,usable=Math.max(1,rect.width-splitW-gap*2);
     const x=e.clientX-rect.left;
     state.labSplit=clamp((x-gap)/usable,.38,.76);
@@ -904,7 +993,7 @@ function drawCompareChart(){
     const xs=rows.map(r=>Math.sin(rad(r.r))),ys=rows.map(r=>Math.sin(rad(r.i))),xMax=Math.min(1.05,Math.max(.25,Math.max(...xs)*1.14)),yMax=Math.min(1.05,Math.max(.25,Math.max(...ys)*1.14));const a=axes(ctx,w,h,0,xMax,0,yMax,'sin r','sin i');if(ga){drawSeries(ctx,ga.rows.slice(0,state.compareVisibleA).map(r=>({x:Math.sin(rad(r.r)),y:Math.sin(rad(r.i))})),a.X,a.Y,'#48d8ff',false);if(state.compareFitA>0){const s=fitStats(ga);if(s){const endX=Math.min(xMax,yMax/s.k)*state.compareFitA;ctx.strokeStyle='#48d8ff';ctx.lineWidth=2;ctx.setLineDash([6,4]);ctx.beginPath();ctx.moveTo(a.X(0),a.Y(0));ctx.lineTo(a.X(endX),a.Y(s.k*endX));ctx.stroke();ctx.setLineDash([])}}}if(gb){drawSeries(ctx,gb.rows.slice(0,state.compareVisibleB).map(r=>({x:Math.sin(rad(r.r)),y:Math.sin(rad(r.i))})),a.X,a.Y,'#ffd36b',false);if(state.compareFitB>0){const s=fitStats(gb);if(s){const endX=Math.min(xMax,yMax/s.k)*state.compareFitB;ctx.strokeStyle='#ffd36b';ctx.lineWidth=2;ctx.setLineDash([6,4]);ctx.beginPath();ctx.moveTo(a.X(0),a.Y(0));ctx.lineTo(a.X(endX),a.Y(s.k*endX));ctx.stroke();ctx.setLineDash([])}}}if(!state.compareVisibleA&&!state.compareVisibleB){ctx.fillStyle='#58758a';ctx.textAlign='center';ctx.fillText('分步绘制两组正弦散点',a.pad.l+a.iw/2,a.pad.t+a.ih/2)}
   }
 }
-window.addEventListener('resize',()=>{if(state.step===2)drawSingleChart();if(state.step===3){if(state.labActive)applyLabSplit();drawCompareChart();if(state.labActive)drawRefractionLab()}});
+window.addEventListener('resize',()=>{if(state.step===2)drawSingleChart();if(state.step===3)drawSixGrid();if(state.step===4){if(state.labActive)applyLabSplit();drawCompareChart();if(state.labActive)drawRefractionLab()}});
 renderAllInput();refreshSelectors();initCloudIntegration();setStep(1);
 })();
 </script>
