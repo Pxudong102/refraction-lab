@@ -268,7 +268,7 @@ footer{height:34px;border-top:1px solid rgba(137,185,220,.12);background:#06101c
     </section>
   </main>
 </div>
-<footer><span>人教版（2019）选择性必修第一册 · 4.1 光的折射</span><span>真实实验数据 · 云端班级汇集 · CSV 备用 · 动态作图 · 数学建模 · 单屏自适应 · 四比值寻律 · 六组同屏验证 · 双折射角叠加比较 · 入射角自动演示 · 绘图快进 · 完成态清空循环</span></footer>
+<footer><span>人教版（2019）选择性必修第一册 · 4.1 光的折射</span><span>真实实验数据 · 云端班级汇集 · CSV 备用 · 动态作图 · 数学建模 · 单屏自适应 · 四比值寻律 · 六组同屏验证 · 双折射角叠加比较 · 入射角自动演示 · 绘图快进 · 完成态清空循环 · 小数精度内部一致</span></footer>
 </div>
 <div class="toast" id="toast"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -298,11 +298,73 @@ function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show'
 function currentGroup(){return state.groups.find(g=>g.id===state.currentGroupId)||state.groups[0]}
 function validGroups(){return state.groups.filter(g=>g.rows.length>0)}
 function totalSamples(){return state.groups.reduce((s,g)=>s+g.rows.length,0)}
-function ratioRow(i,r){
-  const si=Math.sin(rad(i)), sr=Math.sin(rad(r)), ci=Math.cos(rad(i)), cr=Math.cos(rad(r)), ti=Math.tan(rad(i)), tr=Math.tan(rad(r));
-  return {i,r,angle:r!==0?i/r:null,cos:Math.abs(cr)>1e-12?ci/cr:null,sin:Math.abs(sr)>1e-12?si/sr:null,tan:Math.abs(tr)>1e-12?ti/tr:null};
-}
 
+// ===== 小数精度：按每组 i、r 中“最多的小数点后位数”控制整条内部计算链 =====
+function cleanMeasureText(v){
+  return String(v??'').trim().replace(/[°º˚]/g,'').replace(/\s+/g,'');
+}
+function decimalPlaces(v){
+  let t=cleanMeasureText(v);
+  if(!t)return 0;
+  t=t.replace(/^[+-]/,'');
+  const m=t.match(/^(\d*)(?:\.(\d*))?(?:[eE]([+-]?\d+))?$/);
+  if(!m)return 0;
+  const frac=(m[2]||'').length, exp=Number(m[3]||0);
+  return clamp(Math.max(0,frac-exp),0,10);
+}
+function inputDisplay(raw,n){
+  const t=cleanMeasureText(raw);
+  return t!==''?t:String(n);
+}
+function groupDecimalPlaces(g){
+  if(!g||!Array.isArray(g.rows)||!g.rows.length)return 2;
+  return clamp(Math.max(...g.rows.flatMap(r=>[
+    Number.isFinite(r.iDp)?r.iDp:decimalPlaces(r.iRaw??r.i),
+    Number.isFinite(r.rDp)?r.rDp:decimalPlaces(r.rRaw??r.r)
+  ])),0,10);
+}
+function roundDecimalValue(v,places){
+  if(!Number.isFinite(v))return v;
+  const d=clamp(Number(places)||0,0,10);
+  return Number(Number(v).toFixed(d));
+}
+function formatDecimal(v,places){
+  if(!Number.isFinite(v))return '—';
+  const d=clamp(Number(places)||0,0,10);
+  return Number(v).toFixed(d);
+}
+function applyRowPrecision(r,places){
+  const d=clamp(Number(places)||0,0,10),i=Number(r.i),rr=Number(r.r);
+  // 三角函数值先按本组原始角度的最大小数位数取舍，后续比值与拟合只使用这些已取舍数值。
+  r.sinI=roundDecimalValue(Math.sin(rad(i)),d);
+  r.sinR=roundDecimalValue(Math.sin(rad(rr)),d);
+  r.cosI=roundDecimalValue(Math.cos(rad(i)),d);
+  r.cosR=roundDecimalValue(Math.cos(rad(rr)),d);
+  r.tanI=roundDecimalValue(Math.tan(rad(i)),d);
+  r.tanR=roundDecimalValue(Math.tan(rad(rr)),d);
+  r.angle=rr!==0?roundDecimalValue(i/rr,d):null;
+  r.cos=Math.abs(r.cosR)>1e-12?roundDecimalValue(r.cosI/r.cosR,d):null;
+  r.sin=Math.abs(r.sinR)>1e-12?roundDecimalValue(r.sinI/r.sinR,d):null;
+  r.tan=Math.abs(r.tanR)>1e-12?roundDecimalValue(r.tanI/r.tanR,d):null;
+  r.calcDp=d;
+  return r;
+}
+function recomputeGroupPrecision(g){
+  if(!g||!Array.isArray(g.rows)||!g.rows.length)return g;
+  const d=groupDecimalPlaces(g);
+  g.calcDp=d;
+  g.rows.forEach(r=>applyRowPrecision(r,d));
+  return g;
+}
+function recomputeAllGroups(){state.groups.forEach(recomputeGroupPrecision)}
+function ratioRow(i,r,iRaw=i,rRaw=r){
+  const row={
+    i,r,
+    iRaw:cleanMeasureText(iRaw)||String(i),rRaw:cleanMeasureText(rRaw)||String(r),
+    iDp:decimalPlaces(iRaw),rDp:decimalPlaces(rRaw)
+  };
+  return applyRowPrecision(row,Math.max(row.iDp,row.rDp));
+}
 
 // ===== 云端班级数据耦合：复用同一 GitHub Pages 域名下的 Supabase 登录会话 =====
 const cloudCfg=window.APP_CONFIG||{};
@@ -311,7 +373,7 @@ const cloudDb=cloudConfigured?window.supabase.createClient(cloudCfg.supabaseUrl,
 let cloudSubmissions=[],cloudClassRows=[],cloudActiveId=null,cloudSelectedIds=new Set(),cloudLoaded=false;
 function fmtCloudTime(v){try{return new Date(v).toLocaleString('zh-CN',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false})}catch(_){return ''}}
 function cloudMeasurements(x){return Array.isArray(x&&x.measurements)?x.measurements:[]}
-function validCloudMeasurements(x){return cloudMeasurements(x).map(p=>({i:Number(p.i),r:Number(p.r)})).filter(p=>Number.isFinite(p.i)&&Number.isFinite(p.r)&&p.i>=0&&p.i<90&&p.r>=0&&p.r<90&&!(p.r===0&&p.i!==0))}
+function validCloudMeasurements(x){return cloudMeasurements(x).map(p=>{const iRaw=cleanMeasureText(p.i),rRaw=cleanMeasureText(p.r);return {i:Number(p.i),r:Number(p.r),iRaw,rRaw,iDp:decimalPlaces(iRaw),rDp:decimalPlaces(rRaw)}}).filter(p=>Number.isFinite(p.i)&&Number.isFinite(p.r)&&p.i>=0&&p.i<90&&p.r>=0&&p.r<90&&!(p.r===0&&p.i!==0))}
 function normalizeCloudClassName(v){
   let t=String(v??'').trim().replace(/\s+/g,'').replace(/[０-９]/g,d=>String(d.charCodeAt(0)-65248));
   const m=t.match(/^高([一二三123])[（(]?([0-9]{1,2})[）)]?班?$/);
@@ -358,7 +420,7 @@ function renderCloudPreview(){
   if(!x){$('#cloudPreviewTitle').textContent='实验组数据预览';$('#cloudPreviewCount').textContent='0';$('#cloudPreviewMeta').innerHTML='<span>尚未选择实验组</span>';body.innerHTML='<tr><td colspan="3" class="cloud-empty">在左侧点击实验组即可预览原始测量数据。</td></tr>';return}
   const rows=validCloudMeasurements(x);$('#cloudPreviewTitle').textContent=x.group_name||'未命名组';$('#cloudPreviewCount').textContent=rows.length;
   $('#cloudPreviewMeta').innerHTML=`<b>${escapeHtml(normalizeCloudClassName(x.class_name))}</b><span>${fmtCloudTime(x.created_at)} 提交</span>${x.student_code?`<span>学生：${escapeHtml(x.student_code)}</span>`:''}${x.medium?`<span>介质：${escapeHtml(x.medium)}</span>`:''}${x.note?`<span>备注：${escapeHtml(x.note)}</span>`:''}`;
-  body.innerHTML=rows.length?rows.map((p,i)=>`<tr><td>${i+1}</td><td>${p.i.toFixed(3)}</td><td>${p.r.toFixed(3)}</td></tr>`).join(''):'<tr><td colspan="3" class="cloud-empty">这次提交没有有效的 i、r 数据。</td></tr>';
+  body.innerHTML=rows.length?rows.map((p,i)=>`<tr><td>${i+1}</td><td>${escapeHtml(inputDisplay(p.iRaw,p.i))}</td><td>${escapeHtml(inputDisplay(p.rRaw,p.r))}</td></tr>`).join(''):'<tr><td colspan="3" class="cloud-empty">这次提交没有有效的 i、r 数据。</td></tr>';
 }
 async function loadCloudData(){
   if(!cloudConfigured){$('#cloudAuthText').innerHTML='<b>连接状态：</b>未找到 config.js 配置';$('#cloudGroupList').innerHTML='<div class="cloud-empty">请把 analysis.html 与网站现有的 config.js 放在同一 GitHub Pages 仓库根目录。</div>';return}
@@ -376,7 +438,7 @@ function importCloudSelected(){
   const chosen=cloudClassRows.filter(x=>cloudSelectedIds.has(String(x.id)));
   if(!chosen.length){toast('请至少勾选一个实验组');return}
   const used=new Map(),groups=[];let bad=0;
-  for(const x of chosen){const rows=validCloudMeasurements(x).map(p=>ratioRow(p.i,p.r)).sort((a,b)=>a.i-b.i);if(!rows.length){bad++;continue}let base=String(x.group_name||'未命名组').trim()||'未命名组';const n=(used.get(base)||0)+1;used.set(base,n);const name=n===1?base:`${base}（${n}）`;groups.push({id:groups.length+1,name,rows})}
+  for(const x of chosen){const rows=validCloudMeasurements(x).map(p=>ratioRow(p.i,p.r,p.iRaw,p.rRaw)).sort((a,b)=>a.i-b.i);if(!rows.length){bad++;continue}let base=String(x.group_name||'未命名组').trim()||'未命名组';const n=(used.get(base)||0)+1;used.set(base,n);const name=n===1?base:`${base}（${n}）`;groups.push({id:groups.length+1,name,rows})}
   if(!groups.length){toast('所选实验组没有有效数据');return}
   state.groups=groups;state.nextGroupId=groups.length+1;state.currentGroupId=groups[0].id;renderAllInput();refreshSelectors();resetSingleChart();resetCompareChart();
   $('#cloudImportStatus').textContent=`已导入 ${groups.length} 组 / ${totalSamples()} 点`;toast(`已导入 ${groups.length} 个实验组${bad?`，跳过 ${bad} 组无效数据`:''}`);
@@ -410,7 +472,7 @@ function renderGroupList(){
 }
 function renderInputTable(){
   const g=currentGroup();$('#groupNameInput').value=g.name;$('#currentGroupCount').textContent=g.rows.length;
-  $('#inputTableBody').innerHTML=g.rows.length?g.rows.map((r,idx)=>`<tr><td>${idx+1}</td><td>${r.i.toFixed(3)}</td><td>${r.r.toFixed(3)}</td><td><button class="row-delete" data-idx="${idx}" title="删除">✕</button></td></tr>`).join(''):'<tr><td colspan="4" class="empty">当前数据组还没有样本，请在上方输入 i 和 r。</td></tr>';
+  $('#inputTableBody').innerHTML=g.rows.length?g.rows.map((r,idx)=>`<tr><td>${idx+1}</td><td>${escapeHtml(inputDisplay(r.iRaw,r.i))}</td><td>${escapeHtml(inputDisplay(r.rRaw,r.r))}</td><td><button class="row-delete" data-idx="${idx}" title="删除">✕</button></td></tr>`).join(''):'<tr><td colspan="4" class="empty">当前数据组还没有样本，请在上方输入 i 和 r。</td></tr>';
   $$('.row-delete').forEach(b=>b.addEventListener('click',()=>{g.rows.splice(+b.dataset.idx,1);renderAllInput();refreshSelectors()}));
 }
 function renderAllInput(){renderGroupList();renderInputTable();renderCounts()}
@@ -419,11 +481,11 @@ $('#addGroupBtn').addEventListener('click',()=>{const id=state.nextGroupId++;sta
 $('#deleteGroupBtn').addEventListener('click',()=>{if(state.groups.length===1){toast('至少保留一个数据组');return;}const idx=state.groups.findIndex(g=>g.id===state.currentGroupId);state.groups.splice(idx,1);state.currentGroupId=state.groups[Math.max(0,idx-1)].id;renderAllInput();refreshSelectors();toast('当前数据组已删除')});
 $('#groupNameInput').addEventListener('input',e=>{currentGroup().name=e.target.value.trim()||`第${state.groups.indexOf(currentGroup())+1}组`;renderGroupList();refreshSelectors()});
 function addSample(){
-  const i=Number($('#inputI').value),r=Number($('#inputR').value);
+  const iRaw=$('#inputI').value.trim(),rRaw=$('#inputR').value.trim(),i=Number(iRaw),r=Number(rRaw);
   if(!Number.isFinite(i)||!Number.isFinite(r)){toast('请输入有效的 i 和 r');return}
   if(i<0||i>=90||r<0||r>=90){toast('角度请输入 0°–90° 之间的数值');return}
   if(r===0&&i!==0){toast('折射角 r 不能为 0°');return}
-  const row=ratioRow(i,r);currentGroup().rows.push(row);currentGroup().rows.sort((a,b)=>a.i-b.i);
+  const row=ratioRow(i,r,iRaw,rRaw);currentGroup().rows.push(row);currentGroup().rows.sort((a,b)=>a.i-b.i);
   $('#inputI').value='';$('#inputR').value='';$('#inputI').focus();renderAllInput();refreshSelectors();
 }
 $('#addSampleBtn').addEventListener('click',addSample);['inputI','inputR'].forEach(id=>$('#'+id).addEventListener('keydown',e=>{if(e.key==='Enter')addSample()}));
@@ -513,7 +575,7 @@ async function importCsvFile(file){
     const rawName=gi>=0?String(rec[gi]??'').trim():fileBase;
     const name=rawName||fileBase;
     if(!buckets.has(name))buckets.set(name,[]);
-    buckets.get(name).push(ratioRow(i,r));valid++;
+    buckets.get(name).push(ratioRow(i,r,rec[ii],rec[ri]));valid++;
   }
   if(!valid){toast('CSV 中没有有效的 i、r 数据');$('#csvImportStatus').textContent='0 条有效数据';return}
 
@@ -537,12 +599,13 @@ $('#csvFileInput').addEventListener('change',async e=>{const file=e.target.files
 
 $('#exportBtn').addEventListener('click',()=>{
   const rows=[['数据组','序号','入射角i(°)','折射角r(°)','i/r','cos i/cos r','sin i/sin r','tan i/tan r']];
-  state.groups.forEach(g=>g.rows.forEach((r,idx)=>rows.push([g.name,idx+1,r.i.toFixed(8),r.r.toFixed(8),r.angle==null?'':r.angle.toFixed(8),r.cos==null?'':r.cos.toFixed(8),r.sin==null?'':r.sin.toFixed(8),r.tan==null?'':r.tan.toFixed(8)])));
+  state.groups.forEach(g=>{const dp=groupDecimalPlaces(g);g.rows.forEach((r,idx)=>rows.push([g.name,idx+1,inputDisplay(r.iRaw,r.i),inputDisplay(r.rRaw,r.r),r.angle==null?'':formatDecimal(r.angle,dp),r.cos==null?'':formatDecimal(r.cos,dp),r.sin==null?'':formatDecimal(r.sin,dp),r.tan==null?'':formatDecimal(r.tan,dp)]))});
   if(rows.length===1){toast('暂无数据可导出');return}
   const csv='\ufeff'+rows.map(row=>row.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
   const blob=new Blob([csv],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='光的折射_真实实验数据.csv';a.click();URL.revokeObjectURL(url);
 });
 function refreshSelectors(){
+  recomputeAllGroups();
   const groups=validGroups();
   const opts=groups.length?groups.map(g=>`<option value="${g.id}">${escapeHtml(g.name)}（${g.rows.length}点）</option>`).join(''):'<option value="">暂无有效数据组</option>';
   const ids=['singleGroupSelect','compareA','compareB'];ids.forEach(id=>{const old=$('#'+id).value;$('#'+id).innerHTML=opts;if(groups.some(g=>String(g.id)===old))$('#'+id).value=old});
@@ -552,7 +615,7 @@ function refreshSelectors(){
   updateSingleSummary();updateCompareSummary();
 }
 function groupBySelect(id){const v=+$('#'+id).value;return state.groups.find(g=>g.id===v)||null}
-function updateSingleSummary(){const g=groupBySelect('singleGroupSelect');$('#singleSampleCount').textContent=g?g.rows.length:0;$('#singleLegendName').textContent=g?g.name:'当前数据组'}
+function updateSingleSummary(){const g=groupBySelect('singleGroupSelect');$('#singleSampleCount').textContent=g?g.rows.length:0;$('#singleLegendName').textContent=g?g.name:'当前数据组';if(g)$('#singleMetricName').title=`本组内部计算、作图与显示均按小数点后 ${groupDecimalPlaces(g)} 位处理`;}
 function updateCompareSummary(){const a=groupBySelect('compareA'),b=groupBySelect('compareB');$('#compareAN').textContent=a?a.rows.length:0;$('#compareBN').textContent=b?b.rows.length:0;$('#legendA').textContent=a?a.name:'第1组';$('#legendB').textContent=b?b.name:'第2组';$('#slopeALabel').textContent=(a?a.name:'第1组')+'斜率';$('#slopeBLabel').textContent=(b?b.name:'第2组')+'斜率'}
 ['singleGroupSelect'].forEach(id=>$('#'+id).addEventListener('change',()=>{updateSingleSummary();resetSingleChart();drawSingleChart()}));
 ['compareA','compareB'].forEach(id=>$('#'+id).addEventListener('change',()=>{exitRefractionLab(false);updateCompareSummary();resetCompareChart();drawCompareChart()}));
@@ -636,7 +699,30 @@ $('#singleDrawBtn').addEventListener('click',()=>{
 });
 $('#singleFitBtn').addEventListener('click',()=>{const g=groupBySelect('singleGroupSelect');if(!g||state.singleVisible<g.rows.length){toast('请先完成正弦散点绘制');return}fitCycle('single',g)});
 function fitStats(g){
-  if(!g||g.rows.length<2)return null;let sxy=0,sxx=0;const ys=[];g.rows.forEach(r=>{const x=Math.sin(rad(r.r)),y=Math.sin(rad(r.i));sxy+=x*y;sxx+=x*x;ys.push(y)});if(!sxx)return null;const k=sxy/sxx,mean=ys.reduce((a,b)=>a+b,0)/ys.length;let ssr=0,sst=0;g.rows.forEach((r,j)=>{const x=Math.sin(rad(r.r)),y=ys[j];ssr+=(y-k*x)**2;sst+=(y-mean)**2});return {k,r2:sst?1-ssr/sst:1}}
+  if(!g||g.rows.length<2)return null;
+  recomputeGroupPrecision(g);
+  const dp=groupDecimalPlaces(g);let sxy=0,sxx=0;const ys=[];
+  g.rows.forEach(r=>{
+    const x=Number.isFinite(r.sinR)?r.sinR:roundDecimalValue(Math.sin(rad(r.r)),dp);
+    const y=Number.isFinite(r.sinI)?r.sinI:roundDecimalValue(Math.sin(rad(r.i)),dp);
+    sxy=roundDecimalValue(sxy+roundDecimalValue(x*y,dp),dp);
+    sxx=roundDecimalValue(sxx+roundDecimalValue(x*x,dp),dp);
+    ys.push(y);
+  });
+  if(!sxx)return null;
+  const k=roundDecimalValue(sxy/sxx,dp);
+  let ysum=0;ys.forEach(y=>ysum=roundDecimalValue(ysum+y,dp));
+  const mean=roundDecimalValue(ysum/ys.length,dp);let ssr=0,sst=0;
+  g.rows.forEach((r,j)=>{
+    const x=Number.isFinite(r.sinR)?r.sinR:roundDecimalValue(Math.sin(rad(r.r)),dp),y=ys[j];
+    const residual=roundDecimalValue(y-roundDecimalValue(k*x,dp),dp);
+    const deviation=roundDecimalValue(y-mean,dp);
+    ssr=roundDecimalValue(ssr+roundDecimalValue(residual*residual,dp),dp);
+    sst=roundDecimalValue(sst+roundDecimalValue(deviation*deviation,dp),dp);
+  });
+  const r2=roundDecimalValue(sst?1-ssr/sst:1,dp);
+  return {k,r2,dp}
+}
 function fitKeys(which){
   if(which==='single')return {progress:'singleFitProgress',raf:'singleRaf'};
   return which==='A'?{progress:'compareFitA',raf:'compareRafA'}:{progress:'compareFitB',raf:'compareRafB'};
@@ -645,7 +731,7 @@ function drawFitTarget(which){if(which==='single')drawSingleChart();else drawCom
 function fitButton(which){return $(which==='single'?'#singleFitBtn':which==='A'?'#fitA':'#fitB')}
 function revealFitResult(which,g){
   if(which==='single'){
-    const s=fitStats(g);$('#singleFitResults').style.display='grid';$('#singleSlope').textContent=s?s.k.toFixed(5):'—';$('#singleR2').textContent=s?s.r2.toFixed(5):'—';$('#singleN').textContent=g.rows.length;
+    const s=fitStats(g),dp=groupDecimalPlaces(g);$('#singleFitResults').style.display='grid';$('#singleSlope').textContent=s?formatDecimal(s.k,dp):'—';$('#singleR2').textContent=s?formatDecimal(s.r2,dp):'—';$('#singleN').textContent=g.rows.length;
   }else updateCompareFitResults();
 }
 function resetFitResultForReplay(which){
@@ -736,16 +822,16 @@ function drawSingleChart(){
   }
   const rows=g.rows;
   if(state.singleMetric==='fit'){
-    $('#singleChartNote').textContent='先动态生成 sin r–sin i 散点，散点完成后再点击“拟合直线”。';
-    const xs=rows.map(r=>Math.sin(rad(r.r))),ys=rows.map(r=>Math.sin(rad(r.i))),xMax=Math.min(1.05,Math.max(.25,Math.max(...xs)*1.14)),yMax=Math.min(1.05,Math.max(.25,Math.max(...ys)*1.14));
+    $('#singleChartNote').textContent='sin i、sin r 先按本组原始数据的小数点后位数取舍，再用于散点与拟合；散点完成后再点击“拟合直线”。';
+    const xs=rows.map(r=>r.sinR),ys=rows.map(r=>r.sinI),xMax=Math.min(1.05,Math.max(.25,Math.max(...xs)*1.14)),yMax=Math.min(1.05,Math.max(.25,Math.max(...ys)*1.14));
     const a=axes(ctx,w,h,0,xMax,0,yMax,'sin r','sin i');
-    const pts=rows.slice(0,state.singleVisible).map(r=>({x:Math.sin(rad(r.r)),y:Math.sin(rad(r.i))}));
+    const pts=rows.slice(0,state.singleVisible).map(r=>({x:r.sinR,y:r.sinI}));
     drawSeries(ctx,pts,a.X,a.Y,'#48d8ff',false);
     if(state.singleFitProgress>0){const s=fitStats(g);if(s){const endX=Math.min(xMax,yMax/s.k)*state.singleFitProgress;ctx.strokeStyle='#69e6b2';ctx.lineWidth=2;ctx.setLineDash([6,4]);ctx.beginPath();ctx.moveTo(a.X(0),a.Y(0));ctx.lineTo(a.X(endX),a.Y(s.k*endX));ctx.stroke();ctx.setLineDash([])}}
     if(!state.singleVisible){ctx.fillStyle='#58758a';ctx.textAlign='center';ctx.fillText('点击“绘制正弦散点”开始',a.pad.l+a.iw/2,a.pad.t+a.ih/2)}
     return;
   }
-  $('#singleChartNote').textContent='四种比值共用同一坐标系；按角度比、cos 比、tan 比、sin 比逐步加入，最后观察 sin 比是否更稳定。';
+  $('#singleChartNote').textContent='四种比值共用同一坐标系；计算、作图均按本组原始 i、r 的最大小数点后位数取舍。按角度比、cos 比、tan 比、sin 比逐步加入。';
   const keys=['angle','cos','tan','sin'];
   const vals=rows.flatMap(r=>keys.map(k=>r[k])).filter(Number.isFinite),xVals=rows.map(r=>r.i);
   const [yMin,yMax]=niceRange(vals,false),xMin=Math.max(0,Math.min(...xVals)-5),xMax=Math.min(90,Math.max(...xVals)+5);
@@ -792,7 +878,7 @@ function animateGroup(which){
   },190)
 }
 $('#drawA').addEventListener('click',()=>animateGroup('A'));$('#drawB').addEventListener('click',()=>animateGroup('B'));$('#fitA').addEventListener('click',()=>{const g=groupBySelect('compareA');if(g&&state.compareVisibleA>=g.rows.length)fitCycle('A',g)});$('#fitB').addEventListener('click',()=>{const g=groupBySelect('compareB');if(g&&state.compareVisibleB>=g.rows.length)fitCycle('B',g)});
-function updateCompareFitResults(){const a=fitStats(groupBySelect('compareA')),b=fitStats(groupBySelect('compareB')),any=state.compareFitA>=1||state.compareFitB>=1;$('#compareFitResults').style.display=any?'grid':'none';$('#slopeA').textContent=state.compareFitA>=1&&a?a.k.toFixed(5):'—';$('#slopeB').textContent=state.compareFitB>=1&&b?b.k.toFixed(5):'—';$('#slopeDiff').textContent=state.compareFitA>=1&&state.compareFitB>=1&&a&&b?Math.abs(a.k-b.k).toFixed(5):'—';const ready=state.compareMode==='fit'&&state.compareFitA>=1&&state.compareFitB>=1&&a&&b;$('#refractionLabAction').style.display=ready?'flex':'none';if(state.labActive&&ready)updateRefractionLab()}
+function updateCompareFitResults(){const ga=groupBySelect('compareA'),gb=groupBySelect('compareB'),a=fitStats(ga),b=fitStats(gb),dpA=groupDecimalPlaces(ga),dpB=groupDecimalPlaces(gb),dpD=Math.max(dpA,dpB),any=state.compareFitA>=1||state.compareFitB>=1;$('#compareFitResults').style.display=any?'grid':'none';$('#slopeA').textContent=state.compareFitA>=1&&a?formatDecimal(a.k,dpA):'—';$('#slopeB').textContent=state.compareFitB>=1&&b?formatDecimal(b.k,dpB):'—';$('#slopeDiff').textContent=state.compareFitA>=1&&state.compareFitB>=1&&a&&b?formatDecimal(Math.abs(a.k-b.k),dpD):'—';const ready=state.compareMode==='fit'&&state.compareFitA>=1&&state.compareFitB>=1&&a&&b;$('#refractionLabAction').style.display=ready?'flex':'none';if(state.labActive&&ready)updateRefractionLab()}
 
 function degFromRad(v){return v*180/Math.PI}
 function refractedAngleFromN(iDeg,n){
@@ -841,9 +927,10 @@ function updateRefractionLab(){
   const i=state.labAngle,rA=refractedAngleFromN(i,sa.k),rB=refractedAngleFromN(i,sb.k);
   $('#labAngleSlider').value=String(i);$('#labAngleValue').textContent=i.toFixed(1)+'°';
   $('#labNameA').textContent=ga.name;$('#labNameB').textContent=gb.name;
-  $('#labNA').textContent='n = '+sa.k.toFixed(4);$('#labNB').textContent='n = '+sb.k.toFixed(4);
-  $('#labRA').textContent='r = '+(Number.isFinite(rA)?rA.toFixed(1)+'°':'无实数解');
-  $('#labRB').textContent='r = '+(Number.isFinite(rB)?rB.toFixed(1)+'°':'无实数解');
+  const dpA=groupDecimalPlaces(ga),dpB=groupDecimalPlaces(gb);
+  $('#labNA').textContent='n = '+formatDecimal(sa.k,dpA);$('#labNB').textContent='n = '+formatDecimal(sb.k,dpB);
+  $('#labRA').textContent='r = '+(Number.isFinite(rA)?formatDecimal(rA,dpA)+'°':'无实数解');
+  $('#labRB').textContent='r = '+(Number.isFinite(rB)?formatDecimal(rB,dpB)+'°':'无实数解');
   let note='同角入射，直接比较 r₁ 与 r₂。';
   if(Number.isFinite(rA)&&Number.isFinite(rB)&&Math.abs(sa.k-sb.k)>1e-6){
     const larger=sa.k>sb.k?ga.name:gb.name;
@@ -874,10 +961,10 @@ function drawRefractionLab(){
   ctx.fillText('同一入射角 · 双介质折射光叠加比较',x+14,y+20);
   const legendY=y+39;
   ctx.strokeStyle=colorA;ctx.lineWidth=3;ctx.setLineDash([]);ctx.beginPath();ctx.moveTo(x+14,legendY);ctx.lineTo(x+36,legendY);ctx.stroke();
-  ctx.fillStyle=colorA;ctx.font='12px Microsoft YaHei';ctx.fillText(`${ga.name}  n₁=${sa.k.toFixed(4)}`,x+42,legendY+3);
+  ctx.fillStyle=colorA;ctx.font='12px Microsoft YaHei';ctx.fillText(`${ga.name}  n₁=${formatDecimal(sa.k,groupDecimalPlaces(ga))}`,x+42,legendY+3);
   const legendBX=Math.min(x+pw*.52,x+pw-180);
   ctx.strokeStyle=colorB;ctx.lineWidth=3;ctx.setLineDash([6,4]);ctx.beginPath();ctx.moveTo(legendBX,legendY);ctx.lineTo(legendBX+22,legendY);ctx.stroke();ctx.setLineDash([]);
-  ctx.fillStyle=colorB;ctx.font='12px Microsoft YaHei';ctx.fillText(`${gb.name}  n₂=${sb.k.toFixed(4)}`,legendBX+28,legendY+3);
+  ctx.fillStyle=colorB;ctx.font='12px Microsoft YaHei';ctx.fillText(`${gb.name}  n₂=${formatDecimal(sb.k,groupDecimalPlaces(gb))}`,legendBX+28,legendY+3);
 
   // interface and normal
   ctx.strokeStyle='rgba(183,221,241,.42)';ctx.lineWidth=1.3;ctx.beginPath();ctx.moveTo(x+18,interfaceY);ctx.lineTo(x+pw-18,interfaceY);ctx.stroke();
@@ -907,7 +994,7 @@ function drawRefractionLab(){
     ctx.fillText(`${label} = ${r.toFixed(1)}°`,cx+Math.cos(a)*labelRadius+6,interfaceY+Math.sin(a)*labelRadius+3);
     // endpoint label
     const tx=ex+10,ty=ey+(label==='r₁'?-6:13);
-    ctx.font='11px Microsoft YaHei';ctx.fillStyle=color;ctx.textAlign='left';ctx.fillText(`${label.replace('r','n')}=${nValue.toFixed(4)}`,tx,ty);
+    const dp=label==='r₁'?groupDecimalPlaces(ga):groupDecimalPlaces(gb);ctx.font='11px Microsoft YaHei';ctx.fillStyle=color;ctx.textAlign='left';ctx.fillText(`${label.replace('r','n')}=${formatDecimal(nValue,dp)}`,tx,ty);
     return true;
   };
   const okA=drawRefracted(rA,colorA,[],'r₁',sa.k,34,51);
@@ -990,7 +1077,7 @@ function drawCompareChart(){
   if(state.compareMode==='sin'){
     const vals=rows.map(r=>r.sin).filter(Number.isFinite),xs=rows.map(r=>r.i),[yMin,yMax]=niceRange(vals,false),xMin=Math.max(0,Math.min(...xs)-5),xMax=Math.min(90,Math.max(...xs)+5);const a=axes(ctx,w,h,xMin,xMax,yMin,yMax,'入射角 i / °','sin i / sin r');if(ga)drawSeries(ctx,ga.rows.slice(0,state.compareVisibleA).map(r=>({x:r.i,y:r.sin})),a.X,a.Y,'#48d8ff',true);if(gb)drawSeries(ctx,gb.rows.slice(0,state.compareVisibleB).map(r=>({x:r.i,y:r.sin})),a.X,a.Y,'#ffd36b',true);if(!state.compareVisibleA&&!state.compareVisibleB){ctx.fillStyle='#58758a';ctx.textAlign='center';ctx.fillText('先绘制第1组，再绘制第2组',a.pad.l+a.iw/2,a.pad.t+a.ih/2)}
   }else{
-    const xs=rows.map(r=>Math.sin(rad(r.r))),ys=rows.map(r=>Math.sin(rad(r.i))),xMax=Math.min(1.05,Math.max(.25,Math.max(...xs)*1.14)),yMax=Math.min(1.05,Math.max(.25,Math.max(...ys)*1.14));const a=axes(ctx,w,h,0,xMax,0,yMax,'sin r','sin i');if(ga){drawSeries(ctx,ga.rows.slice(0,state.compareVisibleA).map(r=>({x:Math.sin(rad(r.r)),y:Math.sin(rad(r.i))})),a.X,a.Y,'#48d8ff',false);if(state.compareFitA>0){const s=fitStats(ga);if(s){const endX=Math.min(xMax,yMax/s.k)*state.compareFitA;ctx.strokeStyle='#48d8ff';ctx.lineWidth=2;ctx.setLineDash([6,4]);ctx.beginPath();ctx.moveTo(a.X(0),a.Y(0));ctx.lineTo(a.X(endX),a.Y(s.k*endX));ctx.stroke();ctx.setLineDash([])}}}if(gb){drawSeries(ctx,gb.rows.slice(0,state.compareVisibleB).map(r=>({x:Math.sin(rad(r.r)),y:Math.sin(rad(r.i))})),a.X,a.Y,'#ffd36b',false);if(state.compareFitB>0){const s=fitStats(gb);if(s){const endX=Math.min(xMax,yMax/s.k)*state.compareFitB;ctx.strokeStyle='#ffd36b';ctx.lineWidth=2;ctx.setLineDash([6,4]);ctx.beginPath();ctx.moveTo(a.X(0),a.Y(0));ctx.lineTo(a.X(endX),a.Y(s.k*endX));ctx.stroke();ctx.setLineDash([])}}}if(!state.compareVisibleA&&!state.compareVisibleB){ctx.fillStyle='#58758a';ctx.textAlign='center';ctx.fillText('分步绘制两组正弦散点',a.pad.l+a.iw/2,a.pad.t+a.ih/2)}
+    const xs=rows.map(r=>r.sinR),ys=rows.map(r=>r.sinI),xMax=Math.min(1.05,Math.max(.25,Math.max(...xs)*1.14)),yMax=Math.min(1.05,Math.max(.25,Math.max(...ys)*1.14));const a=axes(ctx,w,h,0,xMax,0,yMax,'sin r','sin i');if(ga){drawSeries(ctx,ga.rows.slice(0,state.compareVisibleA).map(r=>({x:r.sinR,y:r.sinI})),a.X,a.Y,'#48d8ff',false);if(state.compareFitA>0){const s=fitStats(ga);if(s){const endX=Math.min(xMax,yMax/s.k)*state.compareFitA;ctx.strokeStyle='#48d8ff';ctx.lineWidth=2;ctx.setLineDash([6,4]);ctx.beginPath();ctx.moveTo(a.X(0),a.Y(0));ctx.lineTo(a.X(endX),a.Y(s.k*endX));ctx.stroke();ctx.setLineDash([])}}}if(gb){drawSeries(ctx,gb.rows.slice(0,state.compareVisibleB).map(r=>({x:r.sinR,y:r.sinI})),a.X,a.Y,'#ffd36b',false);if(state.compareFitB>0){const s=fitStats(gb);if(s){const endX=Math.min(xMax,yMax/s.k)*state.compareFitB;ctx.strokeStyle='#ffd36b';ctx.lineWidth=2;ctx.setLineDash([6,4]);ctx.beginPath();ctx.moveTo(a.X(0),a.Y(0));ctx.lineTo(a.X(endX),a.Y(s.k*endX));ctx.stroke();ctx.setLineDash([])}}}if(!state.compareVisibleA&&!state.compareVisibleB){ctx.fillStyle='#58758a';ctx.textAlign='center';ctx.fillText('分步绘制两组正弦散点',a.pad.l+a.iw/2,a.pad.t+a.ih/2)}
   }
 }
 window.addEventListener('resize',()=>{if(state.step===2)drawSingleChart();if(state.step===3)drawSixGrid();if(state.step===4){if(state.labActive)applyLabSplit();drawCompareChart();if(state.labActive)drawRefractionLab()}});
