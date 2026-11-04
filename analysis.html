@@ -221,7 +221,7 @@ footer{height:34px;border-top:1px solid rgba(137,185,220,.12);background:#06101c
     <section class="view" id="view3">
       <div class="six-view-shell">
         <div class="card six-toolbar">
-          <div class="six-toolbar-left"><strong>六组数据 · 四种比值同屏比较</strong><span>六张图共用坐标尺度，便于比较不同实验组的波动与稳定性</span></div>
+          <div class="six-toolbar-left"><strong>六组数据 · 四种比值同屏比较</strong><span>比值统一保留 2 位小数；六张图共用随所选数据自适应的坐标尺度</span></div>
           <div class="six-toolbar-right">
             <span class="count-badge six-count">有效数据组 <b id="sixAvailableCount">0</b></span>
             <span class="count-badge six-count">当前展示 <b id="sixSelectedCount">0</b> / 6</span>
@@ -260,7 +260,7 @@ footer{height:34px;border-top:1px solid rgba(137,185,220,.12);background:#06101c
         </div>
         <div class="lab-splitter" id="labSplitter" role="separator" aria-orientation="vertical" aria-label="调节数字折射实验台与两组数据图宽度" title="拖动调节左右比例；双击恢复 60:40" tabindex="0"><span></span><span></span><span></span></div>
         <div class="card chart-card">
-          <div class="card-head"><div><h3 id="compareChartTitle">两组数据 · sin 比比较</h3><small id="compareChartSubtitle">两组数据分步绘制</small></div><div class="legend"><span><i class="a"></i><span id="legendA">第1组</span></span><span><i class="b"></i><span id="legendB">第2组</span></span></div></div>
+          <div class="card-head"><div><h3 id="compareChartTitle">两组数据 · sin 比比较</h3><small id="compareChartSubtitle">比值保留 1 位小数 · 坐标随数据自适应</small></div><div class="legend"><span><i class="a"></i><span id="legendA">第1组</span></span><span><i class="b"></i><span id="legendB">第2组</span></span></div></div>
           <div class="chart-wrap"><canvas id="compareChart"></canvas></div>
           <div class="chart-note" id="compareChartNote">先点击“绘制第1组”，再点击“绘制第2组”。</div>
         </div>
@@ -332,6 +332,12 @@ function formatDecimal(v,places){
   if(!Number.isFinite(v))return '—';
   const d=clamp(Number(places)||0,0,10);
   return Number(v).toFixed(d);
+}
+// 各模块比值展示/作图精度（与拟合内部精度分离，不重复舍入原始测量值）
+const RATIO_GRAPH_DECIMALS={single:2,six:2,compare:1};
+function chartRatio(row,key,mode){
+  const v=row?.[key];
+  return Number.isFinite(v)?roundDecimalValue(v,RATIO_GRAPH_DECIMALS[mode]):null;
 }
 function applyRowPrecision(r,places){
   const d=clamp(Number(places)||0,0,10),i=Number(r.i),rr=Number(r.r);
@@ -761,9 +767,85 @@ function fitCycle(which,g){
   state[k.raf]=requestAnimationFrame(frame);
 }
 function setupCanvas(canvas){const rect=canvas.getBoundingClientRect(),dpr=window.devicePixelRatio||1;canvas.width=Math.max(1,Math.round(rect.width*dpr));canvas.height=Math.max(1,Math.round(rect.height*dpr));const c=canvas.getContext('2d');c.setTransform(dpr,0,0,dpr,0,0);return {ctx:c,w:rect.width,h:rect.height}}
-function niceRange(vals,includeZero=false){let lo=Math.min(...vals),hi=Math.max(...vals);if(includeZero)lo=Math.min(0,lo);if(!Number.isFinite(lo)||!Number.isFinite(hi)){lo=0;hi=1}if(Math.abs(hi-lo)<1e-8){lo-=.1;hi+=.1}const pad=(hi-lo)*.14;return [Math.max(includeZero?0:-Infinity,lo-pad),hi+pad]}
-function axes(ctx,w,h,xMin,xMax,yMin,yMax,xLabel,yLabel,xTicks=6,yTicks=6){const pad={l:58,r:20,t:22,b:62},iw=w-pad.l-pad.r,ih=h-pad.t-pad.b,X=x=>pad.l+(x-xMin)/(xMax-xMin)*iw,Y=y=>pad.t+ih-(y-yMin)/(yMax-yMin)*ih;ctx.clearRect(0,0,w,h);ctx.font='10px Microsoft YaHei';ctx.lineWidth=1;for(let j=0;j<=yTicks;j++){const v=yMin+(yMax-yMin)*j/yTicks,y=Y(v);ctx.strokeStyle='rgba(127,178,214,.10)';ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(w-pad.r,y);ctx.stroke();ctx.fillStyle='#7392a7';ctx.textAlign='right';ctx.textBaseline='middle';ctx.fillText(formatTick(v),pad.l-7,y)}for(let j=0;j<=xTicks;j++){const v=xMin+(xMax-xMin)*j/xTicks,x=X(v);ctx.strokeStyle='rgba(127,178,214,.10)';ctx.beginPath();ctx.moveTo(x,pad.t);ctx.lineTo(x,pad.t+ih);ctx.stroke();ctx.fillStyle='#7392a7';ctx.textAlign='center';ctx.textBaseline='top';ctx.fillText(formatTick(v),x,pad.t+ih+7)}ctx.strokeStyle='rgba(127,178,214,.24)';ctx.strokeRect(pad.l,pad.t,iw,ih);ctx.fillStyle='#7897ab';ctx.textAlign='center';ctx.textBaseline='alphabetic';ctx.font='10.5px Microsoft YaHei';ctx.fillText(xLabel,pad.l+iw/2,h-18);ctx.font='10px Microsoft YaHei';ctx.save();ctx.translate(13,pad.t+ih/2);ctx.rotate(-Math.PI/2);ctx.fillText(yLabel,0,0);ctx.restore();return {X,Y,pad,iw,ih}}
-function formatTick(v){if(Math.abs(v)>=10)return v.toFixed(0);if(Math.abs(v)>=1)return v.toFixed(2).replace(/0+$/,'').replace(/\.$/,'');return v.toFixed(2)}
+// 让坐标轴跟随全部待展示数据，同时采用易读的自然刻度；空数据与单点也有合理范围。
+function niceTickStep(raw,angle=false){
+  if(!Number.isFinite(raw)||raw<=0)return 1;
+  const exp=Math.floor(Math.log10(raw)),pow=10**exp;
+  const factors=angle?[1,2,5,10]:[1,2,2.5,5,10];
+  // 选最接近的自然刻度，避免自动放大成整整数轴（如 0～3），浪费有效绘图面积。
+  const f=factors.reduce((best,next)=>Math.abs(Math.log(next*pow/raw))<Math.abs(Math.log(best*pow/raw))?next:best,factors[0]);
+  return f*pow;
+}
+function dataAxisRange(values,{minSpan=0.1,ticks=5,minBound=-Infinity,maxBound=Infinity,zeroStart=false,angle=false}={}){
+  const good=values.filter(Number.isFinite);
+  if(!good.length)return [0,angle?90:1];
+  let lo=Math.min(...good),hi=Math.max(...good);
+  if(zeroStart)lo=0;
+  let span=Math.max(hi-lo,minSpan);
+  if(!zeroStart && hi-lo<minSpan){const mid=(lo+hi)/2;lo=mid-span/2;hi=mid+span/2;}
+  if(zeroStart)hi=Math.max(hi,minSpan);
+  const pad=Math.max((hi-lo)*0.11,angle?1:0);
+  let bottom=zeroStart?0:lo-pad,top=hi+pad;
+  bottom=Math.max(minBound,bottom);top=Math.min(maxBound,top);
+  if(top<=bottom){top=Math.min(maxBound,bottom+span);if(top<=bottom)bottom=Math.max(minBound,top-span);}
+  const step=niceTickStep(Math.max(1e-10,(top-bottom)/ticks),angle);
+  const eps=step*1e-9;
+  let a=zeroStart?0:Math.floor((bottom+eps)/step)*step;
+  let b=Math.ceil((top-eps)/step)*step;
+  a=Math.max(minBound,a);b=Math.min(maxBound,b);
+  if(b<=a)b=a+Math.max(step,minSpan);
+  return [Number(a.toFixed(10)),Number(b.toFixed(10))];
+}
+function ratioGraphAxes(rows,mode,keys){
+  const vals=rows.flatMap(r=>keys.map(k=>chartRatio(r,k,mode))).filter(Number.isFinite);
+  const xs=rows.map(r=>r.i).filter(Number.isFinite);
+  const decimals=RATIO_GRAPH_DECIMALS[mode];
+  return {
+    x:dataAxisRange(xs,{minSpan:10,minBound:0,maxBound:90,angle:true,ticks:5}),
+    y:dataAxisRange(vals,{minSpan:decimals===1?0.4:0.08,ticks:5})
+  };
+}
+function sineGraphAxes(rows){
+  const xs=rows.map(r=>r.sinR).filter(Number.isFinite),ys=rows.map(r=>r.sinI).filter(Number.isFinite);
+  return {
+    x:dataAxisRange(xs,{minSpan:0.20,minBound:0,maxBound:1.05,zeroStart:true,ticks:5}),
+    y:dataAxisRange(ys,{minSpan:0.20,minBound:0,maxBound:1.05,zeroStart:true,ticks:5})
+  };
+}
+// 由实际轴宽推导刻度，避免在很窄的数值区间出现重复/不规则标签。
+function axisTickValues(a,b,target=5,angle=false){
+  const step=niceTickStep((b-a)/target,angle),ticks=[];
+  for(let j=Math.ceil((a-1e-10)/step);j*step<=b+1e-9 && ticks.length<30;j++){
+    ticks.push({value:Number((j*step).toFixed(10)),step});
+  }
+  return ticks;
+}
+function axisTickLabel(v,step,fixedDp=null){
+  if(Number.isFinite(fixedDp))return Number(v).toFixed(fixedDp).replace(/^-0(?=\.)/,'0');
+  if(Math.abs(v)<1e-12)v=0;
+  const places=step>=1?0:Math.min(5,Math.max(0,Math.ceil(-Math.log10(step))+ (Math.abs(step*10**Math.ceil(-Math.log10(step))%1)>1e-8?1:0)));
+  const label=Number(v).toFixed(places);
+  return places?label.replace(/(\.\d*?)0+$/,'$1').replace(/\.$/,''):label;
+}
+function niceRange(vals,includeZero=false){return dataAxisRange(vals,{zeroStart:includeZero})}
+function axes(ctx,w,h,xMin,xMax,yMin,yMax,xLabel,yLabel,xTicks=6,yTicks=6,opts={}){
+  const pad={l:58,r:20,t:22,b:62},iw=Math.max(1,w-pad.l-pad.r),ih=Math.max(1,h-pad.t-pad.b);
+  const X=x=>pad.l+(x-xMin)/(xMax-xMin)*iw,Y=y=>pad.t+ih-(y-yMin)/(yMax-yMin)*ih;
+  ctx.clearRect(0,0,w,h);ctx.font='10px Microsoft YaHei';ctx.lineWidth=1;
+  for(const t of axisTickValues(yMin,yMax,yTicks)){
+    const y=Y(t.value);ctx.strokeStyle='rgba(127,178,214,.10)';ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(w-pad.r,y);ctx.stroke();
+    ctx.fillStyle='#7392a7';ctx.textAlign='right';ctx.textBaseline='middle';ctx.fillText(axisTickLabel(t.value,t.step,opts.yDp),pad.l-7,y);
+  }
+  for(const t of axisTickValues(xMin,xMax,xTicks,opts.angleX)){
+    const x=X(t.value);ctx.strokeStyle='rgba(127,178,214,.10)';ctx.beginPath();ctx.moveTo(x,pad.t);ctx.lineTo(x,pad.t+ih);ctx.stroke();
+    ctx.fillStyle='#7392a7';ctx.textAlign='center';ctx.textBaseline='top';ctx.fillText(axisTickLabel(t.value,t.step,opts.xDp),x,pad.t+ih+7);
+  }
+  ctx.strokeStyle='rgba(127,178,214,.24)';ctx.strokeRect(pad.l,pad.t,iw,ih);
+  ctx.fillStyle='#7897ab';ctx.textAlign='center';ctx.textBaseline='alphabetic';ctx.font='10.5px Microsoft YaHei';ctx.fillText(xLabel,pad.l+iw/2,h-18);
+  ctx.font='10px Microsoft YaHei';ctx.save();ctx.translate(13,pad.t+ih/2);ctx.rotate(-Math.PI/2);ctx.fillText(yLabel,0,0);ctx.restore();
+  return {X,Y,pad,iw,ih};
+}
+function formatTick(v){return axisTickLabel(v,0.01)}
 function drawSeries(ctx,pts,X,Y,color,connect=true){if(connect&&pts.length>1){ctx.strokeStyle=color;ctx.globalAlpha=.6;ctx.lineWidth=1.6;ctx.beginPath();pts.forEach((p,i)=>i?ctx.lineTo(X(p.x),Y(p.y)):ctx.moveTo(X(p.x),Y(p.y)));ctx.stroke();ctx.globalAlpha=1}pts.forEach(p=>{ctx.beginPath();ctx.fillStyle=color;ctx.arc(X(p.x),Y(p.y),4,0,Math.PI*2);ctx.fill();ctx.strokeStyle=color;ctx.globalAlpha=.28;ctx.beginPath();ctx.arc(X(p.x),Y(p.y),7,0,Math.PI*2);ctx.stroke();ctx.globalAlpha=1})}
 
 function refreshSixSelectors(groups=validGroups()){
@@ -786,12 +868,19 @@ function sixSelectedGroups(){
 }
 function updateSixSelectedCount(){const el=$('#sixSelectedCount');if(el)el.textContent=sixSelectedGroups().length}
 function compactAxes(ctx,w,h,xMin,xMax,yMin,yMax){
-  const pad={l:42,r:11,t:11,b:36},iw=Math.max(1,w-pad.l-pad.r),ih=Math.max(1,h-pad.t-pad.b),X=x=>pad.l+(x-xMin)/(xMax-xMin)*iw,Y=y=>pad.t+ih-(y-yMin)/(yMax-yMin)*ih;
+  const pad={l:46,r:10,t:11,b:36},iw=Math.max(1,w-pad.l-pad.r),ih=Math.max(1,h-pad.t-pad.b);
+  const X=x=>pad.l+(x-xMin)/(xMax-xMin)*iw,Y=y=>pad.t+ih-(y-yMin)/(yMax-yMin)*ih;
   ctx.clearRect(0,0,w,h);ctx.font='8px Microsoft YaHei';ctx.lineWidth=1;
-  const xTicks=4,yTicks=4;
-  for(let j=0;j<=yTicks;j++){const v=yMin+(yMax-yMin)*j/yTicks,y=Y(v);ctx.strokeStyle='rgba(127,178,214,.10)';ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(w-pad.r,y);ctx.stroke();ctx.fillStyle='#7392a7';ctx.textAlign='right';ctx.textBaseline='middle';ctx.fillText(formatTick(v),pad.l-5,y)}
-  for(let j=0;j<=xTicks;j++){const v=xMin+(xMax-xMin)*j/xTicks,x=X(v);ctx.strokeStyle='rgba(127,178,214,.08)';ctx.beginPath();ctx.moveTo(x,pad.t);ctx.lineTo(x,pad.t+ih);ctx.stroke();ctx.fillStyle='#7392a7';ctx.textAlign='center';ctx.textBaseline='top';ctx.fillText(formatTick(v),x,pad.t+ih+5)}
-  ctx.strokeStyle='rgba(127,178,214,.23)';ctx.strokeRect(pad.l,pad.t,iw,ih);ctx.fillStyle='#7897ab';ctx.textAlign='center';ctx.textBaseline='alphabetic';ctx.font='8.5px Microsoft YaHei';ctx.fillText('入射角 i / °',pad.l+iw/2,h-10);ctx.save();ctx.translate(10,pad.t+ih/2);ctx.rotate(-Math.PI/2);ctx.fillText('比值',0,0);ctx.restore();return {X,Y,pad,iw,ih}
+  for(const t of axisTickValues(yMin,yMax,4)){
+    const y=Y(t.value);ctx.strokeStyle='rgba(127,178,214,.10)';ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(w-pad.r,y);ctx.stroke();
+    ctx.fillStyle='#7392a7';ctx.textAlign='right';ctx.textBaseline='middle';ctx.fillText(axisTickLabel(t.value,t.step,2),pad.l-5,y);
+  }
+  for(const t of axisTickValues(xMin,xMax,4,true)){
+    const x=X(t.value);ctx.strokeStyle='rgba(127,178,214,.08)';ctx.beginPath();ctx.moveTo(x,pad.t);ctx.lineTo(x,pad.t+ih);ctx.stroke();
+    ctx.fillStyle='#7392a7';ctx.textAlign='center';ctx.textBaseline='top';ctx.fillText(axisTickLabel(t.value,t.step,0),x,pad.t+ih+5);
+  }
+  ctx.strokeStyle='rgba(127,178,214,.23)';ctx.strokeRect(pad.l,pad.t,iw,ih);ctx.fillStyle='#7897ab';ctx.textAlign='center';ctx.textBaseline='alphabetic';ctx.font='8.5px Microsoft YaHei';ctx.fillText('入射角 i / °',pad.l+iw/2,h-10);
+  ctx.save();ctx.translate(10,pad.t+ih/2);ctx.rotate(-Math.PI/2);ctx.fillText('比值',0,0);ctx.restore();return {X,Y,pad,iw,ih}
 }
 function drawMiniSeries(ctx,pts,X,Y,color){
   if(pts.length>1){ctx.strokeStyle=color;ctx.globalAlpha=.72;ctx.lineWidth=1.3;ctx.beginPath();pts.forEach((p,i)=>i?ctx.lineTo(X(p.x),Y(p.y)):ctx.moveTo(X(p.x),Y(p.y)));ctx.stroke();ctx.globalAlpha=1}
@@ -800,15 +889,15 @@ function drawMiniSeries(ctx,pts,X,Y,color){
 function drawSixGrid(){
   const groups=sixSelectedGroups(),allRows=groups.flatMap(g=>g.rows),keys=['angle','cos','tan','sin'];
   updateSixSelectedCount();
-  const vals=allRows.flatMap(r=>keys.map(k=>r[k])).filter(Number.isFinite),xs=allRows.map(r=>r.i).filter(Number.isFinite);
-  const yr=vals.length?niceRange(vals,false):[0,2];
-  const xMin=xs.length?Math.max(0,Math.min(...xs)-5):0,xMax=xs.length?Math.min(90,Math.max(...xs)+5):90;
+  // 六图使用所选六组的全部数据统一定轴；切换小组后六图一起调整，确保尺度公平。
+  const ranges=allRows.length?ratioGraphAxes(allRows,'six',keys):{x:[0,90],y:[0,2]};
+  const [xMin,xMax]=ranges.x,[yMin,yMax]=ranges.y;
   const colors={angle:'#48d8ff',cos:'#ffd36b',tan:'#b993ff',sin:'#69e6b2'};
   for(let j=1;j<=6;j++){
     const canvas=$('#sixChart'+j),g=groupBySelect('sixSelect'+j);if(!canvas)continue;
-    const {ctx,w,h}=setupCanvas(canvas),a=compactAxes(ctx,w,h,xMin,xMax,yr[0],yr[1]);
+    const {ctx,w,h}=setupCanvas(canvas),a=compactAxes(ctx,w,h,xMin,xMax,yMin,yMax);
     if(!g||!g.rows.length){ctx.fillStyle='#58758a';ctx.textAlign='center';ctx.textBaseline='middle';ctx.font='10px Microsoft YaHei';ctx.fillText('请选择数据组',a.pad.l+a.iw/2,a.pad.t+a.ih/2);continue}
-    keys.forEach(k=>drawMiniSeries(ctx,g.rows.filter(r=>Number.isFinite(r[k])).map(r=>({x:r.i,y:r[k]})),a.X,a.Y,colors[k]));
+    keys.forEach(k=>drawMiniSeries(ctx,g.rows.map(r=>({x:r.i,y:chartRatio(r,k,'six')})).filter(p=>Number.isFinite(p.y)),a.X,a.Y,colors[k]));
   }
 }
 for(let j=1;j<=6;j++){const sel=$('#sixSelect'+j);if(sel)sel.addEventListener('change',()=>{updateSixSelectedCount();drawSixGrid()})}
@@ -823,22 +912,21 @@ function drawSingleChart(){
   const rows=g.rows;
   if(state.singleMetric==='fit'){
     $('#singleChartNote').textContent='sin i、sin r 先按本组原始数据的小数点后位数取舍，再用于散点与拟合；散点完成后再点击“拟合直线”。';
-    const xs=rows.map(r=>r.sinR),ys=rows.map(r=>r.sinI),xMax=Math.min(1.05,Math.max(.25,Math.max(...xs)*1.14)),yMax=Math.min(1.05,Math.max(.25,Math.max(...ys)*1.14));
-    const a=axes(ctx,w,h,0,xMax,0,yMax,'sin r','sin i');
+    const range=sineGraphAxes(rows),xMax=range.x[1],yMax=range.y[1];
+    const a=axes(ctx,w,h,range.x[0],xMax,range.y[0],yMax,'sin r','sin i');
     const pts=rows.slice(0,state.singleVisible).map(r=>({x:r.sinR,y:r.sinI}));
     drawSeries(ctx,pts,a.X,a.Y,'#48d8ff',false);
     if(state.singleFitProgress>0){const s=fitStats(g);if(s){const endX=Math.min(xMax,yMax/s.k)*state.singleFitProgress;ctx.strokeStyle='#69e6b2';ctx.lineWidth=2;ctx.setLineDash([6,4]);ctx.beginPath();ctx.moveTo(a.X(0),a.Y(0));ctx.lineTo(a.X(endX),a.Y(s.k*endX));ctx.stroke();ctx.setLineDash([])}}
     if(!state.singleVisible){ctx.fillStyle='#58758a';ctx.textAlign='center';ctx.fillText('点击“绘制正弦散点”开始',a.pad.l+a.iw/2,a.pad.t+a.ih/2)}
     return;
   }
-  $('#singleChartNote').textContent='四种比值共用同一坐标系；计算、作图均按本组原始 i、r 的最大小数点后位数取舍。按角度比、cos 比、tan 比、sin 比逐步加入。';
-  const keys=['angle','cos','tan','sin'];
-  const vals=rows.flatMap(r=>keys.map(k=>r[k])).filter(Number.isFinite),xVals=rows.map(r=>r.i);
-  const [yMin,yMax]=niceRange(vals,false),xMin=Math.max(0,Math.min(...xVals)-5),xMax=Math.min(90,Math.max(...xVals)+5);
-  const a=axes(ctx,w,h,xMin,xMax,yMin,yMax,'入射角 i / °','比值');
+  $('#singleChartNote').textContent='四种比值共用同一坐标系；比值统一保留小数点后 2 位，坐标轴根据本组全部数据自适应；仍按原实验精度进行内部计算与拟合。';
+  const keys=['angle','cos','tan','sin'],range=ratioGraphAxes(rows,'single',keys);
+  const [xMin,xMax]=range.x,[yMin,yMax]=range.y;
+  const a=axes(ctx,w,h,xMin,xMax,yMin,yMax,'入射角 i / °','比值',6,5,{xDp:0,yDp:2,angleX:true});
   const colors={angle:'#48d8ff',cos:'#ffd36b',sin:'#69e6b2',tan:'#b993ff'};
   keys.forEach(k=>{
-    const pts=rows.slice(0,state.singleRatioVisible[k]).filter(r=>Number.isFinite(r[k])).map(r=>({x:r.i,y:r[k]}));
+    const pts=rows.slice(0,state.singleRatioVisible[k]).map(r=>({x:r.i,y:chartRatio(r,k,'single')})).filter(p=>Number.isFinite(p.y));
     drawSeries(ctx,pts,a.X,a.Y,colors[k],true);
   });
   if(!state.singleRatioVisible.angle&&!state.singleRatioVisible.cos&&!state.singleRatioVisible.sin&&!state.singleRatioVisible.tan){ctx.fillStyle='#58758a';ctx.textAlign='center';ctx.fillText('请选择一种比值开始绘制',a.pad.l+a.iw/2,a.pad.t+a.ih/2)}
@@ -1072,12 +1160,33 @@ if(labSplitter){
 }
 
 function drawCompareChart(){
-  const {ctx,w,h}=setupCanvas($('#compareChart')),ga=groupBySelect('compareA'),gb=groupBySelect('compareB');updateCompareSummary();if(!ga&&!gb){const a=axes(ctx,w,h,0,90,0,2,'入射角 i / °','sin i / sin r');ctx.fillStyle='#58758a';ctx.textAlign='center';ctx.fillText('请先录入至少两组数据',a.pad.l+a.iw/2,a.pad.t+a.ih/2);return}
+  const {ctx,w,h}=setupCanvas($('#compareChart')),ga=groupBySelect('compareA'),gb=groupBySelect('compareB');
+  updateCompareSummary();
+  if(!ga&&!gb){
+    const a=axes(ctx,w,h,0,90,0,2,'入射角 i / °',state.compareMode==='sin'?'sin i / sin r':'sin i');
+    ctx.fillStyle='#58758a';ctx.textAlign='center';ctx.fillText('请先录入至少两组数据',a.pad.l+a.iw/2,a.pad.t+a.ih/2);return;
+  }
   const rows=[...(ga?ga.rows:[]),...(gb?gb.rows:[])];
   if(state.compareMode==='sin'){
-    const vals=rows.map(r=>r.sin).filter(Number.isFinite),xs=rows.map(r=>r.i),[yMin,yMax]=niceRange(vals,false),xMin=Math.max(0,Math.min(...xs)-5),xMax=Math.min(90,Math.max(...xs)+5);const a=axes(ctx,w,h,xMin,xMax,yMin,yMax,'入射角 i / °','sin i / sin r');if(ga)drawSeries(ctx,ga.rows.slice(0,state.compareVisibleA).map(r=>({x:r.i,y:r.sin})),a.X,a.Y,'#48d8ff',true);if(gb)drawSeries(ctx,gb.rows.slice(0,state.compareVisibleB).map(r=>({x:r.i,y:r.sin})),a.X,a.Y,'#ffd36b',true);if(!state.compareVisibleA&&!state.compareVisibleB){ctx.fillStyle='#58758a';ctx.textAlign='center';ctx.fillText('先绘制第1组，再绘制第2组',a.pad.l+a.iw/2,a.pad.t+a.ih/2)}
+    $('#compareChartSubtitle').textContent='比值统一保留小数点后 1 位 · 坐标随两组数据自适应';
+    const range=ratioGraphAxes(rows,'compare',['sin']),[xMin,xMax]=range.x,[yMin,yMax]=range.y;
+    const a=axes(ctx,w,h,xMin,xMax,yMin,yMax,'入射角 i / °','sin i / sin r',6,5,{xDp:0,yDp:1,angleX:true});
+    if(ga)drawSeries(ctx,ga.rows.slice(0,state.compareVisibleA).map(r=>({x:r.i,y:chartRatio(r,'sin','compare')})).filter(p=>Number.isFinite(p.y)),a.X,a.Y,'#48d8ff',true);
+    if(gb)drawSeries(ctx,gb.rows.slice(0,state.compareVisibleB).map(r=>({x:r.i,y:chartRatio(r,'sin','compare')})).filter(p=>Number.isFinite(p.y)),a.X,a.Y,'#ffd36b',true);
+    if(!state.compareVisibleA&&!state.compareVisibleB){ctx.fillStyle='#58758a';ctx.textAlign='center';ctx.fillText('先绘制第1组，再绘制第2组',a.pad.l+a.iw/2,a.pad.t+a.ih/2)}
   }else{
-    const xs=rows.map(r=>r.sinR),ys=rows.map(r=>r.sinI),xMax=Math.min(1.05,Math.max(.25,Math.max(...xs)*1.14)),yMax=Math.min(1.05,Math.max(.25,Math.max(...ys)*1.14));const a=axes(ctx,w,h,0,xMax,0,yMax,'sin r','sin i');if(ga){drawSeries(ctx,ga.rows.slice(0,state.compareVisibleA).map(r=>({x:r.sinR,y:r.sinI})),a.X,a.Y,'#48d8ff',false);if(state.compareFitA>0){const s=fitStats(ga);if(s){const endX=Math.min(xMax,yMax/s.k)*state.compareFitA;ctx.strokeStyle='#48d8ff';ctx.lineWidth=2;ctx.setLineDash([6,4]);ctx.beginPath();ctx.moveTo(a.X(0),a.Y(0));ctx.lineTo(a.X(endX),a.Y(s.k*endX));ctx.stroke();ctx.setLineDash([])}}}if(gb){drawSeries(ctx,gb.rows.slice(0,state.compareVisibleB).map(r=>({x:r.sinR,y:r.sinI})),a.X,a.Y,'#ffd36b',false);if(state.compareFitB>0){const s=fitStats(gb);if(s){const endX=Math.min(xMax,yMax/s.k)*state.compareFitB;ctx.strokeStyle='#ffd36b';ctx.lineWidth=2;ctx.setLineDash([6,4]);ctx.beginPath();ctx.moveTo(a.X(0),a.Y(0));ctx.lineTo(a.X(endX),a.Y(s.k*endX));ctx.stroke();ctx.setLineDash([])}}}if(!state.compareVisibleA&&!state.compareVisibleB){ctx.fillStyle='#58758a';ctx.textAlign='center';ctx.fillText('分步绘制两组正弦散点',a.pad.l+a.iw/2,a.pad.t+a.ih/2)}
+    $('#compareChartSubtitle').textContent='两组正弦散点与拟合 · 坐标随两组数据自适应';
+    const range=sineGraphAxes(rows),xMax=range.x[1],yMax=range.y[1];
+    const a=axes(ctx,w,h,range.x[0],xMax,range.y[0],yMax,'sin r','sin i');
+    if(ga){
+      drawSeries(ctx,ga.rows.slice(0,state.compareVisibleA).map(r=>({x:r.sinR,y:r.sinI})).filter(p=>Number.isFinite(p.x)&&Number.isFinite(p.y)),a.X,a.Y,'#48d8ff',false);
+      if(state.compareFitA>0){const s=fitStats(ga);if(s&&s.k>0){const endX=Math.min(xMax,yMax/s.k)*state.compareFitA;ctx.strokeStyle='#48d8ff';ctx.lineWidth=2;ctx.setLineDash([6,4]);ctx.beginPath();ctx.moveTo(a.X(0),a.Y(0));ctx.lineTo(a.X(endX),a.Y(s.k*endX));ctx.stroke();ctx.setLineDash([])}}
+    }
+    if(gb){
+      drawSeries(ctx,gb.rows.slice(0,state.compareVisibleB).map(r=>({x:r.sinR,y:r.sinI})).filter(p=>Number.isFinite(p.x)&&Number.isFinite(p.y)),a.X,a.Y,'#ffd36b',false);
+      if(state.compareFitB>0){const s=fitStats(gb);if(s&&s.k>0){const endX=Math.min(xMax,yMax/s.k)*state.compareFitB;ctx.strokeStyle='#ffd36b';ctx.lineWidth=2;ctx.setLineDash([6,4]);ctx.beginPath();ctx.moveTo(a.X(0),a.Y(0));ctx.lineTo(a.X(endX),a.Y(s.k*endX));ctx.stroke();ctx.setLineDash([])}}
+    }
+    if(!state.compareVisibleA&&!state.compareVisibleB){ctx.fillStyle='#58758a';ctx.textAlign='center';ctx.fillText('分步绘制两组正弦散点',a.pad.l+a.iw/2,a.pad.t+a.ih/2)}
   }
 }
 window.addEventListener('resize',()=>{if(state.step===2)drawSingleChart();if(state.step===3)drawSixGrid();if(state.step===4){if(state.labActive)applyLabSplit();drawCompareChart();if(state.labActive)drawRefractionLab()}});
