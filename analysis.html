@@ -268,7 +268,7 @@ footer{height:34px;border-top:1px solid rgba(137,185,220,.12);background:#06101c
     </section>
   </main>
 </div>
-<footer><span>人教版（2019）选择性必修第一册 · 4.1 光的折射</span><span>真实实验数据 · 云端班级汇集 · CSV 备用 · 动态作图 · 单组/六组比值保留2位 · 双组比值保留1位 · 先舍入后作图 · 正弦拟合独立精度</span></footer>
+<footer><span>人教版（2019）选择性必修第一册 · 4.1 光的折射</span><span>真实实验数据 · 云端班级汇集 · CSV 备用 · 动态作图 · 单组/六组比值保留2位 · 双组比值保留1位 · 先舍入后作图 · 正弦拟合完整精度</span></footer>
 </div>
 <div class="toast" id="toast"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -299,7 +299,7 @@ function currentGroup(){return state.groups.find(g=>g.id===state.currentGroupId)
 function validGroups(){return state.groups.filter(g=>g.rows.length>0)}
 function totalSamples(){return state.groups.reduce((s,g)=>s+g.rows.length,0)}
 
-// ===== 小数精度：按每组 i、r 中“最多的小数点后位数”控制整条内部计算链 =====
+// ===== 输入小数位识别；比值图独立舍入，正弦拟合在内部使用完整精度 =====
 function cleanMeasureText(v){
   return String(v??'').trim().replace(/[°º˚]/g,'').replace(/\s+/g,'');
 }
@@ -334,7 +334,7 @@ function formatDecimal(v,places){
   return Number(v).toFixed(d);
 }
 // 各模块四种比值：原始角度 → 完整精度比值 → 模块规定小数位舍入 → 同一份舍入值用于定轴和实际画点。
-// 只有正弦拟合仍沿用原实验数据的精度链，两者刻意分离，避免“先舍入三角量再求比值”造成失真。
+// 正弦拟合独立使用由原始角度算得的完整精度三角函数值，避免中间舍入造成斜率失真。
 const RATIO_GRAPH_DECIMALS={single:2,six:2,compare:1};
 function fullPrecisionRatios(i,r){
   i=Number(i);r=Number(r);
@@ -359,9 +359,9 @@ function chartRatio(row,key,mode){
 }
 function applyRowPrecision(r,places){
   const d=clamp(Number(places)||0,0,10),i=Number(r.i),rr=Number(r.r);
-  // 正弦拟合单独保持已有的原始实验精度规则（sin i / sin r 拟合坐标）。
-  r.sinI=roundDecimalValue(Math.sin(rad(i)),d);
-  r.sinR=roundDecimalValue(Math.sin(rad(rr)),d);
+  // 正弦拟合坐标：从原始角度计算，禁止先舍入 sin i / sin r。
+  r.sinI=Math.sin(rad(i));
+  r.sinR=Math.sin(rad(rr));
   r.cosI=roundDecimalValue(Math.cos(rad(i)),d);
   r.cosR=roundDecimalValue(Math.cos(rad(rr)),d);
   r.tanI=roundDecimalValue(Math.tan(rad(i)),d);
@@ -638,7 +638,7 @@ function refreshSelectors(){
   updateSingleSummary();updateCompareSummary();
 }
 function groupBySelect(id){const v=+$('#'+id).value;return state.groups.find(g=>g.id===v)||null}
-function updateSingleSummary(){const g=groupBySelect('singleGroupSelect');$('#singleSampleCount').textContent=g?g.rows.length:0;$('#singleLegendName').textContent=g?g.name:'当前数据组';if(g)$('#singleMetricName').title=`比值按 2 位小数先舍入后作图；正弦拟合按本组原始数据小数点后 ${groupDecimalPlaces(g)} 位处理`;}
+function updateSingleSummary(){const g=groupBySelect('singleGroupSelect');$('#singleSampleCount').textContent=g?g.rows.length:0;$('#singleLegendName').textContent=g?g.name:'当前数据组';if(g)$('#singleMetricName').title='四种比值按 2 位小数先舍入后作图；正弦拟合由原始角度直接计算，不提前舍入';}
 function updateCompareSummary(){const a=groupBySelect('compareA'),b=groupBySelect('compareB');$('#compareAN').textContent=a?a.rows.length:0;$('#compareBN').textContent=b?b.rows.length:0;$('#legendA').textContent=a?a.name:'第1组';$('#legendB').textContent=b?b.name:'第2组';$('#slopeALabel').textContent=(a?a.name:'第1组')+'斜率';$('#slopeBLabel').textContent=(b?b.name:'第2组')+'斜率'}
 ['singleGroupSelect'].forEach(id=>$('#'+id).addEventListener('change',()=>{updateSingleSummary();resetSingleChart();drawSingleChart()}));
 ['compareA','compareB'].forEach(id=>$('#'+id).addEventListener('change',()=>{exitRefractionLab(false);updateCompareSummary();resetCompareChart();drawCompareChart()}));
@@ -721,31 +721,30 @@ $('#singleDrawBtn').addEventListener('click',()=>{
   },180);
 });
 $('#singleFitBtn').addEventListener('click',()=>{const g=groupBySelect('singleGroupSelect');if(!g||state.singleVisible<g.rows.length){toast('请先完成正弦散点绘制');return}fitCycle('single',g)});
+// 正弦拟合：物理模型 sin i = k · sin r；沿用原平台“过原点”最小二乘模型。
+// 不在乘积、累加、斜率、残差计算中舍入；仅在最终展示时格式化。
 function fitStats(g){
-  if(!g||g.rows.length<2)return null;
-  recomputeGroupPrecision(g);
-  const dp=groupDecimalPlaces(g);let sxy=0,sxx=0;const ys=[];
-  g.rows.forEach(r=>{
-    const x=Number.isFinite(r.sinR)?r.sinR:roundDecimalValue(Math.sin(rad(r.r)),dp);
-    const y=Number.isFinite(r.sinI)?r.sinI:roundDecimalValue(Math.sin(rad(r.i)),dp);
-    sxy=roundDecimalValue(sxy+roundDecimalValue(x*y,dp),dp);
-    sxx=roundDecimalValue(sxx+roundDecimalValue(x*x,dp),dp);
-    ys.push(y);
-  });
-  if(!sxx)return null;
-  const k=roundDecimalValue(sxy/sxx,dp);
-  let ysum=0;ys.forEach(y=>ysum=roundDecimalValue(ysum+y,dp));
-  const mean=roundDecimalValue(ysum/ys.length,dp);let ssr=0,sst=0;
-  g.rows.forEach((r,j)=>{
-    const x=Number.isFinite(r.sinR)?r.sinR:roundDecimalValue(Math.sin(rad(r.r)),dp),y=ys[j];
-    const residual=roundDecimalValue(y-roundDecimalValue(k*x,dp),dp);
-    const deviation=roundDecimalValue(y-mean,dp);
-    ssr=roundDecimalValue(ssr+roundDecimalValue(residual*residual,dp),dp);
-    sst=roundDecimalValue(sst+roundDecimalValue(deviation*deviation,dp),dp);
-  });
-  const r2=roundDecimalValue(sst?1-ssr/sst:1,dp);
-  return {k,r2,dp}
+  if(!g||!Array.isArray(g.rows)||g.rows.length<2)return null;
+  // 与正弦散点图保持完全相同的坐标来源（原始 i、r）。
+  const pts=g.rows.map(r=>({
+    x:Math.sin(rad(Number(r.r))),
+    y:Math.sin(rad(Number(r.i)))
+  })).filter(p=>Number.isFinite(p.x)&&Number.isFinite(p.y));
+  if(pts.length<2)return null;
+  let sxy=0,sxx=0,sumY=0;
+  for(const p of pts){sxy+=p.x*p.y;sxx+=p.x*p.x;sumY+=p.y}
+  if(sxx<=1e-14)return null;
+  const k=sxy/sxx,meanY=sumY/pts.length;
+  let sse=0,sst=0;
+  for(const p of pts){
+    sse+=(p.y-k*p.x)**2;
+    sst+=(p.y-meanY)**2;
+  }
+  const r2=sst<=1e-14?(sse<=1e-14?1:0):1-sse/sst;
+  return {k,r2,n:pts.length};
 }
+function fitSlopeText(k){return formatDecimal(k,3)}
+function fitR2Text(r2){return formatDecimal(r2,4)}
 function fitKeys(which){
   if(which==='single')return {progress:'singleFitProgress',raf:'singleRaf'};
   return which==='A'?{progress:'compareFitA',raf:'compareRafA'}:{progress:'compareFitB',raf:'compareRafB'};
@@ -754,7 +753,7 @@ function drawFitTarget(which){if(which==='single')drawSingleChart();else drawCom
 function fitButton(which){return $(which==='single'?'#singleFitBtn':which==='A'?'#fitA':'#fitB')}
 function revealFitResult(which,g){
   if(which==='single'){
-    const s=fitStats(g),dp=groupDecimalPlaces(g);$('#singleFitResults').style.display='grid';$('#singleSlope').textContent=s?formatDecimal(s.k,dp):'—';$('#singleR2').textContent=s?formatDecimal(s.r2,dp):'—';$('#singleN').textContent=g.rows.length;
+    const s=fitStats(g);$('#singleFitResults').style.display='grid';$('#singleSlope').textContent=s?fitSlopeText(s.k):'—';$('#singleR2').textContent=s?fitR2Text(s.r2):'—';$('#singleN').textContent=g.rows.length;
   }else updateCompareFitResults();
 }
 function resetFitResultForReplay(which){
@@ -928,7 +927,7 @@ function drawSingleChart(){
   }
   const rows=g.rows;
   if(state.singleMetric==='fit'){
-    $('#singleChartNote').textContent='sin i、sin r 先按本组原始数据的小数点后位数取舍，再用于散点与拟合；散点完成后再点击“拟合直线”。';
+    $('#singleChartNote').textContent='由原始 i、r 直接计算 sin r、sin i；过原点最小二乘拟合使用完整精度，斜率展示 3 位小数。';
     const range=sineGraphAxes(rows),xMax=range.x[1],yMax=range.y[1];
     const a=axes(ctx,w,h,range.x[0],xMax,range.y[0],yMax,'sin r','sin i');
     const pts=rows.slice(0,state.singleVisible).map(r=>({x:r.sinR,y:r.sinI}));
@@ -937,7 +936,7 @@ function drawSingleChart(){
     if(!state.singleVisible){ctx.fillStyle='#58758a';ctx.textAlign='center';ctx.fillText('点击“绘制正弦散点”开始',a.pad.l+a.iw/2,a.pad.t+a.ih/2)}
     return;
   }
-  $('#singleChartNote').textContent='四种比值由原始 i、r 直接计算，统一舍入到小数点后 2 位再作图；坐标轴按同一批舍入值自适应。正弦拟合继续使用原实验精度规则。';
+  $('#singleChartNote').textContent='四种比值由原始 i、r 直接计算，统一舍入到小数点后 2 位再作图；坐标轴按同一批舍入值自适应。正弦拟合独立保留完整计算精度。';
   const keys=['angle','cos','tan','sin'],range=ratioGraphAxes(rows,'single',keys);
   const [xMin,xMax]=range.x,[yMin,yMax]=range.y;
   const a=axes(ctx,w,h,xMin,xMax,yMin,yMax,'入射角 i / °','比值',6,5,{xDp:0,yDp:2,angleX:true});
@@ -983,7 +982,7 @@ function animateGroup(which){
   },190)
 }
 $('#drawA').addEventListener('click',()=>animateGroup('A'));$('#drawB').addEventListener('click',()=>animateGroup('B'));$('#fitA').addEventListener('click',()=>{const g=groupBySelect('compareA');if(g&&state.compareVisibleA>=g.rows.length)fitCycle('A',g)});$('#fitB').addEventListener('click',()=>{const g=groupBySelect('compareB');if(g&&state.compareVisibleB>=g.rows.length)fitCycle('B',g)});
-function updateCompareFitResults(){const ga=groupBySelect('compareA'),gb=groupBySelect('compareB'),a=fitStats(ga),b=fitStats(gb),dpA=groupDecimalPlaces(ga),dpB=groupDecimalPlaces(gb),dpD=Math.max(dpA,dpB),any=state.compareFitA>=1||state.compareFitB>=1;$('#compareFitResults').style.display=any?'grid':'none';$('#slopeA').textContent=state.compareFitA>=1&&a?formatDecimal(a.k,dpA):'—';$('#slopeB').textContent=state.compareFitB>=1&&b?formatDecimal(b.k,dpB):'—';$('#slopeDiff').textContent=state.compareFitA>=1&&state.compareFitB>=1&&a&&b?formatDecimal(Math.abs(a.k-b.k),dpD):'—';const ready=state.compareMode==='fit'&&state.compareFitA>=1&&state.compareFitB>=1&&a&&b;$('#refractionLabAction').style.display=ready?'flex':'none';if(state.labActive&&ready)updateRefractionLab()}
+function updateCompareFitResults(){const ga=groupBySelect('compareA'),gb=groupBySelect('compareB'),a=fitStats(ga),b=fitStats(gb),any=state.compareFitA>=1||state.compareFitB>=1;$('#compareFitResults').style.display=any?'grid':'none';$('#slopeA').textContent=state.compareFitA>=1&&a?fitSlopeText(a.k):'—';$('#slopeB').textContent=state.compareFitB>=1&&b?fitSlopeText(b.k):'—';$('#slopeDiff').textContent=state.compareFitA>=1&&state.compareFitB>=1&&a&&b?fitSlopeText(Math.abs(a.k-b.k)):'—';const ready=state.compareMode==='fit'&&state.compareFitA>=1&&state.compareFitB>=1&&a&&b;$('#refractionLabAction').style.display=ready?'flex':'none';if(state.labActive&&ready)updateRefractionLab()}
 
 function degFromRad(v){return v*180/Math.PI}
 function refractedAngleFromN(iDeg,n){
@@ -1033,7 +1032,7 @@ function updateRefractionLab(){
   $('#labAngleSlider').value=String(i);$('#labAngleValue').textContent=i.toFixed(1)+'°';
   $('#labNameA').textContent=ga.name;$('#labNameB').textContent=gb.name;
   const dpA=groupDecimalPlaces(ga),dpB=groupDecimalPlaces(gb);
-  $('#labNA').textContent='n = '+formatDecimal(sa.k,dpA);$('#labNB').textContent='n = '+formatDecimal(sb.k,dpB);
+  $('#labNA').textContent='n = '+fitSlopeText(sa.k);$('#labNB').textContent='n = '+fitSlopeText(sb.k);
   $('#labRA').textContent='r = '+(Number.isFinite(rA)?formatDecimal(rA,dpA)+'°':'无实数解');
   $('#labRB').textContent='r = '+(Number.isFinite(rB)?formatDecimal(rB,dpB)+'°':'无实数解');
   let note='同角入射，直接比较 r₁ 与 r₂。';
@@ -1066,10 +1065,10 @@ function drawRefractionLab(){
   ctx.fillText('同一入射角 · 双介质折射光叠加比较',x+14,y+20);
   const legendY=y+39;
   ctx.strokeStyle=colorA;ctx.lineWidth=3;ctx.setLineDash([]);ctx.beginPath();ctx.moveTo(x+14,legendY);ctx.lineTo(x+36,legendY);ctx.stroke();
-  ctx.fillStyle=colorA;ctx.font='12px Microsoft YaHei';ctx.fillText(`${ga.name}  n₁=${formatDecimal(sa.k,groupDecimalPlaces(ga))}`,x+42,legendY+3);
+  ctx.fillStyle=colorA;ctx.font='12px Microsoft YaHei';ctx.fillText(`${ga.name}  n₁=${fitSlopeText(sa.k)}`,x+42,legendY+3);
   const legendBX=Math.min(x+pw*.52,x+pw-180);
   ctx.strokeStyle=colorB;ctx.lineWidth=3;ctx.setLineDash([6,4]);ctx.beginPath();ctx.moveTo(legendBX,legendY);ctx.lineTo(legendBX+22,legendY);ctx.stroke();ctx.setLineDash([]);
-  ctx.fillStyle=colorB;ctx.font='12px Microsoft YaHei';ctx.fillText(`${gb.name}  n₂=${formatDecimal(sb.k,groupDecimalPlaces(gb))}`,legendBX+28,legendY+3);
+  ctx.fillStyle=colorB;ctx.font='12px Microsoft YaHei';ctx.fillText(`${gb.name}  n₂=${fitSlopeText(sb.k)}`,legendBX+28,legendY+3);
 
   // interface and normal
   ctx.strokeStyle='rgba(183,221,241,.42)';ctx.lineWidth=1.3;ctx.beginPath();ctx.moveTo(x+18,interfaceY);ctx.lineTo(x+pw-18,interfaceY);ctx.stroke();
@@ -1192,7 +1191,7 @@ function drawCompareChart(){
     if(gb)drawSeries(ctx,gb.rows.slice(0,state.compareVisibleB).map(r=>({x:r.i,y:chartRatio(r,'sin','compare')})).filter(p=>Number.isFinite(p.y)),a.X,a.Y,'#ffd36b',true);
     if(!state.compareVisibleA&&!state.compareVisibleB){ctx.fillStyle='#58758a';ctx.textAlign='center';ctx.fillText('先绘制第1组，再绘制第2组',a.pad.l+a.iw/2,a.pad.t+a.ih/2)}
   }else{
-    $('#compareChartSubtitle').textContent='两组正弦散点与拟合 · 坐标随两组数据自适应';
+    $('#compareChartSubtitle').textContent='两组正弦散点与过原点拟合 · 使用完整精度计算';
     const range=sineGraphAxes(rows),xMax=range.x[1],yMax=range.y[1];
     const a=axes(ctx,w,h,range.x[0],xMax,range.y[0],yMax,'sin r','sin i');
     if(ga){
