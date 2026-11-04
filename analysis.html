@@ -221,7 +221,7 @@ footer{height:34px;border-top:1px solid rgba(137,185,220,.12);background:#06101c
     <section class="view" id="view3">
       <div class="six-view-shell">
         <div class="card six-toolbar">
-          <div class="six-toolbar-left"><strong>六组数据 · 四种比值同屏比较</strong><span>比值统一保留 2 位小数；六张图共用随所选数据自适应的坐标尺度</span></div>
+          <div class="six-toolbar-left"><strong>六组数据 · 四种比值同屏比较</strong><span>由原始 i、r 直接计算比值并舍入到 2 位小数；六张图共用坐标尺度</span></div>
           <div class="six-toolbar-right">
             <span class="count-badge six-count">有效数据组 <b id="sixAvailableCount">0</b></span>
             <span class="count-badge six-count">当前展示 <b id="sixSelectedCount">0</b> / 6</span>
@@ -268,7 +268,7 @@ footer{height:34px;border-top:1px solid rgba(137,185,220,.12);background:#06101c
     </section>
   </main>
 </div>
-<footer><span>人教版（2019）选择性必修第一册 · 4.1 光的折射</span><span>真实实验数据 · 云端班级汇集 · CSV 备用 · 动态作图 · 数学建模 · 单屏自适应 · 四比值寻律 · 六组同屏验证 · 双折射角叠加比较 · 入射角自动演示 · 绘图快进 · 完成态清空循环 · 小数精度内部一致</span></footer>
+<footer><span>人教版（2019）选择性必修第一册 · 4.1 光的折射</span><span>真实实验数据 · 云端班级汇集 · CSV 备用 · 动态作图 · 单组/六组比值保留2位 · 双组比值保留1位 · 先舍入后作图 · 正弦拟合独立精度</span></footer>
 </div>
 <div class="toast" id="toast"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -333,25 +333,42 @@ function formatDecimal(v,places){
   const d=clamp(Number(places)||0,0,10);
   return Number(v).toFixed(d);
 }
-// 各模块比值展示/作图精度（与拟合内部精度分离，不重复舍入原始测量值）
+// 各模块四种比值：原始角度 → 完整精度比值 → 模块规定小数位舍入 → 同一份舍入值用于定轴和实际画点。
+// 只有正弦拟合仍沿用原实验数据的精度链，两者刻意分离，避免“先舍入三角量再求比值”造成失真。
 const RATIO_GRAPH_DECIMALS={single:2,six:2,compare:1};
+function fullPrecisionRatios(i,r){
+  i=Number(i);r=Number(r);
+  if(!Number.isFinite(i)||!Number.isFinite(r))return {angle:null,cos:null,tan:null,sin:null};
+  const si=Math.sin(rad(i)),sr=Math.sin(rad(r));
+  const ci=Math.cos(rad(i)),cr=Math.cos(rad(r));
+  const ti=Math.tan(rad(i)),tr=Math.tan(rad(r));
+  return {
+    angle:Math.abs(r)>1e-12?i/r:null,
+    cos:Math.abs(cr)>1e-12?ci/cr:null,
+    tan:Math.abs(tr)>1e-12?ti/tr:null,
+    sin:Math.abs(sr)>1e-12?si/sr:null
+  };
+}
 function chartRatio(row,key,mode){
-  const v=row?.[key];
-  return Number.isFinite(v)?roundDecimalValue(v,RATIO_GRAPH_DECIMALS[mode]):null;
+  const places=RATIO_GRAPH_DECIMALS[mode];
+  if(!row||!Number.isInteger(places))return null;
+  // 保证即使从云端/CSV 导入，也以原始 i、r 的完整精度直接计算比值。
+  // 两处绘图点和坐标轴都只调用 chartRatio，因此不会再次舍入或使用旧精度结果。
+  const v=fullPrecisionRatios(row.i,row.r)[key];
+  return Number.isFinite(v)?roundDecimalValue(v,places):null;
 }
 function applyRowPrecision(r,places){
   const d=clamp(Number(places)||0,0,10),i=Number(r.i),rr=Number(r.r);
-  // 三角函数值先按本组原始角度的最大小数位数取舍，后续比值与拟合只使用这些已取舍数值。
+  // 正弦拟合单独保持已有的原始实验精度规则（sin i / sin r 拟合坐标）。
   r.sinI=roundDecimalValue(Math.sin(rad(i)),d);
   r.sinR=roundDecimalValue(Math.sin(rad(rr)),d);
   r.cosI=roundDecimalValue(Math.cos(rad(i)),d);
   r.cosR=roundDecimalValue(Math.cos(rad(rr)),d);
   r.tanI=roundDecimalValue(Math.tan(rad(i)),d);
   r.tanR=roundDecimalValue(Math.tan(rad(rr)),d);
-  r.angle=rr!==0?roundDecimalValue(i/rr,d):null;
-  r.cos=Math.abs(r.cosR)>1e-12?roundDecimalValue(r.cosI/r.cosR,d):null;
-  r.sin=Math.abs(r.sinR)>1e-12?roundDecimalValue(r.sinI/r.sinR,d):null;
-  r.tan=Math.abs(r.tanR)>1e-12?roundDecimalValue(r.tanI/r.tanR,d):null;
+  // row 上的四种比值保存完整精度，不预先按 groupDecimalPlaces 舍入。
+  const ratios=fullPrecisionRatios(i,rr);
+  r.angle=ratios.angle;r.cos=ratios.cos;r.sin=ratios.sin;r.tan=ratios.tan;
   r.calcDp=d;
   return r;
 }
@@ -605,7 +622,7 @@ $('#csvFileInput').addEventListener('change',async e=>{const file=e.target.files
 
 $('#exportBtn').addEventListener('click',()=>{
   const rows=[['数据组','序号','入射角i(°)','折射角r(°)','i/r','cos i/cos r','sin i/sin r','tan i/tan r']];
-  state.groups.forEach(g=>{const dp=groupDecimalPlaces(g);g.rows.forEach((r,idx)=>rows.push([g.name,idx+1,inputDisplay(r.iRaw,r.i),inputDisplay(r.rRaw,r.r),r.angle==null?'':formatDecimal(r.angle,dp),r.cos==null?'':formatDecimal(r.cos,dp),r.sin==null?'':formatDecimal(r.sin,dp),r.tan==null?'':formatDecimal(r.tan,dp)]))});
+  state.groups.forEach(g=>g.rows.forEach((r,idx)=>rows.push([g.name,idx+1,inputDisplay(r.iRaw,r.i),inputDisplay(r.rRaw,r.r),...['angle','cos','sin','tan'].map(k=>{const v=chartRatio(r,k,'single');return v==null?'':formatDecimal(v,2)})])));
   if(rows.length===1){toast('暂无数据可导出');return}
   const csv='\ufeff'+rows.map(row=>row.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
   const blob=new Blob([csv],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='光的折射_真实实验数据.csv';a.click();URL.revokeObjectURL(url);
@@ -621,7 +638,7 @@ function refreshSelectors(){
   updateSingleSummary();updateCompareSummary();
 }
 function groupBySelect(id){const v=+$('#'+id).value;return state.groups.find(g=>g.id===v)||null}
-function updateSingleSummary(){const g=groupBySelect('singleGroupSelect');$('#singleSampleCount').textContent=g?g.rows.length:0;$('#singleLegendName').textContent=g?g.name:'当前数据组';if(g)$('#singleMetricName').title=`本组内部计算、作图与显示均按小数点后 ${groupDecimalPlaces(g)} 位处理`;}
+function updateSingleSummary(){const g=groupBySelect('singleGroupSelect');$('#singleSampleCount').textContent=g?g.rows.length:0;$('#singleLegendName').textContent=g?g.name:'当前数据组';if(g)$('#singleMetricName').title=`比值按 2 位小数先舍入后作图；正弦拟合按本组原始数据小数点后 ${groupDecimalPlaces(g)} 位处理`;}
 function updateCompareSummary(){const a=groupBySelect('compareA'),b=groupBySelect('compareB');$('#compareAN').textContent=a?a.rows.length:0;$('#compareBN').textContent=b?b.rows.length:0;$('#legendA').textContent=a?a.name:'第1组';$('#legendB').textContent=b?b.name:'第2组';$('#slopeALabel').textContent=(a?a.name:'第1组')+'斜率';$('#slopeBLabel').textContent=(b?b.name:'第2组')+'斜率'}
 ['singleGroupSelect'].forEach(id=>$('#'+id).addEventListener('change',()=>{updateSingleSummary();resetSingleChart();drawSingleChart()}));
 ['compareA','compareB'].forEach(id=>$('#'+id).addEventListener('change',()=>{exitRefractionLab(false);updateCompareSummary();resetCompareChart();drawCompareChart()}));
@@ -920,7 +937,7 @@ function drawSingleChart(){
     if(!state.singleVisible){ctx.fillStyle='#58758a';ctx.textAlign='center';ctx.fillText('点击“绘制正弦散点”开始',a.pad.l+a.iw/2,a.pad.t+a.ih/2)}
     return;
   }
-  $('#singleChartNote').textContent='四种比值共用同一坐标系；比值统一保留小数点后 2 位，坐标轴根据本组全部数据自适应；仍按原实验精度进行内部计算与拟合。';
+  $('#singleChartNote').textContent='四种比值由原始 i、r 直接计算，统一舍入到小数点后 2 位再作图；坐标轴按同一批舍入值自适应。正弦拟合继续使用原实验精度规则。';
   const keys=['angle','cos','tan','sin'],range=ratioGraphAxes(rows,'single',keys);
   const [xMin,xMax]=range.x,[yMin,yMax]=range.y;
   const a=axes(ctx,w,h,xMin,xMax,yMin,yMax,'入射角 i / °','比值',6,5,{xDp:0,yDp:2,angleX:true});
@@ -1168,7 +1185,7 @@ function drawCompareChart(){
   }
   const rows=[...(ga?ga.rows:[]),...(gb?gb.rows:[])];
   if(state.compareMode==='sin'){
-    $('#compareChartSubtitle').textContent='比值统一保留小数点后 1 位 · 坐标随两组数据自适应';
+    $('#compareChartSubtitle').textContent='原始角度求比值 → 舍入到 1 位小数作图 · 双组坐标自适应';
     const range=ratioGraphAxes(rows,'compare',['sin']),[xMin,xMax]=range.x,[yMin,yMax]=range.y;
     const a=axes(ctx,w,h,xMin,xMax,yMin,yMax,'入射角 i / °','sin i / sin r',6,5,{xDp:0,yDp:1,angleX:true});
     if(ga)drawSeries(ctx,ga.rows.slice(0,state.compareVisibleA).map(r=>({x:r.i,y:chartRatio(r,'sin','compare')})).filter(p=>Number.isFinite(p.y)),a.X,a.Y,'#48d8ff',true);
