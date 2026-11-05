@@ -1442,7 +1442,7 @@ $('#overviewDrawBtn').addEventListener('click',()=>{
     q.points=Math.min(rows.length,q.points+1);
     updateOverviewStats();drawOverview();
     if(q.points>=rows.length){clearInterval(q.timer);q.timer=null;overviewAnimateLine()}
-  },100);
+  },50);
 });
 $('#overviewFitBtn').addEventListener('click',()=>{resetOverview();drawOverview()});
 function overviewLegend(chosen){
