@@ -177,6 +177,25 @@ body.overview-maximized-active{overflow:hidden!important}
 @media(max-width:1050px){#view5.active{height:calc(100vh - 160px);min-height:550px;overflow-y:auto}#view5 .overview-chart-card{height:clamp(450px,calc(100dvh - 310px),780px)}#view5 .overview-legend{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:620px){#view5.active{height:auto;min-height:calc(100dvh - 95px);overflow-y:visible}#view5 .overview-toolbar{position:sticky;top:0}#view5 .overview-compact-title{gap:5px}#view5 .overview-chart-card{height:530px;min-height:530px}#view5 .overview-legend{grid-template-columns:repeat(2,minmax(0,1fr))}#view5 .overview-button-row .action{min-width:130px}#view5 .overview-progress{width:100%;min-width:0}#view5.overview-maximized{overflow:hidden!important}#view5.overview-maximized .overview-toolbar{padding:7px}#view5.overview-maximized .overview-progress{font-size:9px}}
 
+
+/* v2.1.1 · 修复左侧数据探究流程：标题和学习进度、底部统计固定，中间任务区独立滚动 */
+.sidebar{grid-template-rows:auto auto minmax(0,1fr) auto;min-height:0}
+.sidebar-scroll{
+  min-height:0;min-width:0;overflow-y:auto;overflow-x:hidden;
+  overscroll-behavior-y:contain;scrollbar-width:thin;
+  scrollbar-color:rgba(120,188,229,.42) transparent;
+}
+.sidebar-scroll::-webkit-scrollbar{width:7px}
+.sidebar-scroll::-webkit-scrollbar-track{background:transparent}
+.sidebar-scroll::-webkit-scrollbar-thumb{border-radius:8px;background:rgba(120,188,229,.35)}
+.sidebar-scroll::-webkit-scrollbar-thumb:hover{background:rgba(120,188,229,.60)}
+.sidebar-scroll:focus-visible{outline:1px solid rgba(72,216,255,.45);outline-offset:-2px}
+.sidebar-scroll .task-card{overflow:visible}
+@media(max-width:760px){
+  .sidebar{grid-template-rows:auto auto auto auto;height:auto;min-height:0}
+  .sidebar-scroll{overflow:visible}
+}
+
 </style>
 </head>
 <body>
@@ -189,7 +208,7 @@ body.overview-maximized-active{overflow:hidden!important}
   <aside class="panel sidebar">
     <div class="panel-title"><span>数据探究流程</span><small>DATA INQUIRY</small></div>
     <div class="progress"><div class="progress-label"><span>学习进度</span><span id="progressText">1 / 5</span></div><div class="progress-track"><div class="progress-fill" id="progressFill"></div></div></div>
-    <div>
+    <div class="sidebar-scroll" tabindex="0" aria-label="数据探究流程与任务说明，可上下滚动">
       <div class="missions">
         <div class="mission active" data-step="1"><div class="mission-no">01</div><div><strong>汇集 · 实验数据</strong><p>从云端汇集各组真实实验数据。</p></div></div>
         <div class="mission" data-step="2"><div class="mission-no">02</div><div><strong>单组 · 寻找规律</strong><p>比较角度比、cos 比、tan 比、sin 比并拟合。</p></div></div>
@@ -204,7 +223,6 @@ body.overview-maximized-active{overflow:hidden!important}
         <ul class="goal-list" id="goalList"><li>读取云端班级实验数据</li><li>默认同组只保留最新一次提交</li><li>勾选实验组后直接进入分析</li></ul>
       </div>
     </div>
-    <div></div>
     <div class="side-foot"><div class="side-stat"><span>数据组</span><b id="groupCountSide">1</b></div><div class="side-stat"><span>总样本数</span><b id="sampleCountSide">0</b></div></div>
   </aside>
 
@@ -364,7 +382,7 @@ body.overview-maximized-active{overflow:hidden!important}
           <div class="overview-select-grid" id="overviewSelectGrid"></div>
           <div class="overview-details-subhead">12份实验的拟合结果 <small>同色为同一组的两种介质；实线/虚线区分两份实验</small></div>
           <div class="overview-legend" id="overviewLegend"></div>
-          <div class="overview-foot">拟合斜率 k 显示3位小数；拟合计算基于原始角度，内部使用完整精度。拟合线只是对真实测量数据的数学建模，不替代真实实验。</div>
+          <div class="overview-foot">拟合斜率 k 显示3位小数；拟合线是对真实测量数据的数学建模。</div>
         </div>
       </div>
     </section>
