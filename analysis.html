@@ -201,7 +201,7 @@ body.overview-maximized-active{overflow:hidden!important}
 <body>
 <div class="app">
 <header>
-  <div class="brand"><div class="logo"></div><div><h1>光的折射 · 真实实验数据分析平台</h1><div class="sub">REAL EXPERIMENT DATA · 从数据比较到规律建模 · v2.1 正弦拟合总览</div></div></div>
+  <div class="brand"><div class="logo"></div><div><h1>光的折射 · 真实实验数据分析平台</h1><div class="sub">REAL EXPERIMENT DATA · 从数据比较到规律建模 · v2.3 逐组高亮演示</div></div></div>
   <div class="status"><i></i><span id="headerStatus">等待录入真实实验数据</span></div>
 </header>
 <div class="main">
@@ -363,8 +363,8 @@ body.overview-maximized-active{overflow:hidden!important}
             </div>
           </div>
           <div class="overview-button-row">
-            <button class="action primary cycle-btn" id="overviewDrawBtn" type="button" title="点击逐轮绘制十二份实验散点；绘制中再点立即完成；完成后再点清空">▶ 分轮绘制12组散点</button>
-            <button class="action good cycle-btn fit-cycle" id="overviewFitBtn" type="button" disabled title="散点完成后点击绘制12条拟合直线；绘制中再点立即完成；完成后再点清空拟合线">∿ 绘制12条拟合直线</button>
+            <button class="action primary cycle-btn" id="overviewDrawBtn" type="button" title="每次点击呈现下一组：先逐点绘制，再拟合直线；之前的实验会降低透明度">▶ 呈现下一组实验</button>
+            <button class="action good cycle-btn fit-cycle" id="overviewFitBtn" type="button" disabled title="清空当前展示，从第一组重新开始">↺ 重新开始</button>
             <span class="overview-progress" id="overviewProgress">先导入实验数据，再逐轮绘制散点并拟合直线。</span>
           </div>
         </div>
@@ -380,9 +380,9 @@ body.overview-maximized-active{overflow:hidden!important}
           </div>
           <div class="overview-stats"><span>已选择 <b id="overviewSelectedCount">0</b>/12 份</span><span>总数据点 <b id="overviewPointCount">0</b></span><span>拟合完成 <b id="overviewFitCount">0</b> 条</span></div>
           <div class="overview-select-grid" id="overviewSelectGrid"></div>
-          <div class="overview-details-subhead">12份实验的拟合结果 <small>同色为同一组的两种介质；实线/虚线区分两份实验</small></div>
+          <div class="overview-details-subhead">12份实验的拟合结果 <small>同色为同一小组的两种介质；当前实验高亮，之前的实验淡化</small></div>
           <div class="overview-legend" id="overviewLegend"></div>
-          <div class="overview-foot">拟合斜率 k 显示3位小数；拟合线是对真实测量数据的数学建模。</div>
+          <div class="overview-foot">拟合斜率 k 显示3位小数；拟合计算基于原始角度，内部使用完整精度。拟合线只是对真实测量数据的数学建模，不替代真实实验。</div>
         </div>
       </div>
     </section>
@@ -1383,76 +1383,76 @@ function refreshOverviewSelectors(groups=validGroups()){
   }
   updateOverviewStats();
 }
-function overviewMaxRounds(chosen=overviewCurrentGroups()){
-  return Math.max(0,...chosen.map(({g})=>g.rows.length));
+// v2.3 · 每次演示一份实验：逐点出现 → 该组拟合线 → 等待下一次点击
+const overviewSequence={completed:0,active:-1,points:0,line:0,timer:null,raf:null};
+function overviewOrdered(){return overviewCurrentGroups().sort((a,b)=>a.slot-b.slot)}
+function overviewStop(){
+  clearInterval(overviewSequence.timer);cancelAnimationFrame(overviewSequence.raf);
+  overviewSequence.timer=null;overviewSequence.raf=null;
 }
 function updateOverviewStats(){
-  const chosen=overviewCurrentGroups();
+  const chosen=overviewOrdered(),q=overviewSequence;
   $('#overviewSelectedCount').textContent=chosen.length;
-  $('#overviewPointCount').textContent=chosen.reduce((n,entry)=>n+entry.g.rows.length,0);
-  $('#overviewFitCount').textContent=state.overviewFitProgress>=1?chosen.filter(e=>!!fitStats(e.g)).length:0;
-  const max=overviewMaxRounds(chosen);
-  $('#overviewProgress').textContent=chosen.length<OVERVIEW_SLOTS
-    ?`目前选择 ${chosen.length} 份实验；课堂完整版建议选择12份。当前已绘 ${Math.min(state.overviewRounds,max)}/${max} 轮。`
-    :`已选择12份实验 · 按入射角从小到大，每轮同时绘制12份实验各一个点 · 当前 ${Math.min(state.overviewRounds,max)}/${max} 轮。`;
+  $('#overviewPointCount').textContent=chosen.reduce((n,e)=>n+e.g.rows.length,0);
+  $('#overviewFitCount').textContent=q.completed;
+  const active=q.active>=0?chosen[q.active]:null;
+  $('#overviewProgress').textContent=active
+    ?`正在呈现第 ${q.active+1}/${chosen.length} 份：${active.g.name} · ${q.points}/${active.g.rows.length} 个散点${q.line>0?' · 拟合中':''}`
+    :q.completed>=chosen.length&&chosen.length?`全部 ${chosen.length} 份实验已呈现完毕。可点击“重新开始”再次演示。`
+    :`已完成 ${q.completed}/${chosen.length} 份实验。点击“呈现下一组实验”，逐点绘制并拟合。`;
+  const btn=$('#overviewDrawBtn');
+  btn.disabled=!chosen.length||(!active&&q.completed>=chosen.length);
+  btn.classList.toggle('running',!!active);
+  btn.classList.toggle('done',!active&&q.completed>0);
+  btn.textContent=active?'▶ 完成当前组':q.completed>=chosen.length&&chosen.length?'✓ 全部呈现完成':`▶ 呈现第 ${q.completed+1} 组`;
+  $('#overviewFitBtn').disabled=!chosen.length||(!active&&q.completed===0);
 }
 function resetOverview(){
-  clearInterval(state.overviewTimer);cancelAnimationFrame(state.overviewFitRaf);
-  state.overviewTimer=null;state.overviewFitRaf=null;state.overviewRounds=0;state.overviewFitProgress=0;
-  $('#overviewDrawBtn').classList.remove('done','running');$('#overviewFitBtn').classList.remove('done','running');$('#overviewFitBtn').disabled=true;
+  overviewStop();Object.assign(overviewSequence,{completed:0,active:-1,points:0,line:0});
+  state.overviewRounds=0;state.overviewFitProgress=0;
+  $('#overviewDrawBtn').classList.remove('done','running');
+  $('#overviewFitBtn').classList.remove('done','running');
   updateOverviewStats();
 }
-function finishOverviewScatter(){
-  clearInterval(state.overviewTimer);state.overviewTimer=null;
-  state.overviewRounds=overviewMaxRounds();
-  $('#overviewDrawBtn').classList.remove('running');$('#overviewDrawBtn').classList.add('done');
-  $('#overviewFitBtn').disabled=overviewCurrentGroups().filter(e=>!!fitStats(e.g)).length===0;
+function overviewFinishCurrent(){
+  overviewStop();const q=overviewSequence;
+  if(q.active<0)return;
+  q.completed=q.active+1;q.active=-1;q.points=0;q.line=0;
   updateOverviewStats();drawOverview();
+}
+function overviewAnimateLine(){
+  const q=overviewSequence,start=performance.now(),duration=900;
+  function frame(now){
+    q.line=Math.min(1,(now-start)/duration);
+    updateOverviewStats();drawOverview();
+    if(q.line>=1){overviewFinishCurrent();return}
+    q.raf=requestAnimationFrame(frame);
+  }
+  q.raf=requestAnimationFrame(frame);
 }
 $('#overviewDrawBtn').addEventListener('click',()=>{
-  const btn=$('#overviewDrawBtn'),chosen=overviewCurrentGroups(),max=overviewMaxRounds(chosen);
-  if(!max){toast('请先导入实验数据');return}
-  // 运行态再点：快进到所有数据点
-  if(state.overviewTimer){finishOverviewScatter();return}
-  // 已完成再点：仅清空散点和拟合线，不直接重播
-  if(btn.classList.contains('done')){resetOverview();drawOverview();return}
-  resetOverview();btn.classList.add('running');drawOverview();
-  state.overviewTimer=setInterval(()=>{
-    state.overviewRounds=Math.min(max,state.overviewRounds+1);
-    updateOverviewStats();drawOverview();
-    if(state.overviewRounds>=max)finishOverviewScatter();
-  },480);
-});
-function finishOverviewFit(){
-  cancelAnimationFrame(state.overviewFitRaf);state.overviewFitRaf=null;
-  state.overviewFitProgress=1;
-  $('#overviewFitBtn').classList.remove('running');$('#overviewFitBtn').classList.add('done');
+  const chosen=overviewOrdered(),q=overviewSequence;
+  if(!chosen.length){toast('请先导入实验数据');return}
+  if(q.active>=0){overviewFinishCurrent();return}
+  if(q.completed>=chosen.length)return;
+  q.active=q.completed;q.points=0;q.line=0;
+  const rows=chosen[q.active].g.rows;
   updateOverviewStats();drawOverview();
-}
-$('#overviewFitBtn').addEventListener('click',()=>{
-  const btn=$('#overviewFitBtn');
-  if(btn.disabled)return;
-  // 动画中再点立即绘满12条线
-  if(state.overviewFitRaf){finishOverviewFit();return}
-  // 完成态再点仅清除12条拟合线，保持散点
-  if(btn.classList.contains('done')){state.overviewFitProgress=0;btn.classList.remove('done','running');updateOverviewStats();drawOverview();return}
-  state.overviewFitProgress=0;btn.classList.add('running');
-  const started=performance.now(),duration=1350;
-  function tick(now){
-    state.overviewFitProgress=Math.min(1,(now-started)/duration);
+  q.timer=setInterval(()=>{
+    q.points=Math.min(rows.length,q.points+1);
     updateOverviewStats();drawOverview();
-    if(state.overviewFitProgress>=1){finishOverviewFit();return}
-    state.overviewFitRaf=requestAnimationFrame(tick);
-  }
-  state.overviewFitRaf=requestAnimationFrame(tick);
+    if(q.points>=rows.length){clearInterval(q.timer);q.timer=null;overviewAnimateLine()}
+  },220);
 });
+$('#overviewFitBtn').addEventListener('click',()=>{resetOverview();drawOverview()});
 function overviewLegend(chosen){
-  const map=new Map(chosen.map(x=>[x.slot,x.g]));
+  const map=new Map(chosen.map(x=>[x.slot,x.g]));const q=overviewSequence;
   $('#overviewLegend').innerHTML=Array.from({length:OVERVIEW_SLOTS},(_,j)=>{
     const g=map.get(j),fit=g?fitStats(g):null;
-    const name=g?g.name:'未选择';
-    const slope=state.overviewFitProgress>=1&&fit?`k=${fitSlopeText(fit.k)}`:'';
-    return `<span class="overview-key" title="${escapeHtml(name)}"><i class="swatch ${j%2?'dashed':''}" style="border-top-color:${overviewColor(j)}"></i><span class="key-name">${escapeHtml(name)}</span><b>${slope}</b></span>`;
+    const idx=chosen.findIndex(e=>e.slot===j),isVisible=idx>=0&&(idx<q.completed||idx===q.active);
+    const slope=isVisible&&fit?`k=${fitSlopeText(fit.k)}`:'';
+    const alpha=isVisible&&idx!==q.active&&q.active>=0?.43:1;
+    return `<span class="overview-key" style="opacity:${alpha}" title="${escapeHtml(g?g.name:'未选择')}"><i class="swatch ${j%2?'dashed':''}" style="border-top-color:${overviewColor(j)}"></i><span class="key-name">${escapeHtml(g?g.name:'未选择')}</span><b>${slope}</b></span>`;
   }).join('');
 }
 
@@ -1503,35 +1503,40 @@ if(typeof ResizeObserver!=='undefined'){
 
 function drawOverview(){
   const canvas=$('#overviewChart');if(!canvas)return;
-  const {ctx,w,h}=setupCanvas(canvas),chosen=overviewCurrentGroups();
-  // 不使用 row.sinI、row.sinR 中可能存在的舍入缓存，始终由原始角度直接求值。
+  const {ctx,w,h}=setupCanvas(canvas),chosen=overviewOrdered(),q=overviewSequence;
   const all=chosen.flatMap(({g})=>g.rows);
   const range=all.length?sineGraphAxes(all):{x:[0,1],y:[0,1]};
   const xmax=range.x[1],ymax=range.y[1];
   const a=axes(ctx,w,h,range.x[0],xmax,range.y[0],ymax,'sin r','sin i',7,5);
-  // 若数据较少，整幅画布仍保留统一坐标和指导文本。
-  if(!chosen.length){ctx.fillStyle='#66879f';ctx.font='14px Microsoft YaHei';ctx.textAlign='center';ctx.fillText('请在上方选择实验数据',a.pad.l+a.iw/2,a.pad.t+a.ih/2)}
-  // 先画12条线的部分进度，再画散点，保证点始终可见。
-  chosen.forEach(({g,slot})=>{
-    if(state.overviewFitProgress<=0)return;
-    const f=fitStats(g);if(!f||!(f.k>0))return;
-    const targetX=Math.min(xmax,ymax/f.k),endX=targetX*state.overviewFitProgress;
-    ctx.save();ctx.strokeStyle=overviewColor(slot);ctx.lineWidth=2.2;
-    if(slot%2)ctx.setLineDash([9,6]);
-    ctx.globalAlpha=.88;ctx.beginPath();ctx.moveTo(a.X(0),a.Y(0));ctx.lineTo(a.X(endX),a.Y(f.k*endX));ctx.stroke();ctx.restore();
-  });
-  chosen.forEach(({g,slot})=>{
-    const pts=originalSinePoints(g.rows.slice().sort((a,b)=>a.i-b.i).slice(0,state.overviewRounds));
-    const color=overviewColor(slot);
+  if(!chosen.length){ctx.fillStyle='#66879f';ctx.font='14px Microsoft YaHei';ctx.textAlign='center';ctx.fillText('请先导入实验数据',a.pad.l+a.iw/2,a.pad.t+a.ih/2)}
+  // 已完成的实验保持可见；新组开始后旧组的点与线均降低透明度。
+  chosen.forEach(({g,slot},idx)=>{
+    const isCurrent=idx===q.active,finished=idx<q.completed;
+    if(!isCurrent&&!finished)return;
+    const color=overviewColor(slot),f=fitStats(g);
+    const alpha=isCurrent?1:(q.active>=0?.24:.56);
+    const progress=isCurrent?q.line:1;
+    if(f&&f.k>0&&progress>0){
+      const endX=Math.min(xmax,ymax/f.k)*progress;
+      ctx.save();ctx.globalAlpha=alpha;ctx.strokeStyle=color;ctx.lineWidth=isCurrent?3.2:2;
+      if(slot%2)ctx.setLineDash([9,6]);
+      ctx.beginPath();ctx.moveTo(a.X(0),a.Y(0));ctx.lineTo(a.X(endX),a.Y(f.k*endX));ctx.stroke();ctx.restore();
+    }
+    const sorted=g.rows.slice().sort((a,b)=>a.i-b.i);
+    const pts=originalSinePoints(isCurrent?sorted.slice(0,q.points):sorted);
     pts.forEach(p=>{
       const x=a.X(p.x),y=a.Y(p.y);
-      ctx.save();ctx.strokeStyle=color;ctx.fillStyle=slot%2?'#081727':color;ctx.lineWidth=2;
-      if(slot%2){ctx.beginPath();ctx.rect(x-3.3,y-3.3,6.6,6.6);ctx.fill();ctx.stroke()}
-      else{ctx.beginPath();ctx.arc(x,y,3.2,0,Math.PI*2);ctx.fill();ctx.stroke()}
+      ctx.save();ctx.globalAlpha=alpha;ctx.strokeStyle=color;
+      ctx.fillStyle=slot%2?'#081727':color;ctx.lineWidth=isCurrent?2.4:1.8;
+      if(slot%2){ctx.beginPath();ctx.rect(x-3.5,y-3.5,7,7);ctx.fill();ctx.stroke()}
+      else{ctx.beginPath();ctx.arc(x,y,isCurrent?3.8:3.1,0,Math.PI*2);ctx.fill();ctx.stroke()}
       ctx.restore();
     });
   });
-  if(chosen.length&&!state.overviewRounds){ctx.fillStyle='#66879f';ctx.font='13px Microsoft YaHei';ctx.textAlign='center';ctx.fillText('点击上方「分轮绘制12组散点」开始',a.pad.l+a.iw/2,a.pad.t+a.ih/2)}
+  if(chosen.length&&q.completed===0&&q.active<0){
+    ctx.fillStyle='#66879f';ctx.font='13px Microsoft YaHei';ctx.textAlign='center';
+    ctx.fillText('点击「呈现第 1 组」开始逐组演示',a.pad.l+a.iw/2,a.pad.t+a.ih/2);
+  }
   overviewLegend(chosen);
 }
 window.addEventListener('resize',()=>{if(state.step===2)drawSingleChart();if(state.step===3)drawSixGrid();if(state.step===4){if(state.labActive)applyLabSplit();drawCompareChart();if(state.labActive)drawRefractionLab()}if(state.step===5)drawOverview()});
