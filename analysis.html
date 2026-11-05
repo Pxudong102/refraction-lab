@@ -1421,7 +1421,7 @@ function overviewFinishCurrent(){
   updateOverviewStats();drawOverview();
 }
 function overviewAnimateLine(){
-  const q=overviewSequence,start=performance.now(),duration=900;
+  const q=overviewSequence,start=performance.now(),duration=800;
   function frame(now){
     q.line=Math.min(1,(now-start)/duration);
     updateOverviewStats();drawOverview();
@@ -1442,7 +1442,7 @@ $('#overviewDrawBtn').addEventListener('click',()=>{
     q.points=Math.min(rows.length,q.points+1);
     updateOverviewStats();drawOverview();
     if(q.points>=rows.length){clearInterval(q.timer);q.timer=null;overviewAnimateLine()}
-  },220);
+  },100);
 });
 $('#overviewFitBtn').addEventListener('click',()=>{resetOverview();drawOverview()});
 function overviewLegend(chosen){
