@@ -21,12 +21,12 @@
   function addRow(i='', r='') {
     const tr = document.createElement('tr');
     tr.innerHTML = `<td class="row-no"></td><td><input class="i-input" inputmode="decimal" value="${escapeHtml(i)}" placeholder="0–89"></td><td><input class="r-input" inputmode="decimal" value="${escapeHtml(r)}" placeholder="0–89"></td><td><button class="btn danger del-row" type="button" style="height:30px">删除</button></td>`;
-    tr.querySelector('.del-row').addEventListener('click', () => { tr.remove(); renumber(); scheduleRatioChart(); });
+    tr.querySelector('.del-row').addEventListener('click', () => { tr.remove(); renumber(); syncRatioControls(); scheduleRatioChart(); });
     $('#rowsBody').appendChild(tr); renumber(); scheduleRatioChart();
   }
   function escapeHtml(v){ return String(v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
   function renumber(){ [...document.querySelectorAll('.row-no')].forEach((e,i)=>e.textContent=i+1); }
-  function clearRows(){ $('#rowsBody').innerHTML=''; for(let i=0;i<6;i++) addRow(); scheduleRatioChart(); }
+  function clearRows(){ resetAllRatioCycles(); $('#rowsBody').innerHTML=''; for(let i=0;i<6;i++) addRow(); syncRatioControls(); scheduleRatioChart(); }
   function collectRows(){
     const out=[];
     for(const tr of $('#rowsBody').querySelectorAll('tr')){
@@ -48,7 +48,7 @@
       if(Number.isFinite(i)&&Number.isFinite(r)) rows.push([i,r]);
     }
     if(!rows.length){show('没有识别到有效的 i、r 两列数字。','err');return;}
-    $('#rowsBody').innerHTML=''; rows.forEach(x=>addRow(x[0],x[1])); scheduleRatioChart(); show(`已识别 ${rows.length} 组测量数据。`,'ok');
+    resetAllRatioCycles(); $('#rowsBody').innerHTML=''; rows.forEach(x=>addRow(x[0],x[1])); syncRatioControls(); scheduleRatioChart(); show(`已识别 ${rows.length} 组测量数据。`,'ok');
   }
   async function submit(){
     if(!configured){show('网站尚未连接 Supabase，请教师先完成 config.js 配置。','err');return;}
@@ -69,6 +69,59 @@
   const ratioSeries=[['angle','i / r'],['cos','cos i / cos r'],['tan','tan i / tan r'],['sin','sin i / sin r']];
   const toRadians=deg=>deg*Math.PI/180;
   let ratioFrame=0;
+  // 与教师分析平台相同的四态循环：空闲 → 绘制中 → 完成 → 清除回空闲
+  const ratioCycles=Object.fromEntries(ratioSeries.map(([key])=>[key,{phase:'idle',visible:0,timer:null}]));
+  const ratioBtns=Object.fromEntries([...document.querySelectorAll('.ratio-cycle-btn')].map(btn=>[btn.dataset.ratio,btn]));
+  const ratioNames=Object.fromEntries(ratioSeries);
+  function validRatioPoints(rows,key){return rows.filter(row=>Number.isFinite(row[key]));}
+  function stopRatioTimer(key){const s=ratioCycles[key];if(s.timer!==null)clearInterval(s.timer);s.timer=null;}
+  function resetAllRatioCycles(){
+    for(const [key] of ratioSeries){stopRatioTimer(key);ratioCycles[key].phase='idle';ratioCycles[key].visible=0;}
+    syncRatioControls();
+  }
+  function syncRatioControls(){
+    const {rows}=getPreviewRows();
+    for(const [key] of ratioSeries){
+      const s=ratioCycles[key],b=ratioBtns[key];
+      if(!b)continue;
+      const usable=validRatioPoints(rows,key).length;
+      // 曲线绘制至少需要2个有效点；不影响已完整画出的其它曲线。
+      if(usable<2 && s.phase!=='idle'){
+        stopRatioTimer(key);s.phase='idle';s.visible=0;
+      }
+      b.disabled=usable<2;
+      b.classList.toggle('running',s.phase==='running');
+      b.classList.toggle('done',s.phase==='done');
+      b.setAttribute('aria-pressed',s.phase==='done'?'true':'false');
+      b.textContent=({angle:'① ',cos:'② ',tan:'③ ',sin:'④ '})[key]+
+        (s.phase==='done'?'已绘 '+ratioNames[key]+' · 点击清除':s.phase==='running'?'绘制中 · 点击补齐':'绘制 '+ratioNames[key]);
+    }
+  }
+  function finishRatio(key){
+    const s=ratioCycles[key];stopRatioTimer(key);
+    s.phase='done';s.visible=validRatioPoints(getPreviewRows().rows,key).length;
+    syncRatioControls();scheduleRatioChart();
+  }
+  function clickRatio(key){
+    const s=ratioCycles[key];if(!s)return;
+    const pts=validRatioPoints(getPreviewRows().rows,key);
+    if(s.phase==='running'){finishRatio(key);return;}
+    if(s.phase==='done'){
+      stopRatioTimer(key);s.phase='idle';s.visible=0;
+      syncRatioControls();scheduleRatioChart();return;
+    }
+    if(pts.length<2)return;
+    s.phase='running';s.visible=1; // 首点立即出现，之后逐点完成连线
+    s.timer=setInterval(()=>{
+      const current=validRatioPoints(getPreviewRows().rows,key);
+      if(current.length<2){stopRatioTimer(key);s.phase='idle';s.visible=0;syncRatioControls();scheduleRatioChart();return;}
+      s.visible=Math.min(current.length,s.visible+1);
+      if(s.visible>=current.length)finishRatio(key);
+      else{syncRatioControls();scheduleRatioChart();}
+    },310);
+    syncRatioControls();scheduleRatioChart();
+  }
+  Object.keys(ratioBtns).forEach(key=>ratioBtns[key].addEventListener('click',()=>clickRatio(key)));
 
   function getPreviewRows(){
     const rows=[];let incomplete=0,invalid=0,zeroDenominator=0;
@@ -84,7 +137,8 @@
       const ti=Math.tan(toRadians(i)),trv=Math.tan(toRadians(r));
       const ratio=(num,den)=>Math.abs(den)>1e-12?num/den:null;
       if(r===0)zeroDenominator++;
-      rows.push({i,r,angle:ratio(i,r),cos:ratio(ci,cr),tan:ratio(ti,trv),sin:ratio(si,sr)});
+      const round2=v=>v==null?null:Math.round((v+Number.EPSILON)*100)/100;
+      rows.push({i,r,angle:round2(ratio(i,r)),cos:round2(ratio(ci,cr)),tan:round2(ratio(ti,trv)),sin:round2(ratio(si,sr))});
     }
     rows.sort((a,b)=>a.i-b.i);
     return {rows,incomplete,invalid,zeroDenominator};
@@ -112,8 +166,11 @@
     const {rows,incomplete,invalid,zeroDenominator}=getPreviewRows();
     $('#ratioPointCount').textContent=`有效数据点：${rows.length}`;
     const status=[];
-    if(rows.length>=2)status.push(`已根据 ${rows.length} 个数据点更新四比值图`);
-    else status.push('请录入至少 2 组完整数据，图表将自动更新');
+    if(rows.length>=2){
+      const drawn=ratioSeries.filter(([key])=>ratioCycles[key].phase==='done').length;
+      const running=ratioSeries.filter(([key])=>ratioCycles[key].phase==='running').length;
+      status.push(running?`正在绘制 ${running} 条曲线；绘制中再点立即完成`:drawn?`已完成 ${drawn} 条曲线；点击实心按钮可以清除对应曲线`:'点击上方按钮逐条绘制比值曲线');
+    }else status.push('请先录入至少 2 组完整的 i、r 数据');
     if(incomplete)status.push(`${incomplete} 行尚未填完整`);
     if(invalid)status.push(`${invalid} 行角度不合法`);
     if(zeroDenominator)status.push('r=0 的部分比值未绘制');
@@ -157,7 +214,10 @@
     // 坐标范围由四条曲线的全部有效值统一计算，避免每条曲线绘制时纵轴跳动。
     ctx.save();ctx.beginPath();ctx.rect(pad.left,pad.top,iw,ih);ctx.clip();
     for(const [key] of ratioSeries){
-      const pts=rows.filter(row=>Number.isFinite(row[key]));
+      const cycle=ratioCycles[key];
+      if(cycle.phase==='idle')continue;
+      const allPts=rows.filter(row=>Number.isFinite(row[key]));
+      const pts=cycle.phase==='done'?allPts:allPts.slice(0,cycle.visible);
       if(!pts.length)continue;
       ctx.lineWidth=2.2;ctx.lineJoin='round';ctx.lineCap='round';ctx.strokeStyle=ratioColors[key];
       if(pts.length>=2){ctx.beginPath();pts.forEach((p,j)=>j?ctx.lineTo(X(p.i),Y(p[key])):ctx.moveTo(X(p.i),Y(p[key])));ctx.stroke();}
@@ -168,14 +228,18 @@
     if(rows.length<2){
       ctx.fillStyle='#748fa1';ctx.textAlign='center';ctx.textBaseline='middle';
       ctx.font=(w<470?'11':'13')+'px Microsoft YaHei, system-ui, sans-serif';
-      ctx.fillText('输入至少两组 i、r 数据后自动绘制',pad.left+iw/2,pad.top+ih/2);
+      ctx.fillText('请输入至少两组完整的 i、r 数据',pad.left+iw/2,pad.top+ih/2);
+    }else if(ratioSeries.every(([k])=>ratioCycles[k].phase==='idle')){
+      ctx.fillStyle='#839bae';ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.font=(w<470?'11':'13')+'px Microsoft YaHei, system-ui, sans-serif';
+      ctx.fillText('点击上方按钮，逐条绘制四种比值',pad.left+iw/2,pad.top+ih/2);
     }
   }
   function scheduleRatioChart(){
     if(ratioFrame)return;
     ratioFrame=requestAnimationFrame(()=>{ratioFrame=0;drawRatioChart();});
   }
-  $('#rowsBody').addEventListener('input',scheduleRatioChart);
+  $('#rowsBody').addEventListener('input',()=>{syncRatioControls();scheduleRatioChart();});
   window.addEventListener('resize',scheduleRatioChart,{passive:true});
   if(typeof ResizeObserver!=='undefined'){
     const observer=new ResizeObserver(scheduleRatioChart);
