@@ -22,7 +22,7 @@
       <div class="class-preview" id="classPreview">班级将统一记录为：请选择年级和班级</div>
       <label for="groupName">组别 *</label><input class="input" id="groupName" placeholder="例如：第 4 组">
       <label for="studentCode">学生代号 / 姓名</label><input class="input" id="studentCode" placeholder="可填组长姓名或学号后四位">
-      <label for="medium">介质 *</label><input class="input" id="medium" placeholder="例如：水、玻璃、介质1、介质2...">
+      <label for="medium">介质（可选）</label><input class="input" id="medium" placeholder="如需区分介质可填写，例如：水、玻璃">
       <label for="note">备注</label><textarea class="textarea" id="note" style="min-height:76px" placeholder="可选"></textarea>
       <hr style="border:0;border-top:1px solid var(--line);margin:14px 0">
       <h2 class="section-title">从 Excel / CSV 快速粘贴</h2>
@@ -31,7 +31,7 @@
       <div class="row" style="margin-top:8px"><button class="btn" id="parseBtn">识别两列数据</button><button class="btn warn" id="clearRowsBtn">清空数据</button></div>
     </section>
     <section class="card main">
-      <div class="row" style="justify-content:space-between;margin-bottom:10px"><h2 class="section-title" style="margin:0">测量数据</h2><button class="btn" id="addRowBtn">＋ 添加一行</button></div>
+      <div class="row" style="justify-content:space-between;margin-bottom:10px"><h2 class="section-title" style="margin:0">测量数据</h2><button class="btn" id="addRowBtn" type="button">＋ 添加一行</button></div>
       <div class="table-wrap"><table class="data-table"><thead><tr><th>#</th><th>入射角 i /°</th><th>折射角 r /°</th><th>操作</th></tr></thead><tbody id="rowsBody"></tbody></table></div>
       <div class="hint" style="margin-top:9px">只提交原始测量值；右下方比值图由按钮分步绘制，不会额外上传计算结果。</div>
       <div class="row" style="justify-content:flex-end;margin-top:12px"><button class="btn primary" id="submitBtn">提交本组实验数据</button></div>
@@ -71,6 +71,6 @@
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
-<script src="student.js?v=student-ratios-v2"></script>
+<script src="student.js?v=tablet-compat-20261110"></script>
 </body>
 </html>
