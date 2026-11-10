@@ -3,7 +3,7 @@
   const cfg = window.APP_CONFIG || {};
   const status = $('#status');
   const configured = cfg.supabaseUrl && cfg.supabaseAnonKey && !cfg.supabaseUrl.includes('YOUR_') && !cfg.supabaseAnonKey.includes('YOUR_');
-  const db = configured ? window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey) : null;
+  const db = configured && window.supabase && typeof window.supabase.createClient === 'function' ? window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey) : null;
 
   function show(msg, type='info') { status.textContent = msg; status.className = `status show ${type}`; }
   function buildClassName(){
@@ -51,7 +51,7 @@
     resetAllRatioCycles(); $('#rowsBody').innerHTML=''; rows.forEach(x=>addRow(x[0],x[1])); syncRatioControls(); scheduleRatioChart(); show(`已识别 ${rows.length} 组测量数据。`,'ok');
   }
   async function submit(){
-    if(!configured){show('网站尚未连接 Supabase，请教师先完成 config.js 配置。','err');return;}
+    if(!db){show('云端连接脚本尚未就绪，请检查网络或稍后重试；已填写的数据仍保留在本页。','err');return;}
     const class_name=buildClassName(), group_name=$('#groupName').value.trim(), student_code=$('#studentCode').value.trim(), medium=$('#medium').value.trim(), note=$('#note').value.trim();
     if(!class_name){show('请选择年级，并填写有效的班级数字（1–99）。','err');return;}
     if(!group_name){show('请填写组别。','err');return;}
@@ -70,9 +70,17 @@
   const toRadians=deg=>deg*Math.PI/180;
   let ratioFrame=0;
   // 与教师分析平台相同的四态循环：空闲 → 绘制中 → 完成 → 清除回空闲
-  const ratioCycles=Object.fromEntries(ratioSeries.map(([key])=>[key,{phase:'idle',visible:0,timer:null}]));
-  const ratioBtns=Object.fromEntries([...document.querySelectorAll('.ratio-cycle-btn')].map(btn=>[btn.dataset.ratio,btn]));
-  const ratioNames=Object.fromEntries(ratioSeries);
+  // 兼容较旧的华为平板浏览器：避免 Object.fromEntries 不支持时整份脚本中断
+  const ratioCycles={};
+  const ratioBtns={};
+  const ratioNames={};
+  ratioSeries.forEach(([key,name])=>{
+    ratioCycles[key]={phase:'idle',visible:0,timer:null};
+    ratioNames[key]=name;
+  });
+  document.querySelectorAll('.ratio-cycle-btn').forEach(btn=>{
+    ratioBtns[btn.dataset.ratio]=btn;
+  });
   function validRatioPoints(rows,key){return rows.filter(row=>Number.isFinite(row[key]));}
   function stopRatioTimer(key){const s=ratioCycles[key];if(s.timer!==null)clearInterval(s.timer);s.timer=null;}
   function resetAllRatioCycles(){
