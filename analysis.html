@@ -272,7 +272,7 @@ body.overview-maximized-active{overflow:hidden!important}
       <div class="input-grid">
         <div class="card group-list">
           <div class="card-head"><div><h3>实验数据组</h3><small>每组可代表不同介质或不同实验条件</small></div><span class="count-badge">已识别 <b id="groupCountBadge">1</b> 组</span></div>
-          <div class="group-tools"><button class="action primary" id="addGroupBtn">＋ 新增数据组</button><button class="action danger" id="deleteGroupBtn">删除当前组</button></div>
+          <div class="group-tools"><button class="action primary" id="addGroupBtn" type="button">＋ 新增数据组</button><button class="action good" id="loadDefaultDataBtn" type="button" title="载入内置的高二（20）班 12 组、72 个实验样本">▣ 加载默认数据</button><button class="action danger" id="deleteGroupBtn" type="button">删除当前组</button></div>
           <div class="groups" id="groupList"></div>
         </div>
         <div class="card editor">
@@ -720,6 +720,29 @@ function csvNumber(v){
   if(!cleaned)return NaN;
   const n=Number(cleaned);return Number.isFinite(n)?n:NaN;
 }
+
+// 内置默认实验数据：来源于上传的「高二（20）班_光的折射详细数据.csv」。
+// 每个学生小组对应两种介质；保留原始 i、r 数值，加载时仍由 ratioRow 重新计算比值。
+const DEFAULT_EXPERIMENT_DATA = [{"team":"A","medium":"水","rows":[["25","19"],["30","22"],["40","29"],["50","35"],["55","39"],["75","46"]]},{"team":"A","medium":"玻璃","rows":[["25","16"],["30","19"],["40","25"],["50","30"],["55","33"],["75","39"]]},{"team":"B","medium":"水","rows":[["20","15"],["35","25"],["46","33"],["60","41"],["70","45"],["75","46"]]},{"team":"B","medium":"玻璃","rows":[["20","13"],["35","22"],["46","28"],["60","34"],["70","38"],["75","39"]]},{"team":"C","medium":"甘油","rows":[["25","17"],["35","23"],["45","29"],["55","34"],["60","37"],["70","41"]]},{"team":"C","medium":"玻璃","rows":[["20","13"],["30","19"],["40","25"],["46","28"],["50","30"],["65","36"]]},{"team":"D","medium":"甘油","rows":[["25","17"],["35","23"],["40","26"],["50","32"],["65","39"],["70","41"]]},{"team":"D","medium":"玻璃","rows":[["20","13"],["30","19"],["40","25"],["50","30"],["60","34"],["70","38"]]},{"team":"E","medium":"水","rows":[["50","35"],["55","39"],["60","41"],["65","43"],["70","45"],["75","46"]]},{"team":"E","medium":"甘油","rows":[["20","14"],["25","17"],["30","20"],["35","23"],["40","26"],["45","29"]]},{"team":"F","medium":"水","rows":[["25","19"],["35","26"],["40","29"],["45","32"],["50","35"],["60","41"]]},{"team":"F","medium":"甘油","rows":[["25","17"],["30","20"],["45","29"],["55","34"],["65","39"],["75","42"]]}];
+function loadDefaultData(){
+  if(totalSamples()>0 && !window.confirm('加载默认数据会替换当前平台中的全部实验组（包括已手动录入或导入的数据），是否继续？'))return;
+  const groups=DEFAULT_EXPERIMENT_DATA.map((item,index)=>({
+    id:index+1,
+    name:`第${item.team.charCodeAt(0)-64}组 · ${item.medium}`,
+    rows:item.rows.map(([iRaw,rRaw])=>ratioRow(Number(iRaw),Number(rRaw),iRaw,rRaw)).sort((a,b)=>a.i-b.i)
+  }));
+  state.groups=groups;
+  state.nextGroupId=groups.length+1;
+  state.currentGroupId=groups[0].id;
+  renderAllInput();
+  refreshSelectors();
+  resetSingleChart();
+  resetCompareChart();
+  resetOverview();
+  $('#csvImportStatus').textContent=`默认数据已加载 ${groups.length} 组 / ${totalSamples()} 条`;
+  toast(`默认数据加载成功：${groups.length} 组，共 ${totalSamples()} 个样本`);
+}
+$('#loadDefaultDataBtn').addEventListener('click',loadDefaultData);
 function uniqueImportedName(base){
   base=(String(base||'').trim()||'CSV导入数据');
   const names=new Set(state.groups.map(g=>g.name));
