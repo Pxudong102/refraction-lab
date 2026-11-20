@@ -37,6 +37,67 @@ header{height:68px;display:flex;align-items:center;justify-content:space-between
 .action.cycle-btn:disabled{opacity:.34;background:rgba(255,255,255,.012)!important;box-shadow:none!important}
 .btn-row{display:flex;gap:7px;align-items:center;flex-wrap:wrap}
 .select,.input{height:32px;border:1px solid rgba(136,188,226,.16);background:#0a1a2b;color:#d8edf8;border-radius:8px;padding:0 9px;font-size:10px;outline:none}.input:focus,.select:focus{border-color:rgba(72,216,255,.52);box-shadow:0 0 0 2px rgba(72,216,255,.08)}
+
+/* 模块2/3：单组特例分析 + 全班12组全屏统一比值图 */
+.ratio-explorer{height:100%;min-height:0;display:grid;grid-template-rows:auto minmax(0,1fr);gap:10px}
+.ratio-explorer-toolbar{padding:11px 13px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.ratio-explorer-left{display:flex;align-items:center;gap:10px;flex-wrap:wrap;min-width:0}
+.ratio-explorer-left strong{font-size:13px}
+.ratio-explorer-left small{font-size:9px;color:var(--muted)}
+.ratio-explorer-actions{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.ratio-explorer-actions .select{min-width:190px}
+.ratio-metric-tabs{display:flex;gap:6px;flex-wrap:wrap}
+.ratio-metric-tab{height:31px;padding:0 12px;border-radius:8px;border:1px solid rgba(137,185,220,.16);background:rgba(255,255,255,.02);font-size:10px;color:#9ab5c7;cursor:pointer}
+.ratio-metric-tab.active{border-color:rgba(72,216,255,.38);background:rgba(72,216,255,.10);color:#e2fbff}
+.ratio-explorer-chart{min-height:0;display:grid;grid-template-rows:auto minmax(0,1fr) auto;overflow:hidden}
+.ratio-explorer-chart .chart-wrap{margin:10px 12px;min-height:0}
+.ratio-explorer-foot{padding:8px 13px 10px;border-top:1px solid rgba(127,178,214,.08);font-size:10px;color:#7796aa;line-height:1.55}
+.ratio-fullscreen-overlay{display:none;position:fixed;inset:0;z-index:1500;background:#061221;padding:12px;overflow:auto}
+.ratio-fullscreen-overlay.open{display:flex;flex-direction:column}
+.ratio-fullscreen-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:9px 11px;margin-bottom:10px;background:linear-gradient(145deg,#10263d,#0a1a2d);border:1px solid var(--line);border-radius:12px}
+.ratio-fullscreen-head strong{font-size:15px}
+.ratio-fullscreen-head small{display:block;font-size:10px;color:var(--muted);margin-top:4px}
+.ratio-fullscreen-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-auto-rows:minmax(230px,1fr);gap:9px;flex:1;min-height:0}
+.ratio-fullscreen-card{min-width:0;min-height:0;display:grid;grid-template-rows:34px minmax(0,1fr);overflow:hidden;border:1px solid rgba(137,185,220,.14);border-radius:11px;background:linear-gradient(180deg,#0d1b2d,#091727)}
+.ratio-fullscreen-card header{position:static;height:34px;padding:0 9px;background:rgba(16,39,61,.45);border:0;border-bottom:1px solid rgba(137,185,220,.10);backdrop-filter:none}
+.ratio-fullscreen-card header b{font-size:10px}
+.ratio-fullscreen-card header span{font-size:9px;color:var(--muted)}
+.ratio-fullscreen-card .ratio-mini-canvas{width:100%;height:100%;min-height:0;display:block}
+body.ratio-fullscreen-open{overflow:hidden}
+@media(max-width:1050px){.ratio-fullscreen-grid{grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-rows:260px}}
+@media(max-width:700px){.ratio-explorer{height:auto;min-height:650px}.ratio-explorer-chart{min-height:480px}.ratio-explorer-actions .select{min-width:150px}.ratio-fullscreen-overlay{padding:7px}.ratio-fullscreen-grid{grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:245px}}
+@media(max-width:480px){.ratio-fullscreen-grid{grid-template-columns:1fr;grid-auto-rows:260px}}
+
+
+/* 模块2/3工具栏：标题说明在左，数据选择和全屏操作靠右 */
+.ratio-explorer-toolbar{
+  display:flex!important;
+  flex-direction:row!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:18px!important;
+  padding:12px 15px!important;
+}
+.ratio-explorer-left{display:block!important;flex:1 1 auto!important;width:auto!important;min-width:220px!important}
+.ratio-explorer-left>div{display:block!important;min-width:0}
+.ratio-explorer-left strong{display:block;line-height:1.4;white-space:normal}
+.ratio-explorer-left small{display:block;line-height:1.55;white-space:normal;overflow-wrap:anywhere;margin-top:4px}
+.ratio-explorer-actions{display:flex;width:auto!important;flex:0 0 auto;align-items:center;justify-content:flex-end!important;gap:8px;flex-wrap:wrap;margin-left:auto}
+.ratio-explorer-actions .select{min-width:205px;max-width:260px}
+#trigRatioLegend{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+#trigRatioLegend span{display:inline-flex;align-items:center;gap:5px;font-size:9px;color:#a9c4d5}
+#trigRatioLegend i{width:8px;height:8px;border-radius:50%;display:inline-block}
+@media(max-width:900px){
+  .ratio-explorer-toolbar{align-items:flex-start!important;flex-wrap:wrap}
+  .ratio-explorer-left{flex:1 1 100%!important;min-width:0!important}
+  .ratio-explorer-actions{width:100%!important;justify-content:flex-end!important}
+}
+@media(max-width:700px){
+  .ratio-explorer-actions{align-items:stretch}
+  .ratio-explorer-actions .select{width:100%;min-width:0;max-width:none}
+  .ratio-explorer-actions .action{flex:1}
+}
+
 /* module 1 */
 .input-grid{display:grid;grid-template-columns:minmax(310px,.78fr) minmax(520px,1.22fr);gap:12px;height:100%;min-height:0}.group-list{display:flex;flex-direction:column;min-height:0}.group-tools{padding:10px;display:flex;gap:7px;flex-wrap:wrap}.groups{padding:0 10px 10px;display:grid;gap:7px;overflow:auto}.group-item{padding:10px;border:1px solid rgba(255,255,255,.06);border-radius:10px;background:rgba(255,255,255,.02);cursor:pointer;transition:.16s}.group-item.active{border-color:rgba(72,216,255,.32);background:rgba(72,216,255,.065)}.group-item-top{display:flex;justify-content:space-between;gap:8px;align-items:center}.group-item b{font-size:11px}.group-item span{font-size:9px;color:var(--muted)}.group-meta{font-size:9px;color:#7897ab;margin-top:5px}.editor{display:grid;grid-template-rows:auto auto 1fr;min-height:0}.editor-toolbar{padding:10px 12px;display:grid;grid-template-columns:minmax(180px,1fr) auto;gap:8px;align-items:center}.sample-entry{padding:0 12px 10px;display:grid;grid-template-columns:1fr 1fr auto;gap:8px}.sample-entry label{font-size:9px;color:var(--muted);display:grid;gap:4px}.sample-table-wrap{min-height:0;overflow:auto;padding:0 12px 12px}.data-table{width:100%;border-collapse:collapse;font-size:10px;font-variant-numeric:tabular-nums}.data-table th{position:sticky;top:0;background:#0c1e31;color:#83a5bc;font-weight:500;padding:8px 6px;border-bottom:1px solid rgba(135,183,218,.14);text-align:right}.data-table th:first-child,.data-table td:first-child{text-align:center}.data-table td{padding:7px 6px;text-align:right;color:#b9cedc;border-bottom:1px solid rgba(255,255,255,.04)}.row-delete{border:0;background:transparent;color:#ff9ba1;cursor:pointer;font-size:11px}.empty{padding:32px 12px;text-align:center;color:#5f7d91;font-size:10px}
 .csv-hint{margin:0 12px 10px;padding:8px 10px;border:1px solid rgba(72,216,255,.14);border-radius:9px;background:rgba(72,216,255,.035);display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:9px;color:#7899ad;line-height:1.55}.csv-hint b{color:#bfefff;font-weight:600}.csv-hint code{font-family:Consolas,monospace;color:#9fd5e7;font-size:8.5px}.import-status{white-space:nowrap;color:#79d9b7;font-size:9px}
@@ -210,7 +271,7 @@ body.overview-maximized-active{overflow:hidden!important}
 <div class="app">
 <header>
   <div class="brand"><div class="logo"></div><div><h1>光的折射 · 真实实验数据分析平台</h1><div class="sub">REAL EXPERIMENT DATA · 从数据比较到规律建模 · v2.3 逐组高亮演示</div></div></div>
-  <div class="status"><i></i><span id="headerStatus">等待录入真实实验数据</span></div>
+  <div class="status"><i></i><span id="headerStatus">尚未启用分析数据</span></div>
 </header>
 <div class="main">
   <aside class="panel sidebar">
@@ -219,8 +280,8 @@ body.overview-maximized-active{overflow:hidden!important}
     <div class="sidebar-scroll" tabindex="0" aria-label="数据探究流程与任务说明，可上下滚动">
       <div class="missions">
         <div class="mission active" data-step="1"><div class="mission-no">01</div><div><strong>汇集 · 实验数据</strong><p>从云端汇集各组真实实验数据。</p></div></div>
-        <div class="mission" data-step="2"><div class="mission-no">02</div><div><strong>单组 · 寻找规律</strong><p>比较角度比、cos 比、tan 比、sin 比并拟合。</p></div></div>
-        <div class="mission" data-step="3"><div class="mission-no">03</div><div><strong>六组 · 同屏验证</strong><p>六组数据同屏比较四种比值的变化。</p></div></div>
+        <div class="mission" data-step="2"><div class="mission-no">02</div><div><strong>角度比</strong><p>先观察一组实验的 i/r 比值，再切换全屏查看12组数据。</p></div></div>
+        <div class="mission" data-step="3"><div class="mission-no">03</div><div><strong>三角函数比</strong><p>同一张图展示正弦比、余弦比和正切比，先看单组，再全屏比较12组。</p></div></div>
         <div class="mission" data-step="4"><div class="mission-no">04</div><div><strong>双组 · 比较规律</strong><p>比较同一小组两种介质的实验结果。</p></div></div>
         <div class="mission" data-step="5"><div class="mission-no">05</div><div><strong>正弦拟合总览</strong><p>全班12份实验正弦散点与拟合直线同图呈现。</p></div></div>
         <div class="mission" data-step="6"><div class="mission-no">06</div><div><strong>数字折射实验台</strong><p>选择三组介质，在同一入射角下比较两条折射光路。</p></div></div>
@@ -243,8 +304,8 @@ body.overview-maximized-active{overflow:hidden!important}
       <div class="source-stage">
         <div class="source-tabs">
           <button class="source-tab active" id="cloudSourceTab" type="button">☁ 云端班级数据</button>
-          <button class="source-tab" id="manualSourceTab" type="button">⌨ 手动 / CSV 备用</button>
-          <span class="source-tab-note">教师端登录后可直接读取学生提交，无需下载再导入</span>
+          <button class="source-tab" id="manualSourceTab" type="button">⌨ 手动 / CSV 草稿</button>
+          <span class="source-tab-note">教师端登录后可直接读取学生提交，无需下载再导入</span><span class="source-tab-note" id="activeDatasetBadge" style="margin-left:auto;color:#69e6b2">当前分析数据：尚未启用</span>
         </div>
         <div class="source-panels">
           <div class="source-panel active" id="cloudSourcePanel">
@@ -257,7 +318,7 @@ body.overview-maximized-active{overflow:hidden!important}
                   <div class="cloud-stats"><div class="cloud-stat"><span>当前班级提交</span><b id="cloudSubmissionCount">0</b></div><div class="cloud-stat"><span>实验组</span><b id="cloudGroupCount">0</b></div><div class="cloud-stat"><span>有效数据点</span><b id="cloudPointCount">0</b></div></div>
                   <div class="cloud-options"><label class="cloud-check"><input id="cloudLatestOnly" type="checkbox" checked> 每组最多保留2份实验（同介质取最新）</label><span id="cloudClassHint">选择班级后显示各组数据</span></div>
                   <div class="cloud-groups" id="cloudGroupList"><div class="cloud-empty">正在等待云端数据…</div></div>
-                  <div class="cloud-actions"><button class="action" id="cloudSelectAllBtn" type="button">全选</button><button class="action" id="cloudSelectNoneBtn" type="button">取消全选</button><button class="action primary" id="cloudImportBtn" type="button">↓ 导入所选实验组</button><span class="cloud-import-status" id="cloudImportStatus">尚未导入</span></div>
+                  <div class="cloud-actions"><button class="action" id="cloudSelectAllBtn" type="button">全选</button><button class="action" id="cloudSelectNoneBtn" type="button">取消全选</button><button class="action primary" id="cloudImportBtn" type="button">✓ 使用所选云端数据</button><span class="cloud-import-status" id="cloudImportStatus">尚未导入</span></div>
                 </div>
               </div>
               <div class="card cloud-card">
@@ -272,14 +333,14 @@ body.overview-maximized-active{overflow:hidden!important}
       <div class="input-grid">
         <div class="card group-list">
           <div class="card-head"><div><h3>实验数据组</h3><small>每组可代表不同介质或不同实验条件</small></div><span class="count-badge">已识别 <b id="groupCountBadge">1</b> 组</span></div>
-          <div class="group-tools"><button class="action primary" id="addGroupBtn" type="button">＋ 新增数据组</button><button class="action danger" id="deleteGroupBtn" type="button">删除当前组</button></div>
+          <div class="group-tools"><button class="action primary" id="addGroupBtn" type="button">＋ 新增数据组</button><button class="action danger" id="deleteGroupBtn" type="button">删除当前组</button><button class="action good" id="useManualDataBtn" type="button">✓ 使用当前手动数据</button></div><div class="csv-hint" style="margin:0 10px 9px"><span><b>手动数据区：</b>这里的默认数据、手动录入和 CSV 导入都先作为草稿保存；点击“使用当前手动数据”后，才会替换当前分析数据。云端数据与这里相互独立。</span><span class="import-status" id="manualDraftStatus">草稿未启用</span></div>
           <div class="groups" id="groupList"></div>
         </div>
         <div class="card editor">
           <div class="card-head"><div><h3>录入实验样本</h3><small>手动输入 / CSV 批量导入 · 角度单位：°</small></div><div class="btn-row"><button class="action primary" id="importCsvBtn">⇧ 导入 CSV</button><input id="csvFileInput" type="file" accept=".csv,text/csv" hidden><button class="action warn" id="clearCurrentBtn">清空当前组</button><button class="action" id="exportBtn">导出全部 CSV</button></div></div>
           <div>
             <div class="editor-toolbar"><input class="input" id="groupNameInput" placeholder="数据组名称，例如：水 / 玻璃 / 第1组"/><div class="count-badge">当前组 <b id="currentGroupCount">0</b> 个样本</div></div>
-            <div class="csv-hint"><span><b>CSV 自动识别：</b>支持 <code>数据组, 入射角i, 折射角r</code>，也支持只有 <code>i,r</code> 两列。导入后平台会重新计算四种比值。</span><span class="import-status" id="csvImportStatus">未导入</span></div>
+            <div class="csv-hint"><span><b>CSV 自动识别：</b>支持 <code>数据组, 入射角i, 折射角r</code>，也支持只有 <code>i,r</code> 两列。导入后先保存为手动草稿；点击“使用当前手动数据”后才进入分析。</span><span class="import-status" id="csvImportStatus">未导入</span></div>
             <div class="sample-entry">
               <label>入射角 i<input class="input" id="inputI" type="number" min="0" max="89.9" step="0.1" placeholder="如 20.0"/></label>
               <label>折射角 r<input class="input" id="inputR" type="number" min="0" max="89.9" step="0.1" placeholder="如 14.8"/></label>
@@ -296,6 +357,21 @@ body.overview-maximized-active{overflow:hidden!important}
     </section>
 
     <section class="view" id="view2">
+  <div class="ratio-explorer">
+    <div class="card ratio-explorer-toolbar">
+      <div class="ratio-explorer-left"><div><strong>角度比 · i / r</strong><small>先分析一组实验，再全屏查看全班12组的对应结果</small></div></div>
+      <div class="ratio-explorer-actions">
+        <select class="select" id="angleRatioGroupSelect" aria-label="选择一组实验"></select>
+        <button class="action primary" id="angleRatioFullscreenBtn" type="button">⛶ 全屏查看12组</button>
+      </div>
+    </div>
+    <div class="card ratio-explorer-chart">
+      <div class="card-head"><div><h3 id="angleRatioChartTitle">单组特例分析 · i / r</h3><small>横轴：入射角 i / ° · 纵轴：角度比 i / r</small></div><span class="count-badge" id="angleRatioPointCount">0 个测量点</span></div>
+      <div class="chart-wrap"><canvas id="angleRatioChart"></canvas></div>
+      <div class="ratio-explorer-foot" id="angleRatioFoot">选择一组实验，观察 i/r 比值随入射角的变化。全屏模式将以统一坐标尺度展示12组实验。</div>
+    </div>
+  </div>
+  <div id="legacyView2" hidden style="display:none">
       <div class="analysis-layout">
         <div class="control-stack">
           <div class="card control-card"><h4>选择一组数据</h4><p>平台已识别当前录入的数据组。选择其中一组，在同一张图上逐步叠加不同数学处理结果。</p><select class="select" id="singleGroupSelect" style="width:100%"></select><div class="result-strip"><div class="result-chip"><span>已识别数据组</span><b id="singleGroupCount">0</b></div><div class="result-chip"><span>当前样本数</span><b id="singleSampleCount">0</b></div><div class="result-chip"><span>当前分析</span><b id="singleMetricName">比值比较</b></div></div></div>
@@ -309,9 +385,25 @@ body.overview-maximized-active{overflow:hidden!important}
           <div class="chart-note" id="singleChartNote">先选择一组真实实验数据，再点击“动态绘图”。</div>
         </div>
       </div>
-    </section>
+    </div>
+</section>
 
     <section class="view" id="view3">
+  <div class="ratio-explorer">
+    <div class="card ratio-explorer-toolbar">
+      <div class="ratio-explorer-left"><div><strong>三角函数比</strong><small>同一张图同时展示正弦比、余弦比和正切比；先分析单组，再全屏比较12组</small></div></div>
+      <div class="ratio-explorer-actions">
+        <select class="select" id="trigRatioGroupSelect" aria-label="选择一组实验"></select>
+        <button class="action primary" id="trigRatioFullscreenBtn" type="button">⛶ 全屏查看12组</button>
+      </div>
+    </div>
+    <div class="card ratio-explorer-chart">
+      <div class="card-head"><div><h3 id="trigRatioChartTitle">单组特例分析 · 三角函数比</h3><small id="trigRatioChartSubtitle">横轴：入射角 i / ° · 纵轴：三角函数比值</small></div><div id="trigRatioLegend" class="legend"><span><i style="background:#69e6b2"></i>sin i / sin r</span><span><i style="background:#ffd36b"></i>cos i / cos r</span><span><i style="background:#b993ff"></i>tan i / tan r</span></div><span class="count-badge" id="trigRatioPointCount">0 个测量点</span></div>
+      <div class="chart-wrap"><canvas id="trigRatioChart"></canvas></div>
+      <div class="ratio-explorer-foot" id="trigRatioFoot">选择正弦比、余弦比或正切比，观察所选小组的比值变化。全屏模式会将相同比值放在12张图中统一比较。</div>
+    </div>
+  </div>
+  <div id="legacyView3" hidden style="display:none">
       <div class="six-view-shell">
         <div class="card six-toolbar">
           <div class="six-toolbar-left"><strong>六组数据 · 四种比值同屏比较</strong><span>由原始 i、r 直接计算比值并舍入到 2 位小数；六张图共用坐标尺度</span></div>
@@ -330,7 +422,8 @@ body.overview-maximized-active{overflow:hidden!important}
           <div class="card six-chart-card"><div class="six-card-head"><b>图 6</b><select class="select six-select" id="sixSelect6"></select></div><div class="six-canvas-wrap"><canvas id="sixChart6"></canvas></div></div>
         </div>
       </div>
-    </section>
+    </div>
+</section>
 
     <section class="view" id="view4">
       <div class="analysis-layout">
@@ -421,8 +514,17 @@ body.overview-maximized-active{overflow:hidden!important}
     </section>
   </main>
 </div>
-<footer><span>人教版（2019）选择性必修第一册 · 4.1 光的折射</span><span>真实实验数据 · 云端班级汇集 · CSV 备用 · 动态作图 · 单组/六组比值保留2位 · 双组比值保留1位 · 先舍入后作图 · 正弦拟合完整精度 · 正弦拟合总览可滚动与最大化</span></footer>
+<footer><span>人教版（2019）选择性必修第一册 · 4.1 光的折射</span><span>真实实验数据 · 云端班级汇集 · CSV 备用 · 动态作图 · 角度比/三角函数比保留2位 · 双组比值保留1位 · 先舍入后作图 · 正弦拟合完整精度 · 正弦拟合总览可滚动与最大化</span></footer>
 </div>
+
+<div class="ratio-fullscreen-overlay" id="ratioFullscreenOverlay" aria-hidden="true">
+  <div class="ratio-fullscreen-head">
+    <div><strong id="ratioFullscreenTitle">全班12组 · 角度比</strong><small id="ratioFullscreenSubtitle">12张图使用统一坐标尺度，便于横向比较</small></div>
+    <div class="btn-row"><span class="count-badge" id="ratioFullscreenCount">0 / 12 组</span><button class="action primary" id="ratioFullscreenClose" type="button">✕ 退出全屏</button></div>
+  </div>
+  <div class="ratio-fullscreen-grid" id="ratioFullscreenGrid"></div>
+</div>
+
 <div class="toast" id="toast"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
@@ -433,26 +535,37 @@ const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const rad=d=>d*Math.PI/180;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const state={
-  step:1,inputSource:'cloud',
-  groups:[{id:1,name:'第1组',rows:[]}],
-  currentGroupId:1,
-  nextGroupId:2,
+  step:1,inputSource:'cloud',activeSource:'none',
+  groups:[],
+  currentGroupId:null,
+  nextGroupId:1,
   singleMetric:'ratios',singleVisible:0,singleFitProgress:0,singleTimer:null,singleRaf:null,
   singleRatioVisible:{angle:0,cos:0,sin:0,tan:0},singleRatioTimers:{angle:null,cos:null,sin:null,tan:null},
   compareMode:'fit',compareVisibleA:0,compareVisibleB:0,compareFitA:0,compareFitB:0,compareTimerA:null,compareTimerB:null,compareRafA:null,compareRafB:null,labActive:false,labAngle:45,labSplit:.60,labAutoStep:5,labAutoTimer:null,labAutoDirection:1,overviewRounds:0,overviewFitProgress:0,overviewTimer:null,overviewFitRaf:null,overviewFitStart:0,overviewSelections:[],lab6Angle:45,lab6Timer:null,lab6Direction:1,lab6Step:5
 };
 const tasks={
-  1:{k:'MISSION 01 · CLOUD DATA',t:'把全班真实实验数据汇集到同一个分析入口。',x:'优先从课堂数据采集网站读取各组已经提交的入射角 i 与折射角 r。选择班级、勾选实验组后即可一键导入；手动输入和 CSV 仅作为备用入口。数据表只呈现真实测量的 i、r，不提前展示计算结果。',g:['读取云端班级实验数据','默认同组只保留最新一次提交','导入后只检查原始 i、r 测量值','必要时使用手动或 CSV 备用入口'],title:'真实实验数据汇集',tag:'CLOUD / BACKUP',hint:'只展示原始 i、r · 云端数据为主'},
-  2:{k:'MISSION 02 · SINGLE GROUP',t:'一组数据里，哪一种数学关系更稳定？',x:'选择一组真实实验数据，在同一坐标系中依次加入角度比、cos 比、tan 比和 sin 比。四条曲线由你分别控制出现，再通过正弦拟合建立定量关系。',g:['在同一张图上逐条绘制 i/r、cos 比、tan 比、sin 比','保留已绘曲线，直接比较四种比值的变化','绘制 sin r–sin i 散点','需要时再生成拟合直线'],title:'单组数据寻律',tag:'SINGLE DATASET',hint:'一组数据 · 同图逐步比较'},
-  3:{k:'MISSION 03 · SIX GROUPS',t:'一组得到的规律，在全班六组数据中还成立吗？',x:'同时展示六组实验数据。每张图都叠加 i/r、cos i/cos r、tan i/tan r、sin i/sin r 四条曲线，并统一坐标尺度，直接比较各组数据的一致性与实验波动。',g:['默认读取前六个有效实验组','六张图按 2 × 3 同屏排列','每张图同时显示四种比值','用跨组证据检验正弦比的稳定性'],title:'六组数据同屏验证',tag:'SIX DATASETS',hint:'六组数据 · 2 × 3 同屏 · 共用坐标尺度'},
+  1:{k:'MISSION 01 · CLOUD DATA',t:'把全班真实实验数据汇集到同一个分析入口。',x:'优先从课堂数据采集网站读取各组已经提交的入射角 i 与折射角 r。选择班级、勾选实验组后即可一键导入；手动输入和 CSV 先保存在独立草稿区；点击“使用当前手动数据”后才进入分析。云端与手动数据源相互独立，不会自动混合。数据表只呈现真实测量的 i、r。',g:['读取云端班级实验数据','默认同组只保留最新一次提交','导入后只检查原始 i、r 测量值','手动 / CSV 数据需主动点击“使用当前手动数据”'],title:'真实实验数据汇集',tag:'CLOUD / BACKUP',hint:'只展示原始 i、r · 云端数据为主'},
+  2:{k:'MISSION 02 · ANGLE RATIO',t:'先从一组实验中观察角度比的变化。',x:'选择一组实验数据，观察 i/r 比值随入射角的变化。点击全屏查看12组，可以把同一种比值放在统一坐标尺度下比较，寻找特例与全班共同规律。',g:['先选择一组实验进行特例分析','观察 i/r 比值随入射角的变化','全屏展示12组实验的 i/r 图','12张图共用统一坐标范围'],title:'角度比',tag:'ANGLE RATIO',hint:'单组特例分析 · 全屏12组统一比较'},
+  3:{k:'MISSION 03 · TRIGONOMETRIC RATIOS',t:'进一步比较三角函数比，寻找更稳定的数量关系。',x:'选择正弦比、余弦比或正切比。先观察一组实验，再全屏展示12组对应比值图。12张图采用统一坐标范围，便于比较不同小组之间的实验结果。',g:['选择正弦比、余弦比或正切比','先观察当前小组的一张比值图','全屏展示12组对应的比值图','所有小组共用统一坐标尺度'],title:'三角函数比',tag:'TRIGONOMETRIC RATIOS',hint:'单组特例分析 · 12组全屏对照'},
   4:{k:'MISSION 04 · TWO GROUPS',t:'同一个小组，换一种介质后会发生什么变化？',x:'从同一个小组选择两种不同介质的实验数据，比较正弦拟合斜率。最终用数字折射实验台展示相同入射角下的折射光路。',g:['选择同一小组的两种介质实验','先后绘制两份数据的正弦散点','分别拟合并比较斜率','把折射率带回物理光路'],title:'双组数据比较',tag:'TWO DATASETS',hint:'同一小组 · 两种介质 · 比较规律'},
   5:{k:'MISSION 05 · TWELVE FITS',t:'从一组比较，走向全班十二份实验的共同规律。',x:'六个小组各测量两种介质，共十二份实验。第一轮同时绘制每份实验的第一个测量点，接着绘制第二轮，以此类推；散点完成后，再统一生成十二条正弦拟合直线，比较拟合斜率。',g:['选择12份真实实验数据','每轮同时绘制最多12个散点','再次点击可立即补齐全部散点','点击拟合绘制12条直线并观察斜率'],title:'正弦拟合总览',tag:'TWELVE FITS',hint:'先看按钮与大图 · 下滚查看12份实验总览 · 支持最大化'},
   6:{k:'MISSION 06 · DIGITAL REFRACTION LAB',t:'把两组实验得到的折射率带回光路。',x:'选择三份实验数据，平台根据各自的正弦拟合斜率估算折射率。在相同入射角下，观察三种介质中的折射光线、折射角与法线的关系；可调节入射角，也可自动演示。',g:['选择三组有效实验数据','用正弦拟合斜率估算三种介质的折射率','保持同一入射角，叠加显示三条折射光路','最大化图像用于课堂投屏'],title:'数字折射实验台',tag:'DIGITAL REFRACTION LAB',hint:'三组数据 · 同角入射 · 三条光路叠加 · 支持最大化'}
 };
 function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove('show'),1900)}
-function currentGroup(){return state.groups.find(g=>g.id===state.currentGroupId)||state.groups[0]}
+// 手动/CSV/内置默认数据作为独立草稿；只有点击“使用当前手动数据”才进入分析数据集。
+const manualDraft={groups:[{id:1,name:'第1组',rows:[]}],currentGroupId:1,nextGroupId:2};
+function currentGroup(){return manualDraft.groups.find(g=>g.id===manualDraft.currentGroupId)||manualDraft.groups[0]}
 function validGroups(){return state.groups.filter(g=>g.rows.length>0)}
 function totalSamples(){return state.groups.reduce((s,g)=>s+g.rows.length,0)}
+function manualDraftSamples(){return manualDraft.groups.reduce((n,g)=>n+g.rows.length,0)}
+function cloneGroups(groups){return groups.map(g=>({id:g.id,name:g.name,rows:g.rows.map(r=>({...r}))}))}
+function updateActiveDatasetBadge(){
+  const label=state.activeSource==='cloud'?'云端数据':state.activeSource==='manual'?'手动 / CSV 数据':'尚未启用';
+  const el=$('#activeDatasetBadge');if(el)el.textContent=`当前分析数据：${label}`;
+  $('#headerStatus').textContent=totalSamples()?`使用${label} · ${state.groups.length} 组 / ${totalSamples()} 点`:'尚未启用分析数据';
+  $('#groupCountSide').textContent=state.groups.length;
+  $('#sampleCountSide').textContent=totalSamples();
+}
 
 // ===== 输入小数位识别；比值图独立舍入，正弦拟合在内部使用完整精度 =====
 function cleanMeasureText(v){
@@ -564,6 +677,7 @@ function setInputSource(mode){
   $('#cloudSourceTab').classList.toggle('active',state.inputSource==='cloud');$('#manualSourceTab').classList.toggle('active',state.inputSource==='manual');
   $('#cloudSourcePanel').classList.toggle('active',state.inputSource==='cloud');$('#manualSourcePanel').classList.toggle('active',state.inputSource==='manual');
   if(state.inputSource==='cloud'&&!cloudLoaded)loadCloudData();
+  const badge=$('#activeDatasetBadge');if(badge)updateActiveDatasetBadge();
 }
 function cloudRowsForClass(){
   const cls=$('#cloudClassSelect').value;
@@ -618,8 +732,11 @@ function importCloudSelected(){
   const used=new Map(),groups=[];let bad=0;
   for(const x of chosen){const rows=validCloudMeasurements(x).map(p=>ratioRow(p.i,p.r,p.iRaw,p.rRaw)).sort((a,b)=>a.i-b.i);if(!rows.length){bad++;continue}let base=String(x.group_name||'未命名组').trim()||'未命名组';const medium=String(x.medium||'').trim();if(medium)base+=' · '+medium;const n=(used.get(base)||0)+1;used.set(base,n);const name=n===1?base:`${base}（${n}）`;groups.push({id:groups.length+1,name,rows})}
   if(!groups.length){toast('所选实验组没有有效数据');return}
-  state.groups=groups;state.nextGroupId=groups.length+1;state.currentGroupId=groups[0].id;renderAllInput();refreshSelectors();resetSingleChart();resetCompareChart();
-  $('#cloudImportStatus').textContent=`已导入 ${groups.length} 组 / ${totalSamples()} 点`;toast(`已导入 ${groups.length} 个实验组${bad?`，跳过 ${bad} 组无效数据`:''}`);
+  if(totalSamples()&&state.activeSource!=='cloud'&&!window.confirm('即将把当前分析数据切换为所选云端数据。手动草稿和内置默认数据会保留，但不会混入本次分析。继续吗？'))return;
+  state.groups=groups;state.nextGroupId=groups.length+1;state.currentGroupId=groups[0].id;state.activeSource='cloud';
+  refreshSelectors();resetSingleChart();resetCompareChart();resetOverview();updateActiveDatasetBadge();
+  $('#cloudImportStatus').textContent=`已启用 ${groups.length} 组 / ${totalSamples()} 点`;
+  toast(`已切换为云端数据：${groups.length} 个实验组${bad?`，跳过 ${bad} 组无效数据`:''}。手动草稿保持不变。`);
 }
 function initCloudIntegration(){
   $('#cloudSourceTab').addEventListener('click',()=>setInputSource('cloud'));$('#manualSourceTab').addEventListener('click',()=>setInputSource('manual'));
@@ -627,6 +744,148 @@ function initCloudIntegration(){
   $('#cloudSelectAllBtn').addEventListener('click',()=>{cloudSelectedIds=new Set(cloudClassRows.map(x=>String(x.id)));renderCloudGroups()});$('#cloudSelectNoneBtn').addEventListener('click',()=>{cloudSelectedIds.clear();renderCloudGroups()});$('#cloudImportBtn').addEventListener('click',importCloudSelected);
   setInputSource('cloud');
 }
+
+// ===== 模块2：角度比；模块3：三角函数比（三条曲线同图）=====
+const ratioExplorerState={fullscreenKey:null};
+function ratioExplorerGroups(){
+  return validGroups().slice().sort((a,b)=>String(a.name).localeCompare(String(b.name),'zh-CN',{numeric:true})).slice(0,12);
+}
+function ratioExplorerKeyLabel(key){
+  return ({angle:'i / r',sin:'sin i / sin r',cos:'cos i / cos r',tan:'tan i / tan r'})[key]||key;
+}
+function ratioExplorerYAxisLabel(key){
+  return ({angle:'角度比 i / r',trig:'三角函数比值'})[key]||'比值';
+}
+function ratioExplorerFillSelect(id){
+  const el=$('#'+id);if(!el)return;
+  const old=el.value,groups=ratioExplorerGroups();
+  el.innerHTML=groups.length?groups.map(g=>`<option value="${g.id}">${escapeHtml(g.name)}（${g.rows.length}点）</option>`).join(''):'<option value="">暂无有效数据组</option>';
+  if(old&&groups.some(g=>String(g.id)===old))el.value=old;
+}
+function ratioExplorerDrawOne(canvas,key,g,sharedRange=null){
+  if(!canvas)return;
+  const {ctx,w,h}=setupCanvas(canvas);
+  if(w<50||h<70)return;
+  ctx.clearRect(0,0,w,h);
+  if(!g||!g.rows.length){
+    ctx.fillStyle='#58758a';ctx.textAlign='center';ctx.textBaseline='middle';ctx.font='12px Microsoft YaHei';ctx.fillText('暂无有效实验数据',w/2,h/2);return;
+  }
+  const range=sharedRange||ratioGraphAxes(g.rows,'single',[key]);
+  const [xMin,xMax]=range.x,[yMin,yMax]=range.y;
+  const a=axes(ctx,w,h,xMin,xMax,yMin,yMax,'入射角 i / °',ratioExplorerYAxisLabel(key),6,5,{xDp:0,yDp:2,angleX:true});
+  const pts=g.rows.map(r=>({x:r.i,y:chartRatio(r,key,'single')})).filter(p=>Number.isFinite(p.y));
+  drawSeries(ctx,pts,a.X,a.Y,'#48d8ff',true);
+  if(!pts.length){ctx.fillStyle='#58758a';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('该比值暂无可绘制数据',w/2,h/2)}
+}
+const TRIG_RATIO_KEYS=['sin','cos','tan'];
+const TRIG_RATIO_COLORS={sin:'#69e6b2',cos:'#ffd36b',tan:'#b993ff'};
+function ratioExplorerTrigRange(rows){
+  return ratioGraphAxes(rows,'single',TRIG_RATIO_KEYS);
+}
+function ratioExplorerDrawTrigOne(canvas,g,sharedRange=null){
+  if(!canvas)return;
+  const {ctx,w,h}=setupCanvas(canvas);
+  if(w<50||h<70)return;
+  ctx.clearRect(0,0,w,h);
+  if(!g||!g.rows.length){
+    ctx.fillStyle='#58758a';ctx.textAlign='center';ctx.textBaseline='middle';ctx.font='12px Microsoft YaHei';ctx.fillText('暂无有效实验数据',w/2,h/2);return;
+  }
+  const range=sharedRange||ratioExplorerTrigRange(g.rows);
+  const [xMin,xMax]=range.x,[yMin,yMax]=range.y;
+  const a=axes(ctx,w,h,xMin,xMax,yMin,yMax,'入射角 i / °','三角函数比值',6,5,{xDp:0,yDp:2,angleX:true});
+  TRIG_RATIO_KEYS.forEach(key=>{
+    const pts=g.rows.map(r=>({x:r.i,y:chartRatio(r,key,'single')})).filter(p=>Number.isFinite(p.y));
+    drawSeries(ctx,pts,a.X,a.Y,TRIG_RATIO_COLORS[key],true);
+  });
+  if(!g.rows.some(r=>TRIG_RATIO_KEYS.some(k=>Number.isFinite(chartRatio(r,k,'single'))))){
+    ctx.fillStyle='#58758a';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('暂无可绘制的三角函数比值',w/2,h/2);
+  }
+}
+function ratioExplorerDrawCurrent(which){
+  const isAngle=which==='angle';
+  const select=$('#'+(isAngle?'angleRatioGroupSelect':'trigRatioGroupSelect'));
+  const g=select?state.groups.find(x=>String(x.id)===select.value):null;
+  if(isAngle){
+    ratioExplorerDrawOne($('#angleRatioChart'),'angle',g);
+    $('#angleRatioPointCount').textContent=(g?g.rows.length:0)+' 个测量点';
+    $('#angleRatioChartTitle').textContent=`单组特例分析 · i / r`;
+    $('#angleRatioFoot').textContent=`当前展示：${g?g.name:'未选择'}。全屏模式将展示12组 i/r 比值图，所有图共用统一坐标尺度。`;
+  }else{
+    ratioExplorerDrawTrigOne($('#trigRatioChart'),g);
+    $('#trigRatioPointCount').textContent=(g?g.rows.length:0)+' 个测量点';
+    $('#trigRatioChartTitle').textContent='单组特例分析 · 三角函数比';
+    $('#trigRatioChartSubtitle').textContent='横轴：入射角 i / ° · 纵轴：三角函数比值（2位小数）';
+    $('#trigRatioFoot').textContent=`当前展示：${g?g.name:'未选择'}。同一张图同时呈现正弦比、余弦比和正切比；全屏后12组图也会同时展示这三条曲线，并共用统一坐标尺度。`;
+  }
+}
+function ratioExplorerRefresh(){
+  ratioExplorerFillSelect('angleRatioGroupSelect');
+  ratioExplorerFillSelect('trigRatioGroupSelect');
+  ratioExplorerDrawCurrent('angle');
+  ratioExplorerDrawCurrent('trig');
+  if(ratioExplorerState.fullscreenKey)ratioExplorerDrawFullscreen();
+}
+function ratioExplorerDrawFullscreen(){
+  const mode=ratioExplorerState.fullscreenKey;if(!mode)return;
+  const groups=ratioExplorerGroups(),grid=$('#ratioFullscreenGrid');
+  const allRows=groups.flatMap(g=>g.rows);
+  const range=allRows.length
+    ?(mode==='trig'?ratioExplorerTrigRange(allRows):ratioGraphAxes(allRows,'single',['angle']))
+    :(mode==='trig'?{x:[0,90],y:[0,2]}:{x:[0,90],y:[0,2]});
+  grid.innerHTML=groups.map((g,i)=>`<article class="ratio-fullscreen-card"><header><b>${escapeHtml(g.name)}</b><span>${g.rows.length} 个测量点</span></header><canvas class="ratio-mini-canvas" id="ratioFullCanvas${i}"></canvas></article>`).join('');
+  $('#ratioFullscreenCount').textContent=`${groups.length} / 12 组`;
+  if(mode==='trig'){
+    $('#ratioFullscreenTitle').textContent='全班12组 · 三角函数比';
+    $('#ratioFullscreenSubtitle').textContent='每张图同时展示 sin i/sin r、cos i/cos r、tan i/tan r · 12张图共用统一坐标范围';
+  }else{
+    $('#ratioFullscreenTitle').textContent='全班12组 · 角度比 i / r';
+    $('#ratioFullscreenSubtitle').textContent='12张图展示相同的 i/r 比值 · 共用统一坐标范围';
+  }
+  requestAnimationFrame(()=>{
+    groups.forEach((g,i)=>{
+      const canvas=$('#ratioFullCanvas'+i);
+      if(mode==='trig')ratioExplorerDrawTrigOne(canvas,g,range);
+      else ratioExplorerDrawOne(canvas,'angle',g,range);
+    });
+  });
+}
+async function ratioExplorerOpenFullscreen(mode){
+  ratioExplorerState.fullscreenKey=mode;
+  const overlay=$('#ratioFullscreenOverlay');
+  overlay.classList.add('open');overlay.setAttribute('aria-hidden','false');document.body.classList.add('ratio-fullscreen-open');
+  ratioExplorerDrawFullscreen();
+  if(overlay.requestFullscreen){try{await overlay.requestFullscreen()}catch(e){/* CSS全屏覆盖作为兼容方案 */}}
+  ratioExplorerDrawFullscreen();
+}
+function ratioExplorerCloseFullscreen(){
+  const overlay=$('#ratioFullscreenOverlay');
+  if(document.fullscreenElement===overlay)document.exitFullscreen().catch(()=>{});
+  overlay.classList.remove('open');overlay.setAttribute('aria-hidden','true');document.body.classList.remove('ratio-fullscreen-open');
+  ratioExplorerState.fullscreenKey=null;
+}
+function initRatioExplorer(){
+  ratioExplorerRefresh();
+  $('#angleRatioGroupSelect').addEventListener('change',()=>ratioExplorerDrawCurrent('angle'));
+  $('#trigRatioGroupSelect').addEventListener('change',()=>ratioExplorerDrawCurrent('trig'));
+  $('#angleRatioFullscreenBtn').addEventListener('click',()=>ratioExplorerOpenFullscreen('angle'));
+  $('#trigRatioFullscreenBtn').addEventListener('click',()=>ratioExplorerOpenFullscreen('trig'));
+  $('#ratioFullscreenClose').addEventListener('click',ratioExplorerCloseFullscreen);
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#ratioFullscreenOverlay').classList.contains('open'))ratioExplorerCloseFullscreen()});
+  document.addEventListener('fullscreenchange',()=>{
+    const overlay=$('#ratioFullscreenOverlay');
+    if(document.fullscreenElement!==overlay&&overlay.classList.contains('open'))ratioExplorerCloseFullscreen();
+    else if(document.fullscreenElement===overlay)ratioExplorerDrawFullscreen();
+  });
+  if(typeof ResizeObserver!=='undefined'){
+    const ro=new ResizeObserver(()=>{
+      if(state.step===2)ratioExplorerDrawCurrent('angle');
+      if(state.step===3)ratioExplorerDrawCurrent('trig');
+      if(ratioExplorerState.fullscreenKey)ratioExplorerDrawFullscreen();
+    });
+    ['#angleRatioChart','#trigRatioChart','#ratioFullscreenGrid'].forEach(sel=>{const el=$(sel);if(el)ro.observe(el)});
+  }
+}
+
 function setStep(n){
   if(n!==5&&$('#view5').classList.contains('overview-maximized'))closeOverviewMaximize();
   if(n!==6&&$('#view6').classList.contains('lab6-maximized'))closeLab6Maximize();
@@ -637,41 +896,62 @@ function setStep(n){
   const t=tasks[state.step];$('#taskKicker').textContent=t.k;$('#taskTitle').textContent=t.t;$('#taskText').textContent=t.x;$('#goalList').innerHTML=t.g.map(x=>`<li>${x}</li>`).join('');
   $('#workspaceTitle').textContent=t.title;$('#workspaceTag').textContent=t.tag;$('#workspaceHint').textContent=t.hint;
   if(state.step===1&&state.inputSource==='cloud'&&!cloudLoaded){loadCloudData()}
-  if(state.step===2){refreshSelectors();resetSingleChart();setTimeout(drawSingleChart,50)}
-  if(state.step===3){refreshSelectors();setTimeout(drawSixGrid,60)}
+  if(state.step===2){refreshSelectors();ratioExplorerRefresh();setTimeout(()=>ratioExplorerDrawCurrent('angle'),50)}
+  if(state.step===3){refreshSelectors();ratioExplorerRefresh();setTimeout(()=>ratioExplorerDrawCurrent('trig'),60)}
   if(state.step===4){refreshSelectors();exitRefractionLab(false);resetCompareChart();setTimeout(drawCompareChart,50)}
   if(state.step===5){const panel=$('#view5');panel.scrollTop=0;refreshSelectors();resetOverview();setTimeout(drawOverview,85)}
   if(state.step===6){refreshSelectors();refreshLab6Selectors();setTimeout(updateLab6,80)}
 }
 $$('.mission').forEach(m=>m.addEventListener('click',()=>setStep(+m.dataset.step)));
 function renderCounts(){
-  $('#groupCountSide').textContent=state.groups.length;$('#sampleCountSide').textContent=totalSamples();$('#groupCountBadge').textContent=state.groups.length;
-  $('#headerStatus').textContent=totalSamples()?`已录入 ${state.groups.length} 组，共 ${totalSamples()} 个样本`:'等待录入真实实验数据';
+  $('#groupCountSide').textContent=state.groups.length;$('#sampleCountSide').textContent=totalSamples();
+  $('#groupCountBadge').textContent=manualDraft.groups.length;
+  updateActiveDatasetBadge();
 }
 function renderGroupList(){
-  $('#groupList').innerHTML=state.groups.map(g=>`<div class="group-item ${g.id===state.currentGroupId?'active':''}" data-id="${g.id}"><div class="group-item-top"><b>${escapeHtml(g.name||('第'+g.id+'组'))}</b><span>${g.rows.length} 个样本</span></div><div class="group-meta">${g.rows.length?`i：${Math.min(...g.rows.map(r=>r.i)).toFixed(1)}°–${Math.max(...g.rows.map(r=>r.i)).toFixed(1)}°`:'尚未录入数据'}</div></div>`).join('');
-  $$('.group-item').forEach(x=>x.addEventListener('click',()=>{state.currentGroupId=+x.dataset.id;renderAllInput()}));
+  $('#groupList').innerHTML=manualDraft.groups.map(g=>`<div class="group-item ${g.id===manualDraft.currentGroupId?'active':''}" data-id="${g.id}"><div class="group-item-top"><b>${escapeHtml(g.name||('第'+g.id+'组'))}</b><span>${g.rows.length} 个样本</span></div><div class="group-meta">${g.rows.length?`i：${Math.min(...g.rows.map(r=>r.i)).toFixed(1)}°–${Math.max(...g.rows.map(r=>r.i)).toFixed(1)}°`:'尚未录入数据'}</div></div>`).join('');
+  $$('.group-item').forEach(x=>x.addEventListener('click',()=>{manualDraft.currentGroupId=+x.dataset.id;renderAllInput()}));
 }
 function renderInputTable(){
-  const g=currentGroup();$('#groupNameInput').value=g.name;$('#currentGroupCount').textContent=g.rows.length;
+  const g=currentGroup();
+  if(!g){$('#groupNameInput').value='';$('#currentGroupCount').textContent='0';$('#inputTableBody').innerHTML='<tr><td colspan="4" class="empty">请先新增数据组。</td></tr>';return}
+  $('#groupNameInput').value=g.name;$('#currentGroupCount').textContent=g.rows.length;
   $('#inputTableBody').innerHTML=g.rows.length?g.rows.map((r,idx)=>`<tr><td>${idx+1}</td><td>${escapeHtml(inputDisplay(r.iRaw,r.i))}</td><td>${escapeHtml(inputDisplay(r.rRaw,r.r))}</td><td><button class="row-delete" data-idx="${idx}" title="删除">✕</button></td></tr>`).join(''):'<tr><td colspan="4" class="empty">当前数据组还没有样本，请在上方输入 i 和 r。</td></tr>';
-  $$('.row-delete').forEach(b=>b.addEventListener('click',()=>{g.rows.splice(+b.dataset.idx,1);renderAllInput();refreshSelectors()}));
+  $$('.row-delete').forEach(b=>b.addEventListener('click',()=>{g.rows.splice(+b.dataset.idx,1);renderAllInput()}));
 }
-function renderAllInput(){renderGroupList();renderInputTable();renderCounts()}
-function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
-$('#addGroupBtn').addEventListener('click',()=>{const id=state.nextGroupId++;state.groups.push({id,name:`第${state.groups.length+1}组`,rows:[]});state.currentGroupId=id;renderAllInput();refreshSelectors();toast('已新增数据组')});
-$('#deleteGroupBtn').addEventListener('click',()=>{if(state.groups.length===1){toast('至少保留一个数据组');return;}const idx=state.groups.findIndex(g=>g.id===state.currentGroupId);state.groups.splice(idx,1);state.currentGroupId=state.groups[Math.max(0,idx-1)].id;renderAllInput();refreshSelectors();toast('当前数据组已删除')});
-$('#groupNameInput').addEventListener('input',e=>{currentGroup().name=e.target.value.trim()||`第${state.groups.indexOf(currentGroup())+1}组`;renderGroupList();refreshSelectors()});
+function renderAllInput(){
+  renderGroupList();renderInputTable();
+  $('#groupCountBadge').textContent=manualDraft.groups.length;
+  $('#manualDraftStatus').textContent=`草稿：${manualDraft.groups.length} 组 / ${manualDraftSamples()} 点`;
+}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&#039;'}[m]))}
+$('#addGroupBtn').addEventListener('click',()=>{const id=manualDraft.nextGroupId++;manualDraft.groups.push({id,name:`第${manualDraft.groups.length+1}组`,rows:[]});manualDraft.currentGroupId=id;renderAllInput();toast('已在手动草稿中新增数据组')});
+$('#deleteGroupBtn').addEventListener('click',()=>{if(manualDraft.groups.length===1){toast('至少保留一个数据组');return;}const idx=manualDraft.groups.findIndex(g=>g.id===manualDraft.currentGroupId);manualDraft.groups.splice(idx,1);manualDraft.currentGroupId=manualDraft.groups[Math.max(0,idx-1)].id;renderAllInput();toast('已从手动草稿删除当前组')});
+$('#groupNameInput').addEventListener('input',e=>{const g=currentGroup();if(!g)return;g.name=e.target.value.trim()||`第${manualDraft.groups.indexOf(g)+1}组`;renderGroupList()});
+function activateManualData(){
+  const groups=manualDraft.groups.filter(g=>Array.isArray(g.rows)&&g.rows.length>0);
+  if(!groups.length){toast('手动草稿中还没有有效实验数据');return}
+  if(totalSamples()&&state.activeSource==='cloud'&&!window.confirm('即将把当前分析数据切换为手动草稿数据。云端数据不会删除，只是不再作为当前分析数据。继续吗？'))return;
+  state.groups=cloneGroups(groups).map((g,index)=>({...g,id:index+1}));
+  state.nextGroupId=state.groups.length+1;
+  state.currentGroupId=state.groups[0].id;
+  state.activeSource='manual';
+  refreshSelectors();resetSingleChart();resetCompareChart();resetOverview();
+  updateActiveDatasetBadge();
+  $('#manualDraftStatus').textContent=`已启用：${state.groups.length} 组 / ${totalSamples()} 点`;
+  toast(`已启用手动数据：${state.groups.length} 组 / ${totalSamples()} 点。云端数据仍保留在云端，不会混入。`);
+}
+$('#useManualDataBtn').addEventListener('click',activateManualData);
 function addSample(){
   const iRaw=$('#inputI').value.trim(),rRaw=$('#inputR').value.trim(),i=Number(iRaw),r=Number(rRaw);
   if(!Number.isFinite(i)||!Number.isFinite(r)){toast('请输入有效的 i 和 r');return}
   if(i<0||i>=90||r<0||r>=90){toast('角度请输入 0°–90° 之间的数值');return}
   if(r===0&&i!==0){toast('折射角 r 不能为 0°');return}
   const row=ratioRow(i,r,iRaw,rRaw);currentGroup().rows.push(row);currentGroup().rows.sort((a,b)=>a.i-b.i);
-  $('#inputI').value='';$('#inputR').value='';$('#inputI').focus();renderAllInput();refreshSelectors();
+  $('#inputI').value='';$('#inputR').value='';$('#inputI').focus();renderAllInput();
 }
 $('#addSampleBtn').addEventListener('click',addSample);['inputI','inputR'].forEach(id=>$('#'+id).addEventListener('keydown',e=>{if(e.key==='Enter')addSample()}));
-$('#clearCurrentBtn').addEventListener('click',()=>{currentGroup().rows=[];renderAllInput();refreshSelectors();toast('当前组数据已清空')});
+$('#clearCurrentBtn').addEventListener('click',()=>{const g=currentGroup();if(g)g.rows=[];renderAllInput();toast('已清空手动草稿中的当前组')});
 
 function normalizeCsvHeader(v){
   return String(v??'').replace(/^\ufeff/,'').trim().toLowerCase().replace(/\s+/g,'').replace(/[（）()°º˚]/g,'').replace(/[＿_\-]/g,'');
@@ -732,20 +1012,16 @@ function loadDefaultData(){
     name:`第${item.team.charCodeAt(0)-64}组 · ${item.medium}`,
     rows:item.rows.map(([iRaw,rRaw])=>ratioRow(Number(iRaw),Number(rRaw),iRaw,rRaw)).sort((a,b)=>a.i-b.i)
   }));
-  state.groups=groups;
-  state.nextGroupId=groups.length+1;
-  state.currentGroupId=groups[0].id;
+  manualDraft.groups=groups;
+  manualDraft.nextGroupId=groups.length+1;
+  manualDraft.currentGroupId=groups[0]?groups[0].id:null;
   renderAllInput();
-  refreshSelectors();
-  resetSingleChart();
-  resetCompareChart();
-  resetOverview();
-  $('#csvImportStatus').textContent=`默认数据已加载 ${groups.length} 组 / ${totalSamples()} 条`;
-  toast(`默认数据加载成功：${groups.length} 组，共 ${totalSamples()} 个样本`);
+  $('#csvImportStatus').textContent=`内置默认数据已放入手动草稿：${groups.length} 组 / ${manualDraftSamples()} 条`;
+  $('#manualDraftStatus').textContent=`默认草稿：${groups.length} 组 / ${manualDraftSamples()} 点 · 尚未启用`;
 }
 function uniqueImportedName(base){
   base=(String(base||'').trim()||'CSV导入数据');
-  const names=new Set(state.groups.map(g=>g.name));
+  const names=new Set(manualDraft.groups.map(g=>g.name));
   if(!names.has(base))return base;
   let n=2;while(names.has(`${base}（导入${n}）`))n++;
   return `${base}（导入${n}）`;
@@ -781,28 +1057,29 @@ async function importCsvFile(file){
     buckets.get(name).push(ratioRow(i,r,rec[ii],rec[ri]));valid++;
   }
   if(!valid){toast('CSV 中没有有效的 i、r 数据');$('#csvImportStatus').textContent='0 条有效数据';return}
+  if(manualDraftSamples()>0&&!window.confirm('导入 CSV 将替换手动草稿区现有数据（包括内置默认数据），但不会改变当前正在分析的云端或手动数据。继续吗？'))return;
 
-  const importingIntoBlank=totalSamples()===0&&state.groups.length===1&&state.groups[0].rows.length===0;
   const imported=[];
-  if(importingIntoBlank){state.groups=[];state.currentGroupId=null}
+  manualDraft.groups=[];
+  manualDraft.currentGroupId=null;
+  manualDraft.nextGroupId=1;
   for(const [rawName,rows] of buckets){
-    const id=state.nextGroupId++;
-    const name=uniqueImportedName(rawName);
+    const id=manualDraft.nextGroupId++;
     rows.sort((a,b)=>a.i-b.i);
-    state.groups.push({id,name,rows});imported.push(id);
+    manualDraft.groups.push({id,name:rawName||fileBase,rows});imported.push(id);
   }
-  if(!state.groups.length){state.groups=[{id:state.nextGroupId++,name:'第1组',rows:[]}];}
-  state.currentGroupId=imported[0]||state.groups[0].id;
-  renderAllInput();refreshSelectors();resetSingleChart();resetCompareChart();
-  $('#csvImportStatus').textContent=`已导入 ${buckets.size} 组 / ${valid} 条`;
-  toast(`CSV 导入成功：${buckets.size} 组，${valid} 条样本${skipped?`，跳过 ${skipped} 行`:''}`);
+  if(!manualDraft.groups.length){manualDraft.groups=[{id:1,name:'第1组',rows:[]}];manualDraft.nextGroupId=2;}
+  manualDraft.currentGroupId=imported[0]||manualDraft.groups[0].id;
+  renderAllInput();
+  $('#csvImportStatus').textContent=`CSV 已导入手动草稿：${buckets.size} 组 / ${valid} 条`;
+  toast(`CSV 已导入手动草稿：${buckets.size} 组，${valid} 条样本${skipped?`，跳过 ${skipped} 行`:''}。如需分析，请点击“使用当前手动数据”。`);
 }
 $('#importCsvBtn').addEventListener('click',()=>$('#csvFileInput').click());
 $('#csvFileInput').addEventListener('change',async e=>{const file=e.target.files&&e.target.files[0];await importCsvFile(file);e.target.value='';});
 
 $('#exportBtn').addEventListener('click',()=>{
   const rows=[['数据组','序号','入射角i(°)','折射角r(°)','i/r','cos i/cos r','sin i/sin r','tan i/tan r']];
-  state.groups.forEach(g=>g.rows.forEach((r,idx)=>rows.push([g.name,idx+1,inputDisplay(r.iRaw,r.i),inputDisplay(r.rRaw,r.r),...['angle','cos','sin','tan'].map(k=>{const v=chartRatio(r,k,'single');return v==null?'':formatDecimal(v,2)})])));
+  manualDraft.groups.forEach(g=>g.rows.forEach((r,idx)=>rows.push([g.name,idx+1,inputDisplay(r.iRaw,r.i),inputDisplay(r.rRaw,r.r),...['angle','cos','sin','tan'].map(k=>{const v=chartRatio(r,k,'single');return v==null?'':formatDecimal(v,2)})])));
   if(rows.length===1){toast('暂无数据可导出');return}
   const csv='\ufeff'+rows.map(row=>row.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
   const blob=new Blob([csv],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='光的折射_真实实验数据.csv';a.click();URL.revokeObjectURL(url);
@@ -1874,8 +2151,8 @@ function drawOverview(){
   }
   overviewLegend(chosen);
 }
-window.addEventListener('resize',()=>{if(state.step===2)drawSingleChart();if(state.step===3)drawSixGrid();if(state.step===4){if(state.labActive)applyLabSplit();drawCompareChart();if(state.labActive)drawRefractionLab()}if(state.step===5)drawOverview();if(state.step===6)drawRefractionLab6()});
-loadDefaultData();initCloudIntegration();setStep(1);
+window.addEventListener('resize',()=>{if(state.step===2)ratioExplorerDrawCurrent('angle');if(state.step===3)ratioExplorerDrawCurrent('trig');if(ratioExplorerState.fullscreenKey)ratioExplorerDrawFullscreen();if(state.step===4){if(state.labActive)applyLabSplit();drawCompareChart();if(state.labActive)drawRefractionLab()}if(state.step===5)drawOverview();if(state.step===6)drawRefractionLab6()});
+loadDefaultData();refreshSelectors();initRatioExplorer();initCloudIntegration();setStep(1);
 })();
 </script>
 </body>
