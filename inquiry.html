@@ -96,6 +96,14 @@ button,select{font:inherit;color:inherit}button{cursor:pointer}
   .stage-heading{align-items:flex-start}
   .stage-heading-actions{width:100%;justify-content:flex-start}
 }
+
+/* 第三阶段：两组实验合并到一张大图中 */
+.chart-grid-combined{grid-template-columns:minmax(0,1fr)!important}
+.chart-grid-combined .chart-card{width:100%}
+.chart-grid-combined .chart-body{height:clamp(360px,55vh,620px)}
+.chart-grid-combined .chart-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.chart-grid-combined .chart-foot{gap:12px}
+.chart-grid-combined .chart-foot>div{display:flex;gap:8px;flex-wrap:wrap}
 </style>
 </head>
 <body>
@@ -127,8 +135,8 @@ button,select{font:inherit;color:inherit}button{cursor:pointer}
     </section>
     <section class="stage-view" id="stageView3">
       <div class="stage-heading"><div class="stage-heading-main"><h2>规律建模：正弦拟合</h2><p>横轴 sin r，纵轴 sin i；拟合直线通过原点。</p></div><div class="stage-heading-actions"><button class="prev-stage-btn" id="prevStage3" type="button">← 上一步</button><span class="progress-note" id="progress3">完成两组拟合后，自主探究结束</span></div></div>
-      <div class="chart-grid" id="grid3"></div>
-      <div class="stage-next-row" id="nextRow3" hidden><span>两组实验均已完成正弦拟合，自主探究结束。</span><span class="finish-pill">✓ 探究完成</span></div>
+      <div class="chart-grid chart-grid-combined" id="grid3"></div>
+      <div class="stage-next-row" id="nextRow3" hidden><span>两组实验的散点和拟合直线均已完成，自主探究结束。</span><span class="finish-pill">✓ 探究完成</span></div>
     </section>
     <div class="notice">本平台只读取当前浏览器中、由本组成功上传的数据副本，不读取其他小组数据。请在同一台设备和同一个浏览器中完成数据上传与自主探究；更换设备或清除浏览器数据后，需要重新上传。</div>
   </div>
@@ -221,7 +229,7 @@ $('#prevStage3').addEventListener('click',()=>setStage(2));
 function drawVisibleStage(){
   if(progress.stage===1)for(let i=0;i<2;i++)drawChart('chart1_'+i,1,i);
   if(progress.stage===2)for(let i=0;i<2;i++)drawChart('chart2_'+i,2,i);
-  if(progress.stage===3)for(let i=0;i<2;i++)drawChart('chart3_'+i,3,i);
+  if(progress.stage===3)drawChart('chart3_combined',3,0);
 }
 function createChartCard(stage,i){
   const medium=esc(records[selectedRecordIndices[i]]?.medium||`实验${i?'B':'A'}`);
@@ -241,11 +249,33 @@ function createChartCard(stage,i){
   grid.appendChild(card);
 }
 function createAllChartCards(){
-  for(let s=1;s<=3;s++){
+  for(let s=1;s<=2;s++){
     const grid=$('#grid'+s);
     grid.innerHTML='';
     for(let i=0;i<2;i++)createChartCard(s,i);
   }
+  const grid3=$('#grid3');
+  grid3.innerHTML='';
+  const card=document.createElement('article');
+  card.className='chart-card';
+  card.innerHTML=`
+    <div class="chart-head">
+      <strong>两组实验 · sin r – sin i</strong>
+      <div class="chart-legend">
+        <span><i style="background:#426B8A"></i>${esc(records[selectedRecordIndices[0]]?.medium||'实验A')}（散点＋实线拟合）</span>
+        <span><i style="background:#B18443"></i>${esc(records[selectedRecordIndices[1]]?.medium||'实验B')}（散点＋虚线拟合）</span>
+      </div>
+      <small id="combinedFitSummary">两组数据共用同一坐标系</small>
+    </div>
+    <div class="chart-body"><canvas id="chart3_combined"></canvas></div>
+    <div class="chart-foot">
+      <span id="fitInfo_combined">先绘制两组正弦散点，再绘制两条拟合直线</span>
+      <div>
+        <button class="draw-btn" id="scatter3_combined">① 绘制两组正弦散点</button>
+        <button class="draw-btn" id="fit3_combined" disabled>② 绘制两组拟合直线</button>
+      </div>
+    </div>`;
+  grid3.appendChild(card);
 }
 function niceTickStep(raw,angle=false){
   if(!Number.isFinite(raw)||raw<=0)return 1;
@@ -286,8 +316,8 @@ function tickLabel(v,step){
   return Number(v).toFixed(dp).replace(/(\.\d*?)0+$/,'$1').replace(/\.$/,'');
 }
 function stageAxisRange(stage,i){
-  const rows=data[i]||[];
-  const values=computed[i]||[];
+  const rows=stage===3?data.flat():(data[i]||[]);
+  const values=stage===3?computed.flat():(computed[i]||[]);
   if(stage===1){
     return {
       x:dataAxisRange(rows.map(p=>p.i),{minSpan:8,minBound:0,maxBound:90,angle:true}),
@@ -360,21 +390,34 @@ function drawChart(id,stage,i){
     });
     if(count===0)emptyChart(ctx,w,h,'点击「同时绘制三种比值」，三条曲线将一起出现');
   }else{
-    const pts=rows.map(p=>({x:p.sx,y:p.sy}));
-    const count=progress.scatter[i]?pts.length:animationCounts.scatter[i];
-    pts.slice(0,count).forEach(p=>drawPoint(ctx,a,p,COLORS.angle));
-    if(count===0)emptyChart(ctx,w,h,'点击「绘制正弦散点」开始');
-    if(fitLineProgress[i]>0){
-      const den=pts.reduce((sum,p)=>sum+p.x*p.x,0);
-      const k=den?pts.reduce((sum,p)=>sum+p.x*p.y,0)/den:0;
-      const maxX=Math.min(range.x[1],range.y[1]/(k||Infinity))*fitLineProgress[i];
-      ctx.save();ctx.strokeStyle='#A65D57';ctx.lineWidth=2.3;ctx.lineCap='round';
-      ctx.beginPath();ctx.moveTo(a.X(0),a.Y(0));ctx.lineTo(a.X(maxX),a.Y(k*maxX));ctx.stroke();ctx.restore();
-      $('#fitInfo_'+i).textContent=fitLineProgress[i]>=1
-        ?`过原点拟合：k = ${k.toFixed(3)}`
-        :`拟合直线生成中：${Math.round(fitLineProgress[i]*100)}%`;
+    const palette=['#426B8A','#B18443'];
+    const labels=selectedRecordIndices.map(idx=>records[idx]?.medium||'介质');
+    let anyScatter=false;
+    for(let groupIndex=0;groupIndex<2;groupIndex++){
+      const pts=(computed[groupIndex]||[]).map(p=>({x:p.sx,y:p.sy}));
+      const count=progress.scatter[groupIndex]?pts.length:animationCounts.scatter[0];
+      if(count>0)anyScatter=true;
+      pts.slice(0,count).forEach(point=>drawPoint(ctx,a,point,palette[groupIndex]));
+      if(fitLineProgress[groupIndex]>0){
+        const den=pts.reduce((sum,p)=>sum+p.x*p.x,0);
+        const k=den?pts.reduce((sum,p)=>sum+p.x*p.y,0)/den:0;
+        const maxX=Math.min(range.x[1],range.y[1]/(k||Infinity))*fitLineProgress[groupIndex];
+        ctx.save();ctx.strokeStyle=palette[groupIndex];ctx.lineWidth=2.4;ctx.lineCap='round';
+        ctx.setLineDash(groupIndex===0?[]:[7,4]);
+        ctx.beginPath();ctx.moveTo(a.X(0),a.Y(0));ctx.lineTo(a.X(maxX),a.Y(k*maxX));ctx.stroke();
+        ctx.setLineDash([]);ctx.restore();
+      }
     }
+    if(!anyScatter)emptyChart(ctx,w,h,'点击「绘制两组正弦散点」开始');
+    const summaries=fitLineProgress.map((v,j)=>v>=1?`${labels[j]}：k=${fitStatsFromComputed(j).toFixed(3)}`:null).filter(Boolean);
+    $('#fitInfo_combined').textContent=summaries.length?summaries.join('　｜　'):anyScatter?'散点已绘制，可继续绘制两组拟合直线':'先绘制两组正弦散点，再绘制两条拟合直线';
+    $('#combinedFitSummary').textContent=summaries.length===2?'两组拟合均已完成':summaries.length===1?'一组拟合已完成':'两组数据共用同一坐标系';
   }
+}
+function fitStatsFromComputed(index){
+  const pts=(computed[index]||[]).map(p=>({x:p.sx,y:p.sy}));
+  const den=pts.reduce((sum,p)=>sum+p.x*p.x,0);
+  return den?pts.reduce((sum,p)=>sum+p.x*p.y,0)/den:0;
 }
 function drawPoint(ctx,a,p,color){
   ctx.save();ctx.fillStyle=color;ctx.strokeStyle='#fff';ctx.lineWidth=1.1;
@@ -427,15 +470,19 @@ function syncActionButtons(){
     trig.classList.toggle('done',tDone&&!tBusy);
     trig.textContent=tBusy?'三条曲线绘制中…':tDone?'↻ 重新绘制三种比值':'▶ 同时绘制三种比值';
 
-    const scatter=$('#scatter3_'+i),fit=$('#fit3_'+i);
-    const sDone=!!progress.scatter[i],sBusy=animationRunning.scatter[i];
+    // STEP 3 的散点与拟合按钮是整张合并图共用的，在循环外统一更新。
+  }
+  const scatter=$('#scatter3_combined'),fit=$('#fit3_combined');
+  if(scatter&&fit){
+    const sDone=progress.scatter.every(Boolean),sBusy=animationRunning.scatter[0];
     scatter.disabled=sBusy;
     scatter.classList.toggle('done',sDone&&!sBusy);
-    scatter.textContent=sBusy?'散点绘制中…':sDone?'↻ 重新绘制正弦散点':'① 绘制正弦散点';
-    fit.disabled=!sDone||animationRunning.fit?.[i]===true;
-    fit.classList.toggle('done',!!progress.fit[i]&&!animationRunning.fit?.[i]);
-    fit.classList.toggle('running',animationRunning.fit?.[i]===true);
-    fit.textContent=animationRunning.fit?.[i]?'拟合线生成中…':progress.fit[i]?'↻ 清除拟合线':'② 开始拟合直线';
+    scatter.textContent=sBusy?'两组散点绘制中…':sDone?'↻ 重新绘制两组散点':'① 绘制两组正弦散点';
+    const fDone=progress.fit.every(Boolean),fBusy=animationRunning.fit.some(Boolean);
+    fit.disabled=!sDone||fBusy;
+    fit.classList.toggle('done',fDone&&!fBusy);
+    fit.classList.toggle('running',fBusy);
+    fit.textContent=fBusy?'两条拟合线生成中…':fDone?'↻ 清除两条拟合线':'② 绘制两组拟合直线';
   }
 }
 function bindActions(){
@@ -488,71 +535,65 @@ function bindActions(){
       },180);
     });
 
-    // 正弦散点：重新绘制时同时清除旧拟合，绘完后可再次拟合。
-    $('#scatter3_'+i).addEventListener('click',()=>{
-      if(animationRunning.scatter[i])return;
-      const pts=computed[i],status=$('#fitInfo_'+i);
 
-      // 重新绘制散点时，取消正在进行的拟合动画，并清除旧拟合线。
+  }
+
+  // STEP 3：两组散点在同一张图中同步逐点出现。
+  $('#scatter3_combined').addEventListener('click',()=>{
+    if(animationRunning.scatter[0])return;
+    for(let i=0;i<2;i++){
       if(fitLineRaf[i])cancelAnimationFrame(fitLineRaf[i]);
-      fitLineRaf[i]=null;
-      fitLineProgress[i]=0;
+      fitLineRaf[i]=null;fitLineProgress[i]=0;
       animationRunning.fit[i]=false;
-      progress.scatter[i]=false;
-      progress.fit[i]=false;
+      progress.scatter[i]=false;progress.fit[i]=false;
+    }
+    animationRunning.scatter[0]=true;
+    animationCounts.scatter[0]=0;
+    persist();syncActionButtons();updateStages();
+    drawChart('chart3_combined',3,0);
+    const maxCount=Math.max(...computed.map(rows=>rows.length));
+    let n=0;
+    const timer=setInterval(()=>{
+      n++;animationCounts.scatter[0]=n;
+      drawChart('chart3_combined',3,0);
+      $('#fitInfo_combined').textContent=`两组散点同步绘制：${Math.min(n,maxCount)} / ${maxCount} 个测量点`;
+      if(n>=maxCount){
+        clearInterval(timer);animationRunning.scatter[0]=false;
+        progress.scatter=[true,true];progress.fit=[false,false];
+        persist();syncActionButtons();updateStages();drawChart('chart3_combined',3,0);
+        $('#fitInfo_combined').textContent='两组散点已完成，可点击绘制两组拟合直线';
+      }
+    },160);
+  });
 
-      animationRunning.scatter[i]=true;
-      animationCounts.scatter[i]=0;
-      persist();syncActionButtons();updateStages();
-      drawChart('chart3_'+i,3,i); // 先清空旧散点和旧拟合线，再开始重新绘制
-      if(status)status.textContent='正在重新绘制散点，旧拟合线已清除';
-      let n=0;
-      const timer=setInterval(()=>{
-        n++;animationCounts.scatter[i]=n;
-        drawChart('chart3_'+i,3,i);
-        if(n>=pts.length){
-          clearInterval(timer);
-          animationRunning.scatter[i]=false;
-          progress.scatter[i]=true;
-          fitLineProgress[i]=0;
-          progress.fit[i]=false;
-          persist();syncActionButtons();updateStages();drawChart('chart3_'+i,3,i);
-          if(status)status.textContent='散点已重新绘制完成，请重新点击拟合直线';
-        }
-      },160);
-    });
-
-    // 拟合可重复点击，便于重新显示/计算。
-    $('#fit3_'+i).addEventListener('click',()=>{
-      if(!progress.scatter[i]||animationRunning.fit[i])return;
-
-      // 已完成时再次点击：清除拟合线，保留散点；下次点击可重新播放。
-      if(progress.fit[i]&&fitLineProgress[i]>=1){
+  // 两条拟合线在同一张图中同时从原点逐渐生长。
+  $('#fit3_combined').addEventListener('click',()=>{
+    if(!progress.scatter.every(Boolean)||animationRunning.fit.some(Boolean))return;
+    if(progress.fit.every(Boolean)&&fitLineProgress.every(v=>v>=1)){
+      for(let i=0;i<2;i++){
         if(fitLineRaf[i])cancelAnimationFrame(fitLineRaf[i]);
         fitLineRaf[i]=null;fitLineProgress[i]=0;progress.fit[i]=false;
-        persist();drawChart('chart3_'+i,3,i);syncActionButtons();updateStages();
-        return;
       }
-
-      // 参照教师分析平台 fitCycle：用 requestAnimationFrame 在约900ms内逐渐延长拟合线。
-      const start=performance.now(),duration=900;
-      animationRunning.fit[i]=true;fitLineProgress[i]=0;
-      progress.fit[i]=false;persist();syncActionButtons();updateStages();
-      const frame=now=>{
-        const t=Math.min(1,(now-start)/duration);
-        fitLineProgress[i]=t;
-        drawChart('chart3_'+i,3,i);
-        if(t<1){
-          fitLineRaf[i]=requestAnimationFrame(frame);
-        }else{
-          fitLineRaf[i]=null;fitLineProgress[i]=1;
-          animationRunning.fit[i]=false;progress.fit[i]=true;
-          persist();drawChart('chart3_'+i,3,i);syncActionButtons();updateStages();
-        }
-      };
-      fitLineRaf[i]=requestAnimationFrame(frame);
-    });
-  }
+      persist();drawChart('chart3_combined',3,0);syncActionButtons();updateStages();
+      return;
+    }
+    const start=performance.now(),duration=900;
+    animationRunning.fit=[true,true];fitLineProgress[0]=0;fitLineProgress[1]=0;
+    progress.fit=[false,false];persist();syncActionButtons();updateStages();
+    const frame=now=>{
+      const t=Math.min(1,(now-start)/duration);
+      fitLineProgress[0]=t;fitLineProgress[1]=t;
+      drawChart('chart3_combined',3,0);
+      if(t<1){
+        for(let i=0;i<2;i++)fitLineRaf[i]=requestAnimationFrame(frame);
+      }else{
+        for(let i=0;i<2;i++){fitLineRaf[i]=null;animationRunning.fit[i]=false;progress.fit[i]=true}
+        fitLineProgress[0]=1;fitLineProgress[1]=1;
+        persist();drawChart('chart3_combined',3,0);syncActionButtons();updateStages();
+      }
+    };
+    fitLineRaf[0]=requestAnimationFrame(frame);fitLineRaf[1]=fitLineRaf[0];
+  });
 }
 function updateStages(){
   syncActionButtons();
@@ -576,8 +617,10 @@ bindActions();
 syncActionButtons();
 function resetPairProgress(){
   progress={stage:1,drawn1:[false,false],drawn2:[[false,false,false],[false,false,false]],scatter:[false,false],fit:[false,false]};
+  createAllChartCards();bindActions();
   animationCounts.angle=[0,0];animationCounts.trig=[0,0];animationCounts.scatter=[0,0];
   animationRunning.angle=[false,false];animationRunning.trig=[false,false];animationRunning.scatter=[false,false];animationRunning.fit=[false,false];
+  animationCounts.scatter=[0,0];
   for(let i=0;i<2;i++){if(fitLineRaf[i])cancelAnimationFrame(fitLineRaf[i]);fitLineRaf[i]=null;fitLineProgress[i]=0;}
   persist();setStage(1);syncActionButtons();updateStages();drawVisibleStage();
 }
