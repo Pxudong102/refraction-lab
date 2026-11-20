@@ -492,11 +492,20 @@ function bindActions(){
     $('#scatter3_'+i).addEventListener('click',()=>{
       if(animationRunning.scatter[i])return;
       const pts=computed[i],status=$('#fitInfo_'+i);
+
+      // 重新绘制散点时，取消正在进行的拟合动画，并清除旧拟合线。
+      if(fitLineRaf[i])cancelAnimationFrame(fitLineRaf[i]);
+      fitLineRaf[i]=null;
+      fitLineProgress[i]=0;
+      animationRunning.fit[i]=false;
       progress.scatter[i]=false;
       progress.fit[i]=false;
+
       animationRunning.scatter[i]=true;
       animationCounts.scatter[i]=0;
       persist();syncActionButtons();updateStages();
+      drawChart('chart3_'+i,3,i); // 先清空旧散点和旧拟合线，再开始重新绘制
+      if(status)status.textContent='正在重新绘制散点，旧拟合线已清除';
       let n=0;
       const timer=setInterval(()=>{
         n++;animationCounts.scatter[i]=n;
@@ -505,8 +514,10 @@ function bindActions(){
           clearInterval(timer);
           animationRunning.scatter[i]=false;
           progress.scatter[i]=true;
+          fitLineProgress[i]=0;
+          progress.fit[i]=false;
           persist();syncActionButtons();updateStages();drawChart('chart3_'+i,3,i);
-          if(status)status.textContent='过原点拟合：k = —';
+          if(status)status.textContent='散点已重新绘制完成，请重新点击拟合直线';
         }
       },160);
     });
