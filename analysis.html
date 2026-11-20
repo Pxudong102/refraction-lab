@@ -44,10 +44,10 @@ header{height:68px;display:flex;align-items:center;justify-content:space-between
 .analysis-layout{display:grid;grid-template-columns:minmax(230px,.32fr) minmax(560px,.68fr);gap:12px;height:100%;min-height:0}.control-stack{display:grid;gap:10px;align-content:start}.control-card{padding:11px}.control-card h4{font-size:11px;margin:0 0 8px}.control-card p{font-size:9.5px;line-height:1.6;color:var(--muted);margin:0 0 9px}.metric-tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px}.metric-tab{height:34px;border-radius:9px;border:1px solid rgba(137,185,220,.13);background:rgba(255,255,255,.02);font-size:10px;color:#9ab5c7;cursor:pointer}.metric-tab.active{border-color:rgba(72,216,255,.35);background:rgba(72,216,255,.09);color:#dff9ff}.chart-card{display:grid;grid-template-rows:auto minmax(0,1fr) auto;min-height:0}.chart-toolbar{display:flex;gap:7px;align-items:center;flex-wrap:wrap}.chart-wrap{position:relative;min-height:0;margin:10px 12px;border:1px solid rgba(255,255,255,.05);border-radius:11px;background:#081727;overflow:hidden}.chart-wrap canvas{width:100%;height:100%;display:block}.chart-note{margin-top:2px;padding:9px 13px 11px;border-top:1px solid rgba(127,178,214,.08);font-size:9.5px;color:#7796aa;line-height:1.55}.result-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:8px}.result-chip{padding:8px;border-radius:9px;background:rgba(255,255,255,.026);border:1px solid rgba(255,255,255,.05)}.result-chip span{display:block;font-size:8px;color:#7692a6}.result-chip b{display:block;margin-top:3px;font-size:12px;color:#e9fbff}.result-chip.em b{color:var(--green)}.ratio-draw-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}.ratio-draw-grid .action{width:100%}.ratio-draw-grid .action.done{border-color:rgba(105,230,178,.42);background:rgba(105,230,178,.08);color:#b8f4dc}
 /* module 6 · 独立数字折射实验台 */
 #view6{overflow:hidden}#view6 .lab6-shell{height:100%;min-height:0;display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:10px}
-.lab6-toolbar{padding:12px 14px;display:grid;gap:12px}.lab6-title{display:flex;align-items:center;justify-content:space-between;gap:12px}.lab6-title strong{font-size:15px;display:block}.lab6-title small{font-size:10px;color:var(--muted);display:block;margin-top:4px}.lab6-controls{display:grid;grid-template-columns:minmax(140px,1fr) minmax(140px,1fr) auto minmax(130px,1.2fr) 90px 110px;align-items:end;gap:9px}.lab6-controls label{display:grid;gap:5px;font-size:10px;color:#a9c4d5}.lab6-controls select{width:100%}.lab6-angle-label{white-space:nowrap}.lab6-angle-label b{color:#f1fbff;font-size:12px}.lab6-controls input[type=range]{width:100%;accent-color:var(--cyan);align-self:center}.lab6-stage{min-height:0;padding:10px;background:rgba(8,23,39,.7)}.lab6-canvas-wrap{width:100%;height:100%;min-height:300px;border:1px solid rgba(255,255,255,.06);border-radius:12px;background:radial-gradient(circle at 50% 28%,rgba(38,115,167,.12),transparent 50%),#081727;overflow:hidden}.lab6-canvas-wrap canvas{width:100%;height:100%;display:block}.lab6-results{display:grid;grid-template-columns:1fr 1fr minmax(180px,1.2fr);gap:9px}.lab6-observation{display:flex;align-items:center;padding:10px 13px;border:1px solid rgba(72,216,255,.13);border-radius:10px;background:rgba(72,216,255,.035);font-size:10px;line-height:1.6;color:#9eb8c8}
+.lab6-toolbar{padding:12px 14px;display:grid;gap:12px}.lab6-title{display:flex;align-items:center;justify-content:space-between;gap:12px}.lab6-title strong{font-size:15px;display:block}.lab6-title small{font-size:10px;color:var(--muted);display:block;margin-top:4px}.lab6-controls{display:grid;grid-template-columns:repeat(3,minmax(125px,1fr)) auto minmax(120px,1.2fr) 90px 110px;align-items:end;gap:9px}.lab6-controls label{display:grid;gap:5px;font-size:10px;color:#a9c4d5}.lab6-controls select{width:100%}.lab6-angle-label{white-space:nowrap}.lab6-angle-label b{color:#f1fbff;font-size:12px}.lab6-controls input[type=range]{width:100%;accent-color:var(--cyan);align-self:center}.lab6-stage{min-height:0;padding:10px;background:rgba(8,23,39,.7)}.lab6-canvas-wrap{width:100%;height:100%;min-height:300px;border:1px solid rgba(255,255,255,.06);border-radius:12px;background:radial-gradient(circle at 50% 28%,rgba(38,115,167,.12),transparent 50%),#081727;overflow:hidden}.lab6-canvas-wrap canvas{width:100%;height:100%;display:block}.lab6-results{display:grid;grid-template-columns:repeat(3,minmax(0,1fr)) minmax(180px,1.2fr);gap:9px}.lab6-observation{display:flex;align-items:center;padding:10px 13px;border:1px solid rgba(72,216,255,.13);border-radius:10px;background:rgba(72,216,255,.035);font-size:10px;line-height:1.6;color:#9eb8c8}
 #view6.lab6-maximized{display:block!important;position:fixed!important;inset:0!important;z-index:1100!important;width:100vw!important;height:100vh!important;height:100dvh!important;margin:0!important;padding:12px!important;background:#061221!important;overflow:hidden!important;border:0!important;border-radius:0!important}#view6.lab6-maximized .lab6-shell{height:100%;grid-template-rows:auto minmax(0,1fr) auto}#view6.lab6-maximized .lab6-stage{min-height:0}#view6.lab6-maximized .lab6-canvas-wrap{min-height:0}
-@media(max-width:1050px){#view6{height:auto;overflow:visible}#view6 .lab6-shell{height:auto;grid-template-rows:auto minmax(480px,65vh) auto}.lab6-controls{grid-template-columns:1fr 1fr}.lab6-controls input[type=range]{grid-column:1/2}.lab6-results{grid-template-columns:1fr 1fr}.lab6-observation{grid-column:1/-1}}
-@media(max-width:620px){.lab6-controls{grid-template-columns:1fr 1fr}.lab6-controls label:first-child,.lab6-controls label:nth-child(2){grid-column:1/-1}.lab6-results{grid-template-columns:1fr}.lab6-observation{grid-column:auto}#view6.lab6-maximized{padding:7px!important}#view6.lab6-maximized .lab6-shell{grid-template-rows:auto minmax(0,1fr) auto}#view6.lab6-maximized .lab6-controls{grid-template-columns:1fr 1fr}}
+@media(max-width:1050px){#view6{height:auto;overflow:visible}#view6 .lab6-shell{height:auto;grid-template-rows:auto minmax(480px,65vh) auto}.lab6-controls{grid-template-columns:repeat(2,minmax(0,1fr))}.lab6-controls input[type=range]{grid-column:1/2}.lab6-results{grid-template-columns:repeat(3,minmax(0,1fr))}.lab6-observation{grid-column:1/-1}}
+@media(max-width:620px){.lab6-controls{grid-template-columns:1fr 1fr}.lab6-controls label:first-child,.lab6-controls label:nth-child(2),.lab6-controls label:nth-child(3){grid-column:1/-1}.lab6-results{grid-template-columns:1fr}.lab6-observation{grid-column:auto}#view6.lab6-maximized{padding:7px!important}#view6.lab6-maximized .lab6-shell{grid-template-rows:auto minmax(0,1fr) auto}#view6.lab6-maximized .lab6-controls{grid-template-columns:1fr 1fr}}
 
 @media(max-width:760px){.ratio-draw-grid{grid-template-columns:1fr}}
 
@@ -85,7 +85,7 @@ header{height:68px;display:flex;align-items:center;justify-content:space-between
 .lab-angle-control label{font-size:11px;color:#b2c7d5;white-space:nowrap;font-weight:600;margin-right:1px}.lab-angle-control input[type=range]{width:100%;min-width:0;accent-color:var(--cyan);margin:0}.lab-angle-control b{font-size:13px;color:#f0fbff;text-align:center;font-variant-numeric:tabular-nums;white-space:nowrap}.lab-step-select{width:100%;height:30px;padding:0 4px;text-align:center}.lab-auto-btn{width:100%;height:30px;padding:0 6px;display:inline-flex;align-items:center;justify-content:center}.lab-auto-btn.running{border-color:rgba(255,211,107,.38);background:rgba(255,211,107,.08);color:#fff2b5}
 .refraction-canvas-wrap{position:relative;min-height:0;height:100%;border:1px solid rgba(255,255,255,.05);border-radius:11px;background:radial-gradient(circle at 50% 30%,rgba(38,115,167,.11),transparent 48%),#081727;overflow:hidden}
 .refraction-canvas-wrap canvas{width:100%;height:100%;display:block}
-.lab-result-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.lab-result-card{padding:11px;border-radius:9px;border:1px solid rgba(255,255,255,.055);background:rgba(255,255,255,.024);min-width:0}.lab-result-card .name{font-size:10.5px;color:#9fb7c7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.lab-result-card .vals{display:flex;gap:12px;align-items:baseline;flex-wrap:wrap;margin-top:5px}.lab-result-card .vals b{font-size:16px;color:#eefcff;font-variant-numeric:tabular-nums}.lab-result-card .vals span{font-size:11.5px;color:#91aabc}.lab-result-card.a{border-color:rgba(72,216,255,.18)}.lab-result-card.b{border-color:rgba(255,211,107,.18)}
+.lab-result-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.lab-result-card{padding:11px;border-radius:9px;border:1px solid rgba(255,255,255,.055);background:rgba(255,255,255,.024);min-width:0}.lab-result-card .name{font-size:10.5px;color:#9fb7c7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.lab-result-card .vals{display:flex;gap:12px;align-items:baseline;flex-wrap:wrap;margin-top:5px}.lab-result-card .vals b{font-size:16px;color:#eefcff;font-variant-numeric:tabular-nums}.lab-result-card .vals span{font-size:11.5px;color:#91aabc}.lab-result-card.a{border-color:rgba(72,216,255,.18)}.lab-result-card.b{border-color:rgba(255,211,107,.18)}.lab-result-card.c{border-color:rgba(105,230,178,.20)}
 .lab-physics-note{font-size:10.5px;line-height:1.6;color:#91aabd;padding:1px 2px}.lab-physics-note b{color:#d2f2fa;font-weight:600}
 #refractionLabAction .action{flex:1;display:flex;justify-content:center;align-items:center}
 @media(max-width:1180px){#view4.lab-active .analysis-layout{grid-template-columns:minmax(390px,var(--lab-left,1.45fr)) 8px minmax(330px,var(--lab-right,1fr))}}
@@ -223,7 +223,7 @@ body.overview-maximized-active{overflow:hidden!important}
         <div class="mission" data-step="3"><div class="mission-no">03</div><div><strong>六组 · 同屏验证</strong><p>六组数据同屏比较四种比值的变化。</p></div></div>
         <div class="mission" data-step="4"><div class="mission-no">04</div><div><strong>双组 · 比较规律</strong><p>比较同一小组两种介质的实验结果。</p></div></div>
         <div class="mission" data-step="5"><div class="mission-no">05</div><div><strong>正弦拟合总览</strong><p>全班12份实验正弦散点与拟合直线同图呈现。</p></div></div>
-        <div class="mission" data-step="6"><div class="mission-no">06</div><div><strong>数字折射实验台</strong><p>选择两组介质，在同一入射角下比较两条折射光路。</p></div></div>
+        <div class="mission" data-step="6"><div class="mission-no">06</div><div><strong>数字折射实验台</strong><p>选择三组介质，在同一入射角下比较两条折射光路。</p></div></div>
       </div>
       <div class="task-card">
         <div class="task-kicker" id="taskKicker">MISSION 01 · CLOUD DATA</div>
@@ -272,7 +272,7 @@ body.overview-maximized-active{overflow:hidden!important}
       <div class="input-grid">
         <div class="card group-list">
           <div class="card-head"><div><h3>实验数据组</h3><small>每组可代表不同介质或不同实验条件</small></div><span class="count-badge">已识别 <b id="groupCountBadge">1</b> 组</span></div>
-          <div class="group-tools"><button class="action primary" id="addGroupBtn" type="button">＋ 新增数据组</button><button class="action good" id="loadDefaultDataBtn" type="button" title="载入内置的高二（20）班 12 组、72 个实验样本">▣ 加载默认数据</button><button class="action danger" id="deleteGroupBtn" type="button">删除当前组</button></div>
+          <div class="group-tools"><button class="action primary" id="addGroupBtn" type="button">＋ 新增数据组</button><button class="action danger" id="deleteGroupBtn" type="button">删除当前组</button></div>
           <div class="groups" id="groupList"></div>
         </div>
         <div class="card editor">
@@ -335,9 +335,9 @@ body.overview-maximized-active{overflow:hidden!important}
     <section class="view" id="view4">
       <div class="analysis-layout">
         <div class="control-stack">
-          <div class="card control-card compare-control-card"><h4>选择两组数据</h4><p>选择两组真实实验数据，用同一种数学方式进行比较。两组数据分开绘制，便于课堂逐步呈现。</p><div class="compare-selects"><select class="select" id="compareA"></select><select class="select" id="compareB"></select></div><div class="result-strip"><div class="result-chip"><span>第1组样本</span><b id="compareAN">0</b></div><div class="result-chip"><span>第2组样本</span><b id="compareBN">0</b></div><div class="result-chip"><span>比较方式</span><b id="compareModeName">sin 比</b></div></div></div>
-          <div class="card control-card compare-control-card"><h4>比较内容</h4><p>先比较两组数据的 sin i/sin r，再比较两组 sin r–sin i 的拟合关系。</p><div class="metric-tabs"><button class="metric-tab active" id="compareSinTab">sin 比比较</button><button class="metric-tab" id="compareFitTab">正弦拟合比较</button></div></div>
-          <div class="card control-card compare-control-card"><h4>分步绘制</h4><p id="compareActionText">先画第1组，再画第2组，观察两组 sin 比水平是否相同。</p><div class="btn-row"><button class="action primary cycle-btn" id="drawA" title="点击开始；绘制中再点立即补齐；完成后再点清空；清空后再点重新绘制">① 绘制第1组</button><button class="action cycle-btn" id="drawB" title="点击开始；绘制中再点立即补齐；完成后再点清空；清空后再点重新绘制">② 绘制第2组</button></div><div class="btn-row" id="compareFitButtons" style="display:none;margin-top:7px"><button class="action good cycle-btn fit-cycle" id="fitA" disabled title="点击开始拟合；拟合中再点立即完成；完成后再点清空；清空后再点重新拟合">∿ 拟合第1组</button><button class="action good cycle-btn fit-cycle" id="fitB" disabled title="点击开始拟合；拟合中再点立即完成；完成后再点清空；清空后再点重新拟合">∿ 拟合第2组</button></div><div class="result-strip" id="compareFitResults" style="display:none"><div class="result-chip em"><span id="slopeALabel">第1组斜率</span><b id="slopeA">—</b></div><div class="result-chip em"><span id="slopeBLabel">第2组斜率</span><b id="slopeB">—</b></div><div class="result-chip"><span>斜率差</span><b id="slopeDiff">—</b></div></div><div class="btn-row" id="refractionLabAction" style="display:none;margin-top:8px"><button class="action primary" id="showRefractionLabBtn" type="button">◎ 展示数字折射实验台</button></div></div>
+          <div class="card control-card compare-control-card"><h4>选择两组数据</h4><p>选择两组真实实验数据，用同一种数学方式进行比较。两组数据分开绘制，便于课堂逐步呈现。</p><div class="compare-selects"><select class="select" id="compareA"></select><select class="select" id="compareB"></select></div><div class="result-strip"><div class="result-chip"><span>第1组样本</span><b id="compareAN">0</b></div><div class="result-chip"><span>第2组样本</span><b id="compareBN">0</b></div><div class="result-chip"><span>比较方式</span><b id="compareModeName">正弦拟合</b></div></div></div>
+          <div class="card control-card compare-control-card"><h4>比较内容</h4><p>比较两组实验的 sin r–sin i 散点分布与拟合直线，观察两种介质对应的拟合斜率。</p><div class="metric-tabs"><button class="metric-tab active" id="compareFitTab">正弦拟合比较</button></div></div>
+          <div class="card control-card compare-control-card"><h4>分步绘制</h4><p id="compareActionText">先后绘制两组 sin r–sin i 散点，再分别生成拟合直线。</p><div class="btn-row"><button class="action primary cycle-btn" id="drawA" title="点击开始；绘制中再点立即补齐；完成后再点清空；清空后再点重新绘制">① 绘制第1组</button><button class="action cycle-btn" id="drawB" title="点击开始；绘制中再点立即补齐；完成后再点清空；清空后再点重新绘制">② 绘制第2组</button></div><div class="btn-row" id="compareFitButtons" style="display:none;margin-top:7px"><button class="action good cycle-btn fit-cycle" id="fitA" disabled title="点击开始拟合；拟合中再点立即完成；完成后再点清空；清空后再点重新拟合">∿ 拟合第1组</button><button class="action good cycle-btn fit-cycle" id="fitB" disabled title="点击开始拟合；拟合中再点立即完成；完成后再点清空；清空后再点重新拟合">∿ 拟合第2组</button></div><div class="result-strip" id="compareFitResults" style="display:none"><div class="result-chip em"><span id="slopeALabel">第1组斜率</span><b id="slopeA">—</b></div><div class="result-chip em"><span id="slopeBLabel">第2组斜率</span><b id="slopeB">—</b></div><div class="result-chip"><span>斜率差</span><b id="slopeDiff">—</b></div></div><div class="btn-row" id="refractionLabAction" style="display:none;margin-top:8px"><button class="action primary" id="showRefractionLabBtn" type="button">◎ 展示数字折射实验台</button></div></div>
           <div class="card" id="refractionLabCard">
             <div class="card-head"><div><h3>数字折射实验台</h3><small>拟合结果可视化</small></div><button class="action" id="exitRefractionLabBtn" type="button">← 返回拟合</button></div>
             <div class="refraction-lab-body">
@@ -353,7 +353,7 @@ body.overview-maximized-active{overflow:hidden!important}
         </div>
         <div class="lab-splitter" id="labSplitter" role="separator" aria-orientation="vertical" aria-label="调节数字折射实验台与两组数据图宽度" title="拖动调节左右比例；双击恢复 60:40" tabindex="0"><span></span><span></span><span></span></div>
         <div class="card chart-card">
-          <div class="card-head"><div><h3 id="compareChartTitle">两组数据 · sin 比比较</h3><small id="compareChartSubtitle">比值保留 1 位小数 · 坐标随数据自适应</small></div><div class="legend"><span><i class="a"></i><span id="legendA">第1组</span></span><span><i class="b"></i><span id="legendB">第2组</span></span></div></div>
+          <div class="card-head"><div><h3 id="compareChartTitle">两组数据 · 正弦拟合比较</h3><small id="compareChartSubtitle">sin r–sin i 散点与过原点拟合直线</small></div><div class="legend"><span><i class="a"></i><span id="legendA">第1组</span></span><span><i class="b"></i><span id="legendB">第2组</span></span></div></div>
           <div class="chart-wrap"><canvas id="compareChart"></canvas></div>
           <div class="chart-note" id="compareChartNote">先点击“绘制第1组”，再点击“绘制第2组”。</div>
         </div>
@@ -378,7 +378,7 @@ body.overview-maximized-active{overflow:hidden!important}
           </div>
         </div>
         <div class="card overview-chart-card" id="overviewChartCard">
-          <div class="card-head"><div><h3>sin r – sin i · 正弦拟合</h3><small>过原点拟合 · 自动坐标范围 · 12组实验同图</small></div><span class="count-badge" id="overviewChartBadge">滚动查看下方数据总览 ↓</span></div>
+          <div class="card-head"><div><h3>sin r – sin i · 正弦拟合</h3><small>过原点拟合 · 按介质区分色系 · 12组实验同图</small></div><span class="count-badge" id="overviewChartBadge">滚动查看下方数据总览 ↓</span></div>
           <div class="overview-canvas-wrap"><canvas id="overviewChart"></canvas></div>
         </div>
         <!-- 下滚后才显示选组、图例、斜率结果 -->
@@ -389,7 +389,7 @@ body.overview-maximized-active{overflow:hidden!important}
           </div>
           <div class="overview-stats"><span>已选择 <b id="overviewSelectedCount">0</b>/12 份</span><span>总数据点 <b id="overviewPointCount">0</b></span><span>拟合完成 <b id="overviewFitCount">0</b> 条</span></div>
           <div class="overview-select-grid" id="overviewSelectGrid"></div>
-          <div class="overview-details-subhead">12份实验的拟合结果 <small>同色为同一小组的两种介质；当前实验高亮，之前的实验淡化</small></div>
+          <div class="overview-details-subhead">12份实验的拟合结果 <small>同色系代表同一种介质，深浅区分不同小组；点形与线型辅助区分介质</small></div>
           <div class="overview-legend" id="overviewLegend"></div>
           <div class="overview-foot">拟合斜率 k 显示3位小数；拟合计算基于原始角度，内部使用完整精度。拟合线只是对真实测量数据的数学建模，不替代真实实验。</div>
         </div>
@@ -399,10 +399,11 @@ body.overview-maximized-active{overflow:hidden!important}
     <section class="view" id="view6" aria-label="数字折射实验台">
       <div class="lab6-shell" id="lab6Shell">
         <div class="card lab6-toolbar">
-          <div class="lab6-title"><div><strong>数字折射实验台</strong><small>选择两组实验 · 同一入射角 · 比较两种介质的折射光路</small></div><button class="action" id="lab6MaxBtn" type="button" aria-pressed="false">⛶ 最大化展示</button></div>
+          <div class="lab6-title"><div><strong>数字折射实验台</strong><small>选择三组实验 · 同一入射角 · 比较三种介质的折射光路</small></div><button class="action" id="lab6MaxBtn" type="button" aria-pressed="false">⛶ 最大化展示</button></div>
           <div class="lab6-controls">
-            <label>介质 / 实验 A<select class="select" id="lab6SelectA"></select></label>
-            <label>介质 / 实验 B<select class="select" id="lab6SelectB"></select></label>
+            <label>介质 / 实验 1<select class="select" id="lab6SelectA"></select></label>
+            <label>介质 / 实验 2<select class="select" id="lab6SelectB"></select></label>
+            <label>介质 / 实验 3<select class="select" id="lab6SelectC"></select></label>
             <label class="lab6-angle-label" for="lab6Angle">入射角 i <b id="lab6AngleValue">45.0°</b></label>
             <input id="lab6Angle" type="range" min="5" max="80" step="0.5" value="45" aria-label="调节共同入射角"/>
             <select class="select" id="lab6Step" aria-label="自动演示步长"><option value="1">1°/步</option><option value="2">2°/步</option><option value="5" selected>5°/步</option><option value="10">10°/步</option></select>
@@ -411,8 +412,9 @@ body.overview-maximized-active{overflow:hidden!important}
         </div>
         <div class="card lab6-stage"><div class="lab6-canvas-wrap"><canvas id="lab6Canvas"></canvas></div></div>
         <div class="lab6-results">
-          <div class="lab-result-card a"><div class="name" id="lab6NameA">第1组</div><div class="vals"><b id="lab6NA">n = —</b><span id="lab6RA">r = —</span></div></div>
-          <div class="lab-result-card b"><div class="name" id="lab6NameB">第2组</div><div class="vals"><b id="lab6NB">n = —</b><span id="lab6RB">r = —</span></div></div>
+          <div class="lab-result-card a"><div class="name" id="lab6NameA">第1组</div><div class="vals"><b id="lab6NA">n₁ = —</b><span id="lab6RA">r₁ = —</span></div></div>
+          <div class="lab-result-card b"><div class="name" id="lab6NameB">第2组</div><div class="vals"><b id="lab6NB">n₂ = —</b><span id="lab6RB">r₂ = —</span></div></div>
+          <div class="lab-result-card c"><div class="name" id="lab6NameC">第3组</div><div class="vals"><b id="lab6NC">n₃ = —</b><span id="lab6RC">r₃ = —</span></div></div>
           <div class="lab6-observation" id="lab6Note">选择两组有效实验数据，即可比较同一入射角下的折射情况。</div>
         </div>
       </div>
@@ -437,15 +439,15 @@ const state={
   nextGroupId:2,
   singleMetric:'ratios',singleVisible:0,singleFitProgress:0,singleTimer:null,singleRaf:null,
   singleRatioVisible:{angle:0,cos:0,sin:0,tan:0},singleRatioTimers:{angle:null,cos:null,sin:null,tan:null},
-  compareMode:'sin',compareVisibleA:0,compareVisibleB:0,compareFitA:0,compareFitB:0,compareTimerA:null,compareTimerB:null,compareRafA:null,compareRafB:null,labActive:false,labAngle:45,labSplit:.60,labAutoStep:5,labAutoTimer:null,labAutoDirection:1,overviewRounds:0,overviewFitProgress:0,overviewTimer:null,overviewFitRaf:null,overviewFitStart:0,overviewSelections:[],lab6Angle:45,lab6Timer:null,lab6Direction:1,lab6Step:5
+  compareMode:'fit',compareVisibleA:0,compareVisibleB:0,compareFitA:0,compareFitB:0,compareTimerA:null,compareTimerB:null,compareRafA:null,compareRafB:null,labActive:false,labAngle:45,labSplit:.60,labAutoStep:5,labAutoTimer:null,labAutoDirection:1,overviewRounds:0,overviewFitProgress:0,overviewTimer:null,overviewFitRaf:null,overviewFitStart:0,overviewSelections:[],lab6Angle:45,lab6Timer:null,lab6Direction:1,lab6Step:5
 };
 const tasks={
   1:{k:'MISSION 01 · CLOUD DATA',t:'把全班真实实验数据汇集到同一个分析入口。',x:'优先从课堂数据采集网站读取各组已经提交的入射角 i 与折射角 r。选择班级、勾选实验组后即可一键导入；手动输入和 CSV 仅作为备用入口。数据表只呈现真实测量的 i、r，不提前展示计算结果。',g:['读取云端班级实验数据','默认同组只保留最新一次提交','导入后只检查原始 i、r 测量值','必要时使用手动或 CSV 备用入口'],title:'真实实验数据汇集',tag:'CLOUD / BACKUP',hint:'只展示原始 i、r · 云端数据为主'},
   2:{k:'MISSION 02 · SINGLE GROUP',t:'一组数据里，哪一种数学关系更稳定？',x:'选择一组真实实验数据，在同一坐标系中依次加入角度比、cos 比、tan 比和 sin 比。四条曲线由你分别控制出现，再通过正弦拟合建立定量关系。',g:['在同一张图上逐条绘制 i/r、cos 比、tan 比、sin 比','保留已绘曲线，直接比较四种比值的变化','绘制 sin r–sin i 散点','需要时再生成拟合直线'],title:'单组数据寻律',tag:'SINGLE DATASET',hint:'一组数据 · 同图逐步比较'},
   3:{k:'MISSION 03 · SIX GROUPS',t:'一组得到的规律，在全班六组数据中还成立吗？',x:'同时展示六组实验数据。每张图都叠加 i/r、cos i/cos r、tan i/tan r、sin i/sin r 四条曲线，并统一坐标尺度，直接比较各组数据的一致性与实验波动。',g:['默认读取前六个有效实验组','六张图按 2 × 3 同屏排列','每张图同时显示四种比值','用跨组证据检验正弦比的稳定性'],title:'六组数据同屏验证',tag:'SIX DATASETS',hint:'六组数据 · 2 × 3 同屏 · 共用坐标尺度'},
-  4:{k:'MISSION 04 · TWO GROUPS',t:'同一个小组，换一种介质后会发生什么变化？',x:'从同一个小组选择两种不同介质的实验数据，先比较正弦比，再比较正弦拟合斜率。最终用数字折射实验台展示相同入射角下的两条折射光路。',g:['选择同一小组的两种介质实验','先后绘制两份数据','比较正弦比及拟合斜率','把折射率带回物理光路'],title:'双组数据比较',tag:'TWO DATASETS',hint:'同一小组 · 两种介质 · 比较规律'},
+  4:{k:'MISSION 04 · TWO GROUPS',t:'同一个小组，换一种介质后会发生什么变化？',x:'从同一个小组选择两种不同介质的实验数据，比较正弦拟合斜率。最终用数字折射实验台展示相同入射角下的折射光路。',g:['选择同一小组的两种介质实验','先后绘制两份数据的正弦散点','分别拟合并比较斜率','把折射率带回物理光路'],title:'双组数据比较',tag:'TWO DATASETS',hint:'同一小组 · 两种介质 · 比较规律'},
   5:{k:'MISSION 05 · TWELVE FITS',t:'从一组比较，走向全班十二份实验的共同规律。',x:'六个小组各测量两种介质，共十二份实验。第一轮同时绘制每份实验的第一个测量点，接着绘制第二轮，以此类推；散点完成后，再统一生成十二条正弦拟合直线，比较拟合斜率。',g:['选择12份真实实验数据','每轮同时绘制最多12个散点','再次点击可立即补齐全部散点','点击拟合绘制12条直线并观察斜率'],title:'正弦拟合总览',tag:'TWELVE FITS',hint:'先看按钮与大图 · 下滚查看12份实验总览 · 支持最大化'},
-  6:{k:'MISSION 06 · DIGITAL REFRACTION LAB',t:'把两组实验得到的折射率带回光路。',x:'选择两份实验数据，平台根据各自的正弦拟合斜率估算折射率。在相同入射角下，观察两种介质中的折射光线、折射角与法线的关系；可调节入射角，也可自动演示。',g:['选择两组有效实验数据','用正弦拟合斜率作为折射率估计','保持同一入射角，叠加显示两条折射光路','最大化图像用于课堂投屏'],title:'数字折射实验台',tag:'DIGITAL REFRACTION LAB',hint:'两组数据 · 同角入射 · 光路叠加 · 支持最大化'}
+  6:{k:'MISSION 06 · DIGITAL REFRACTION LAB',t:'把两组实验得到的折射率带回光路。',x:'选择三份实验数据，平台根据各自的正弦拟合斜率估算折射率。在相同入射角下，观察三种介质中的折射光线、折射角与法线的关系；可调节入射角，也可自动演示。',g:['选择三组有效实验数据','用正弦拟合斜率估算三种介质的折射率','保持同一入射角，叠加显示三条折射光路','最大化图像用于课堂投屏'],title:'数字折射实验台',tag:'DIGITAL REFRACTION LAB',hint:'三组数据 · 同角入射 · 三条光路叠加 · 支持最大化'}
 };
 function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove('show'),1900)}
 function currentGroup(){return state.groups.find(g=>g.id===state.currentGroupId)||state.groups[0]}
@@ -723,9 +725,8 @@ function csvNumber(v){
 
 // 内置默认实验数据：来源于上传的「高二（20）班_光的折射详细数据.csv」。
 // 每个学生小组对应两种介质；保留原始 i、r 数值，加载时仍由 ratioRow 重新计算比值。
-const DEFAULT_EXPERIMENT_DATA = [{"team":"A","medium":"水","rows":[["25","19"],["30","22"],["40","29"],["50","35"],["55","39"],["75","46"]]},{"team":"A","medium":"玻璃","rows":[["25","16"],["30","19"],["40","25"],["50","30"],["55","33"],["75","39"]]},{"team":"B","medium":"水","rows":[["20","15"],["35","25"],["46","33"],["60","41"],["70","45"],["75","46"]]},{"team":"B","medium":"玻璃","rows":[["20","13"],["35","22"],["46","28"],["60","34"],["70","38"],["75","39"]]},{"team":"C","medium":"甘油","rows":[["25","17"],["35","23"],["45","29"],["55","34"],["60","37"],["70","41"]]},{"team":"C","medium":"玻璃","rows":[["20","13"],["30","19"],["40","25"],["46","28"],["50","30"],["65","36"]]},{"team":"D","medium":"甘油","rows":[["25","17"],["35","23"],["40","26"],["50","32"],["65","39"],["70","41"]]},{"team":"D","medium":"玻璃","rows":[["20","13"],["30","19"],["40","25"],["50","30"],["60","34"],["70","38"]]},{"team":"E","medium":"水","rows":[["50","35"],["55","39"],["60","41"],["65","43"],["70","45"],["75","46"]]},{"team":"E","medium":"甘油","rows":[["20","14"],["25","17"],["30","20"],["35","23"],["40","26"],["45","29"]]},{"team":"F","medium":"水","rows":[["25","19"],["35","26"],["40","29"],["45","32"],["50","35"],["60","41"]]},{"team":"F","medium":"甘油","rows":[["25","17"],["30","20"],["45","29"],["55","34"],["65","39"],["75","42"]]}];
+const DEFAULT_EXPERIMENT_DATA = [{"team":"A","medium":"水","rows":[["25","19"],["30","22"],["40","29"],["50","35"],["55","39"],["75","46"]]},{"team":"A","medium":"玻璃","rows":[["25","16"],["30","19"],["40","25"],["50","30"],["55","33"],["75","39"]]},{"team":"B","medium":"水","rows":[["20","15"],["35","25"],["46","33"],["60","41"],["70","45"],["75","46"]]},{"team":"B","medium":"玻璃","rows":[["20","13"],["35","22"],["46","28"],["60","34"],["70","38"],["75","39"]]},{"team":"C","medium":"油","rows":[["25","17"],["35","23"],["45","29"],["55","34"],["60","37"],["70","41"]]},{"team":"C","medium":"玻璃","rows":[["20","13"],["30","19"],["40","25"],["46","28"],["50","30"],["65","36"]]},{"team":"D","medium":"油","rows":[["25","17"],["35","23"],["40","26"],["50","32"],["65","39"],["70","41"]]},{"team":"D","medium":"玻璃","rows":[["20","13"],["30","19"],["40","25"],["50","30"],["60","34"],["70","38"]]},{"team":"E","medium":"水","rows":[["50","35"],["55","39"],["60","41"],["65","43"],["70","45"],["75","46"]]},{"team":"E","medium":"油","rows":[["20","14"],["25","17"],["30","20"],["35","23"],["40","26"],["45","29"]]},{"team":"F","medium":"水","rows":[["25","19"],["35","26"],["40","29"],["45","32"],["50","35"],["60","41"]]},{"team":"F","medium":"油","rows":[["25","17"],["30","20"],["45","29"],["55","34"],["65","39"],["75","42"]]}];
 function loadDefaultData(){
-  if(totalSamples()>0 && !window.confirm('加载默认数据会替换当前平台中的全部实验组（包括已手动录入或导入的数据），是否继续？'))return;
   const groups=DEFAULT_EXPERIMENT_DATA.map((item,index)=>({
     id:index+1,
     name:`第${item.team.charCodeAt(0)-64}组 · ${item.medium}`,
@@ -742,7 +743,6 @@ function loadDefaultData(){
   $('#csvImportStatus').textContent=`默认数据已加载 ${groups.length} 组 / ${totalSamples()} 条`;
   toast(`默认数据加载成功：${groups.length} 组，共 ${totalSamples()} 个样本`);
 }
-$('#loadDefaultDataBtn').addEventListener('click',loadDefaultData);
 function uniqueImportedName(base){
   base=(String(base||'').trim()||'CSV导入数据');
   const names=new Set(state.groups.map(g=>g.name));
@@ -1148,8 +1148,7 @@ function drawSingleChart(){
   if(!state.singleRatioVisible.angle&&!state.singleRatioVisible.cos&&!state.singleRatioVisible.sin&&!state.singleRatioVisible.tan){ctx.fillStyle='#58758a';ctx.textAlign='center';ctx.fillText('请选择一种比值开始绘制',a.pad.l+a.iw/2,a.pad.t+a.ih/2)}
 }
 function resetCompareChart(){clearInterval(state.compareTimerA);clearInterval(state.compareTimerB);cancelAnimationFrame(state.compareRafA);cancelAnimationFrame(state.compareRafB);state.compareTimerA=state.compareTimerB=null;state.compareRafA=null;state.compareRafB=null;state.compareVisibleA=0;state.compareVisibleB=0;state.compareFitA=0;state.compareFitB=0;['drawA','drawB','fitA','fitB'].forEach(id=>$('#'+id).classList.remove('done','running'));$('#fitA').disabled=true;$('#fitB').disabled=true;$('#compareFitResults').style.display='none';$('#refractionLabAction').style.display='none';$('#slopeA').textContent='—';$('#slopeB').textContent='—';$('#slopeDiff').textContent='—';exitRefractionLab(false)}
-$('#compareSinTab').addEventListener('click',()=>{state.compareMode='sin';$('#compareSinTab').classList.add('active');$('#compareFitTab').classList.remove('active');$('#compareFitButtons').style.display='none';$('#compareModeName').textContent='sin 比';$('#compareChartTitle').textContent='两组数据 · sin 比比较';$('#compareActionText').textContent='先画第1组，再画第2组，观察两组 sin 比水平是否相同。';resetCompareChart();drawCompareChart()});
-$('#compareFitTab').addEventListener('click',()=>{state.compareMode='fit';$('#compareFitTab').classList.add('active');$('#compareSinTab').classList.remove('active');$('#compareFitButtons').style.display='flex';$('#compareModeName').textContent='正弦拟合';$('#compareChartTitle').textContent='两组数据 · 正弦拟合比较';$('#compareActionText').textContent='先后绘制两组 sin r–sin i 散点，再分别生成拟合直线。';resetCompareChart();drawCompareChart()});
+$('#compareFitTab').addEventListener('click',()=>{state.compareMode='fit';$('#compareFitTab').classList.add('active');$('#compareFitButtons').style.display='flex';$('#compareModeName').textContent='正弦拟合';$('#compareChartTitle').textContent='两组数据 · 正弦拟合比较';$('#compareActionText').textContent='先后绘制两组 sin r–sin i 散点，再分别生成拟合直线。';resetCompareChart();drawCompareChart()});
 function animateGroup(which){
   const g=groupBySelect(which==='A'?'compareA':'compareB');if(!g||!g.rows.length){toast('请选择有效的数据组');return}
   const key=which==='A'?'compareVisibleA':'compareVisibleB',timerKey=which==='A'?'compareTimerA':'compareTimerB';
@@ -1322,117 +1321,175 @@ function drawRefractionLab(){
 }
 function drawRefractionLab6(){
   const canvas=$('#lab6Canvas');if(!canvas||state.step!==6)return;
-  const ga=groupBySelect('lab6SelectA'),gb=groupBySelect('lab6SelectB'),sa=fitStats(ga),sb=fitStats(gb);if(!ga||!gb||!sa||!sb)return;
+  const groups=['lab6SelectA','lab6SelectB','lab6SelectC'].map(id=>groupBySelect(id));
+  const stats=groups.map(g=>fitStats(g));
+  if(groups.some((g,i)=>!g||!stats[i]))return;
+  const [ga,gb,gc]=groups,[sa,sb,sc]=stats;
   const {ctx,w,h}=setupCanvas(canvas);ctx.clearRect(0,0,w,h);
-  const i=state.lab6Angle,rA=refractedAngleFromN(i,sa.k),rB=refractedAngleFromN(i,sb.k);
-  const colorA='#48d8ff',colorB='#ffd36b';
+  const i=state.lab6Angle;
+  const rs=stats.map(s=>refractedAngleFromN(i,s.k));
+  const colors=['#48d8ff','#ffd36b','#69e6b2'];
+  const dashes=[[],[7,5],[3,4]];
+  const subs=['₁','₂','₃'];
   const pad=Math.max(16,Math.min(26,w*.04));
   const x=pad,y=pad,pw=w-pad*2,ph=h-pad*2;
   ctx.fillStyle='rgba(255,255,255,.018)';ctx.strokeStyle='rgba(126,181,218,.12)';ctx.lineWidth=1;roundRectPath(ctx,x,y,pw,ph,12);ctx.fill();ctx.stroke();
 
-  const cx=x+pw*.50,interfaceY=y+ph*.45;
-  const Linc=Math.min(pw*.30,ph*.34),Lrefr=Math.min(pw*.34,ph*.35);
-  // lower half is a conceptual overlay area rather than one physical medium
+  // 光路图保持居中偏左，折射角信息紧挨折射光线右侧，不贴画布最右边
+  const cx=x+pw*.43,interfaceY=y+ph*.45;
+  const Linc=Math.min(pw*.31,ph*.34),Lrefr=Math.min(pw*.48,ph*.50);
+  const anglePanelW=Math.max(108,Math.min(132,pw*.22));
+  const anglePanelX=cx+Lrefr*.82;
+
   const grad=ctx.createLinearGradient(0,interfaceY,0,y+ph);
-  grad.addColorStop(0,'rgba(72,216,255,.050)');grad.addColorStop(1,'rgba(255,211,107,.028)');
+  grad.addColorStop(0,'rgba(72,216,255,.045)');grad.addColorStop(1,'rgba(105,230,178,.035)');
   ctx.fillStyle=grad;ctx.fillRect(x+1,interfaceY,pw-2,y+ph-interfaceY-1);
 
-  // title/legend inside the canvas
   ctx.font='600 14px Microsoft YaHei';ctx.textAlign='left';ctx.fillStyle='#dceff8';
-  ctx.fillText('数字折射实验台 · 两种介质光路比较',x+14,y+20);
-  const legendY=y+39;
-  ctx.strokeStyle=colorA;ctx.lineWidth=3;ctx.setLineDash([]);ctx.beginPath();ctx.moveTo(x+14,legendY);ctx.lineTo(x+36,legendY);ctx.stroke();
-  ctx.fillStyle=colorA;ctx.font='12px Microsoft YaHei';ctx.fillText(`${ga.name}  n₁=${fitSlopeText(sa.k)}`,x+42,legendY+3);
-  const legendBX=Math.min(x+pw*.52,x+pw-180);
-  ctx.strokeStyle=colorB;ctx.lineWidth=3;ctx.setLineDash([6,4]);ctx.beginPath();ctx.moveTo(legendBX,legendY);ctx.lineTo(legendBX+22,legendY);ctx.stroke();ctx.setLineDash([]);
-  ctx.fillStyle=colorB;ctx.font='12px Microsoft YaHei';ctx.fillText(`${gb.name}  n₂=${fitSlopeText(sb.k)}`,legendBX+28,legendY+3);
+  ctx.fillText('数字折射实验台 · 三种介质光路比较',x+14,y+20);
+  const legendY=y+40;
+  groups.forEach((g,idx)=>{
+    const lx=x+14+idx*pw*.31;
+    ctx.strokeStyle=colors[idx];ctx.lineWidth=3;ctx.setLineDash(dashes[idx]);
+    ctx.beginPath();ctx.moveTo(lx,legendY);ctx.lineTo(lx+20,legendY);ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle=colors[idx];ctx.font='11px Microsoft YaHei';
+    ctx.fillText(`${g.name}`,lx+26,legendY+3);
+  });
 
-  // interface and normal
-  ctx.strokeStyle='rgba(183,221,241,.42)';ctx.lineWidth=1.3;ctx.beginPath();ctx.moveTo(x+18,interfaceY);ctx.lineTo(x+pw-18,interfaceY);ctx.stroke();
-  ctx.setLineDash([6,6]);ctx.strokeStyle='rgba(151,191,213,.40)';ctx.beginPath();ctx.moveTo(cx,y+56);ctx.lineTo(cx,y+ph-26);ctx.stroke();ctx.setLineDash([]);
-  ctx.fillStyle='#91adbe';ctx.font='11px Microsoft YaHei';ctx.textAlign='left';ctx.fillText('空气',x+22,interfaceY-9);ctx.fillText('两种介质叠加示意',x+22,interfaceY+16);
+  // 折射界面与法线
+  ctx.strokeStyle='rgba(183,221,241,.42)';ctx.lineWidth=1.3;
+  ctx.beginPath();ctx.moveTo(x+18,interfaceY);ctx.lineTo(x+pw-18,interfaceY);ctx.stroke();
+  ctx.setLineDash([6,6]);ctx.strokeStyle='rgba(151,191,213,.40)';
+  ctx.beginPath();ctx.moveTo(cx,y+56);ctx.lineTo(cx,y+ph-26);ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle='#91adbe';ctx.font='11px Microsoft YaHei';ctx.textAlign='left';
+  ctx.fillText('空气',x+22,interfaceY-9);ctx.fillText('三种介质光路叠加示意',x+22,interfaceY+16);
   ctx.textAlign='center';ctx.fillText('法线',cx+22,y+68);
 
-  // one common incident ray
+  // 共用入射光线及方向箭头
   const sx=cx-Math.sin(rad(i))*Linc,sy=interfaceY-Math.cos(rad(i))*Linc;
-
-  // 绘制沿光线传播方向的箭头，箭头放在线段中后段，避免遮挡入射点 O
-  const drawRayArrow=(x1,y1,x2,y2,color,t=.72,size=13)=>{
+  const drawRayArrow=(x1,y1,x2,y2,color,t=.70,size=14)=>{
     const px=x1+(x2-x1)*t,py=y1+(y2-y1)*t;
     const angle=Math.atan2(y2-y1,x2-x1),ux=Math.cos(angle),uy=Math.sin(angle);
     const half=size*.52,wing=size*.38;
-    ctx.save();ctx.globalAlpha=1;ctx.fillStyle=color;
-    ctx.beginPath();
+    ctx.save();ctx.globalAlpha=1;ctx.fillStyle=color;ctx.beginPath();
     ctx.moveTo(px+ux*half,py+uy*half);
     ctx.lineTo(px-ux*half-uy*wing,py-uy*half+ux*wing);
     ctx.lineTo(px-ux*half+uy*wing,py-uy*half-ux*wing);
     ctx.closePath();ctx.fill();ctx.restore();
   };
-
-  ctx.strokeStyle='#d6f5ff';ctx.lineWidth=2.6;ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(cx,interfaceY);ctx.stroke();
+  ctx.strokeStyle='#d6f5ff';ctx.lineWidth=2.7;ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(cx,interfaceY);ctx.stroke();
   ctx.globalAlpha=.13;ctx.lineWidth=8;ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(cx,interfaceY);ctx.stroke();ctx.globalAlpha=1;
-  drawRayArrow(sx,sy,cx,interfaceY,'#d6f5ff',.76,13);
+  drawRayArrow(sx,sy,cx,interfaceY,'#d6f5ff',.76,14);
   ctx.fillStyle='#ecfdff';ctx.beginPath();ctx.arc(sx,sy,3.3,0,Math.PI*2);ctx.fill();
+  ctx.lineWidth=1.5;ctx.strokeStyle='rgba(239,246,251,.72)';
+  ctx.beginPath();ctx.arc(cx,interfaceY,34,-Math.PI/2-rad(i),-Math.PI/2);ctx.stroke();
+  ctx.fillStyle='#e5f4fa';ctx.font='12px Microsoft YaHei';ctx.textAlign='right';
+  ctx.fillText('i = '+i.toFixed(1)+'°',cx-9,interfaceY-40);
 
-  // incident angle arc
-  ctx.lineWidth=1.5;ctx.strokeStyle='rgba(239,246,251,.72)';ctx.beginPath();ctx.arc(cx,interfaceY,34,-Math.PI/2-rad(i),-Math.PI/2);ctx.stroke();
-  ctx.fillStyle='#e5f4fa';ctx.font='12px Microsoft YaHei';ctx.textAlign='right';ctx.fillText('i = '+i.toFixed(1)+'°',cx-9,interfaceY-40);
-
-  const drawRefracted=(r,color,dash,label,nValue,arcRadius,labelRadius)=>{
+  const drawRefracted=(r,color,dash,index,nValue,arcRadius,labelRadius)=>{
     if(!Number.isFinite(r))return false;
     const ex=cx+Math.sin(rad(r))*Lrefr,ey=interfaceY+Math.cos(rad(r))*Lrefr;
-    ctx.save();ctx.strokeStyle=color;ctx.lineWidth=3;ctx.setLineDash(dash);ctx.beginPath();ctx.moveTo(cx,interfaceY);ctx.lineTo(ex,ey);ctx.stroke();
-    ctx.globalAlpha=.15;ctx.lineWidth=8;ctx.setLineDash([]);ctx.beginPath();ctx.moveTo(cx,interfaceY);ctx.lineTo(ex,ey);ctx.stroke();ctx.restore();
-    // 箭头指向折射光传播方向；A、B 两条折射光分别沿各自颜色显示
-    drawRayArrow(cx,interfaceY,ex,ey,color,label==='r₁'?.62:.78,14);
-    // angle arc, concentric but at different radius so both remain visible
-    ctx.strokeStyle=color;ctx.lineWidth=1.6;ctx.setLineDash(dash);ctx.beginPath();ctx.arc(cx,interfaceY,arcRadius,Math.PI/2-rad(r),Math.PI/2);ctx.stroke();ctx.setLineDash([]);
-    const a=Math.PI/2-rad(r)*.55;
-    ctx.fillStyle=color;ctx.font='600 14px Microsoft YaHei';ctx.textAlign='left';
-    ctx.fillText(`${label} = ${r.toFixed(1)}°`,cx+Math.cos(a)*labelRadius+6,interfaceY+Math.sin(a)*labelRadius+3);
-    // endpoint label
-    const tx=ex+10,ty=ey+(label==='r₁'?-6:13);
-    const dp=label==='r₁'?groupDecimalPlaces(ga):groupDecimalPlaces(gb);ctx.font='11px Microsoft YaHei';ctx.fillStyle=color;ctx.textAlign='left';ctx.fillText(`${label.replace('r','n')}=${formatDecimal(nValue,dp)}`,tx,ty);
+    ctx.save();ctx.strokeStyle=color;ctx.lineWidth=2;ctx.setLineDash(dash);
+    ctx.beginPath();ctx.moveTo(cx,interfaceY);ctx.lineTo(ex,ey);ctx.stroke();
+    ctx.globalAlpha=.15;ctx.lineWidth=5;ctx.setLineDash([]);
+    ctx.beginPath();ctx.moveTo(cx,interfaceY);ctx.lineTo(ex,ey);ctx.stroke();ctx.restore();
+    drawRayArrow(cx,interfaceY,ex,ey,color,.68,14);
+
+    ctx.strokeStyle=color;ctx.lineWidth=1.5;ctx.setLineDash(dash);
+    ctx.beginPath();ctx.arc(cx,interfaceY,arcRadius,Math.PI/2-rad(r),Math.PI/2);ctx.stroke();ctx.setLineDash([]);
+    // 折射角数值统一放在光线右侧的信息栏；光线上不再叠加 n 数值
     return true;
   };
-  const okA=drawRefracted(rA,colorA,[],'r₁',sa.k,34,51);
-  const okB=drawRefracted(rB,colorB,[7,5],'r₂',sb.k,48,67);
 
-  // incident point O
+  const ok=rs.map((r,idx)=>drawRefracted(r,colors[idx],dashes[idx],idx,stats[idx].k,32+idx*13,48+idx*14));
+
+  // 折射角紧邻光线右侧，一列三行；颜色与三条折射光线逐一对应
+  const anglePanelY=interfaceY+16,anglePanelH=100;
+  ctx.save();
+  // 折射角信息直接叠加在光路图背景上，不再绘制独立色块或边框
+  // 这样与画布大背景融为一体，避免出现明显的“挖块”效果
+  ctx.textAlign='left';ctx.fillStyle='#a9c4d5';
+  ctx.font='600 10px Microsoft YaHei';
+  ctx.fillText('折射角',anglePanelX+9,anglePanelY+16);
+  rs.forEach((r,idx)=>{
+    const rowY=anglePanelY+39+idx*22;
+    ctx.strokeStyle=colors[idx];ctx.lineWidth=2.6;
+    ctx.setLineDash(dashes[idx]);ctx.beginPath();
+    ctx.moveTo(anglePanelX+9,rowY-3);ctx.lineTo(anglePanelX+20,rowY-3);
+    ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle=colors[idx];ctx.font='600 11px Microsoft YaHei';
+    ctx.fillText(Number.isFinite(r)?`r${subs[idx]} = ${r.toFixed(1)}°`:`r${subs[idx]} = —`,anglePanelX+26,rowY+1);
+  });
+  ctx.restore();
+
+  // 入射点 O
   ctx.fillStyle='#effdff';ctx.beginPath();ctx.arc(cx,interfaceY,4,0,Math.PI*2);ctx.fill();
   ctx.strokeStyle='rgba(72,216,255,.35)';ctx.lineWidth=1;ctx.beginPath();ctx.arc(cx,interfaceY,10,0,Math.PI*2);ctx.stroke();
   ctx.fillStyle='#101820';ctx.font='italic 14px Times New Roman';ctx.textAlign='left';ctx.fillText('O',cx+8,interfaceY-7);
 
-  ctx.fillStyle='#7898ad';ctx.font='10px Microsoft YaHei';ctx.textAlign='left';
-  ctx.fillText('光线箭头表示传播方向',x+14,y+ph-13);
-
-  if(okA&&okB){
-    const diff=Math.abs(rA-rB);
-    ctx.fillStyle='rgba(4,18,30,.72)';ctx.strokeStyle='rgba(132,188,220,.18)';ctx.lineWidth=1;
-    const bw=Math.min(270,pw*.48),bh=48,bx=x+pw-bw-14,by=y+ph-bh-14;roundRectPath(ctx,bx,by,bw,bh,9);ctx.fill();ctx.stroke();
-    ctx.fillStyle='#9fb7c7';ctx.font='11px Microsoft YaHei';ctx.textAlign='left';ctx.fillText('折射角差',bx+12,by+17);
-    ctx.fillStyle='#effcff';ctx.font='600 16px Microsoft YaHei';ctx.fillText(`Δr = ${diff.toFixed(1)}°`,bx+12,by+37);
-    ctx.fillStyle='#8da8b9';ctx.font='10px Microsoft YaHei';ctx.textAlign='right';ctx.fillText('两条光线共用同一入射光',bx+bw-12,by+35);
+  if(ok.every(Boolean)){
+    // 右下角分别显示 1-2、1-3、2-3 三组折射角差值
+    const pairs=[
+      {label:'Δr₁₂',value:Math.abs(rs[0]-rs[1])},
+      {label:'Δr₁₃',value:Math.abs(rs[0]-rs[2])},
+      {label:'Δr₂₃',value:Math.abs(rs[1]-rs[2])}
+    ];
+    const bw=Math.min(188,pw*.34),bh=76,bx=x+pw-bw-12,by=y+ph-bh-12;
+    ctx.save();
+    ctx.fillStyle='rgba(4,18,30,.88)';ctx.strokeStyle='rgba(132,188,220,.22)';ctx.lineWidth=1;
+    roundRectPath(ctx,bx,by,bw,bh,9);ctx.fill();ctx.stroke();
+    ctx.fillStyle='#a9c4d5';ctx.font='600 10px Microsoft YaHei';ctx.textAlign='left';
+    ctx.fillText('折射角差值',bx+10,by+15);
+    pairs.forEach((pair,idx)=>{
+      const col=idx===0?colors[0]:idx===1?colors[1]:colors[2];
+      const px=bx+10+idx*(bw-20)/3;
+      ctx.fillStyle=col;ctx.font='600 10px Microsoft YaHei';
+      ctx.fillText(pair.label,px,by+34);
+      ctx.fillStyle='#effcff';ctx.font='600 12px Microsoft YaHei';
+      ctx.fillText(pair.value.toFixed(1)+'°',px,by+54);
+    });
+    ctx.restore();
   }else{
-    ctx.fillStyle='#ff9ca2';ctx.font='10px Microsoft YaHei';ctx.textAlign='center';ctx.fillText('当前拟合折射率下存在无法计算的折射角',cx,y+ph-24);
+    ctx.fillStyle='#ff9ca2';ctx.font='10px Microsoft YaHei';ctx.textAlign='center';
+    ctx.fillText('当前折射率下存在无法计算的折射角',cx,y+ph-24);
   }
 }
 function refreshLab6Selectors(){
-  const groups=validGroups(),opts=groups.length?groups.map(g=>`<option value="${g.id}">${escapeHtml(g.name)}（${g.rows.length}点）</option>`).join(''):'<option value="">暂无有效数据组</option>';
-  ['lab6SelectA','lab6SelectB'].forEach((id,idx)=>{const el=$('#'+id),old=el.value;el.innerHTML=opts;if(groups.some(g=>String(g.id)===old))el.value=old;else if(groups.length)el.value=String(groups[Math.min(idx,groups.length-1)].id)});
-  if(groups.length>1&&$('#lab6SelectA').value===$('#lab6SelectB').value)$('#lab6SelectB').value=String(groups[1].id);
+  const groups=validGroups();
+  const opts=groups.length?groups.map(g=>`<option value="${g.id}">${escapeHtml(g.name)}（${g.rows.length}点）</option>`).join(''):'<option value="">暂无有效数据组</option>';
+  ['lab6SelectA','lab6SelectB','lab6SelectC'].forEach((id,idx)=>{
+    const el=$('#'+id),old=el.value;el.innerHTML=opts;
+    if(groups.some(g=>String(g.id)===old))el.value=old;
+    else if(groups.length)el.value=String(groups[Math.min(idx,groups.length-1)].id);
+  });
+  const ids=['lab6SelectA','lab6SelectB','lab6SelectC'];
+  ids.forEach((id,idx)=>{
+    const el=$('#'+id);
+    if(groups.length>idx&&!ids.slice(0,idx).some(prev=>$('#'+prev).value===el.value)){
+      return;
+    }
+    const replacement=groups.find(g=>!ids.slice(0,idx).some(prev=>$('#'+prev).value===String(g.id)));
+    if(replacement)el.value=String(replacement.id);
+  });
 }
 function updateLab6(){
-  const ga=groupBySelect('lab6SelectA'),gb=groupBySelect('lab6SelectB');
-  if(!ga||!gb){$('#lab6Note').textContent='请先导入至少两组有效实验数据。';return}
-  const sa=fitStats(ga),sb=fitStats(gb);if(!sa||!sb){$('#lab6Note').textContent='每组至少需要两个有效测量点，才能估算折射率。';return}
-  const i=state.lab6Angle,rA=refractedAngleFromN(i,sa.k),rB=refractedAngleFromN(i,sb.k);
+  const ids=['lab6SelectA','lab6SelectB','lab6SelectC'];
+  const groups=ids.map(id=>groupBySelect(id));
+  if(groups.some(g=>!g)){ $('#lab6Note').textContent='请先导入至少三组有效实验数据。';return; }
+  if(new Set(groups.map(g=>String(g.id))).size!==3){$('#lab6Note').textContent='请为实验台选择三组不同的实验数据。';return;}
+  const stats=groups.map(g=>fitStats(g));
+  if(stats.some(s=>!s)){ $('#lab6Note').textContent='每组至少需要两个有效测量点，才能估算折射率。';return; }
+  const [ga,gb,gc]=groups,[sa,sb,sc]=stats;
+  const i=state.lab6Angle,rs=stats.map(s=>refractedAngleFromN(i,s.k));
   $('#lab6Angle').value=String(i);$('#lab6AngleValue').textContent=i.toFixed(1)+'°';
-  $('#lab6NameA').textContent=ga.name;$('#lab6NameB').textContent=gb.name;
-  $('#lab6NA').textContent='n = '+fitSlopeText(sa.k);$('#lab6NB').textContent='n = '+fitSlopeText(sb.k);
-  $('#lab6RA').textContent='r = '+(Number.isFinite(rA)?rA.toFixed(1)+'°':'无实数解');$('#lab6RB').textContent='r = '+(Number.isFinite(rB)?rB.toFixed(1)+'°':'无实数解');
-  let note='两组共用同一入射角。折射率较大的介质，折射角较小，折射光更靠近法线。';
-  if(Number.isFinite(rA)&&Number.isFinite(rB))note+=` 当前折射角差 Δr = ${Math.abs(rA-rB).toFixed(1)}°。`;
+  const suffix=['A','B','C'],subs=['₁','₂','₃'];
+  groups.forEach((g,idx)=>{
+    $('#lab6Name'+suffix[idx]).textContent=g.name;
+    $('#lab6N'+suffix[idx]).textContent='n'+subs[idx]+' = '+Number(stats[idx].k).toFixed(1);
+    $('#lab6R'+suffix[idx]).textContent='r'+subs[idx]+' = '+(Number.isFinite(rs[idx])?rs[idx].toFixed(1)+'°':'无实数解');
+  });
+  let note='三种介质共用同一入射角。折射率越大，折射角通常越小，折射光越靠近法线。';
+  if(rs.every(Number.isFinite))note+=` 当前三组折射角的最大差值为 ${(Math.max(...rs)-Math.min(...rs)).toFixed(1)}°。`;
   $('#lab6Note').textContent=note;drawRefractionLab6();
 }
 function stopLab6Auto(){if(state.lab6Timer){clearInterval(state.lab6Timer);state.lab6Timer=null}$('#lab6Auto').textContent='▶ 自动演示';$('#lab6Auto').classList.remove('running')}
@@ -1440,7 +1497,7 @@ function tickLab6(){let v=state.lab6Angle+state.lab6Direction*state.lab6Step;if(
 function toggleLab6Auto(){if(state.lab6Timer){stopLab6Auto();return}state.lab6Step=Number($('#lab6Step').value)||5;state.lab6Direction=state.lab6Angle>=80?-1:(state.lab6Angle<=5?1:state.lab6Direction||1);state.lab6Timer=setInterval(tickLab6,350);$('#lab6Auto').textContent='Ⅱ 暂停';$('#lab6Auto').classList.add('running');tickLab6()}
 function closeLab6Maximize(){const v=$('#view6');v.classList.remove('lab6-maximized');$('#lab6MaxBtn').textContent='⛶ 最大化展示';$('#lab6MaxBtn').setAttribute('aria-pressed','false');setTimeout(drawRefractionLab6,80)}
 function toggleLab6Maximize(){const v=$('#view6');if(v.classList.contains('lab6-maximized'))closeLab6Maximize();else{v.classList.add('lab6-maximized');$('#lab6MaxBtn').textContent='⛶ 退出最大化';$('#lab6MaxBtn').setAttribute('aria-pressed','true');setTimeout(drawRefractionLab6,80)}}
-$('#lab6SelectA').addEventListener('change',updateLab6);$('#lab6SelectB').addEventListener('change',updateLab6);$('#lab6Angle').addEventListener('input',e=>{stopLab6Auto();state.lab6Angle=clamp(Number(e.target.value)||45,5,80);updateLab6()});$('#lab6Step').addEventListener('change',e=>state.lab6Step=Number(e.target.value)||5);$('#lab6Auto').addEventListener('click',toggleLab6Auto);$('#lab6MaxBtn').addEventListener('click',toggleLab6Maximize);
+$('#lab6SelectA').addEventListener('change',updateLab6);$('#lab6SelectB').addEventListener('change',updateLab6);$('#lab6SelectC').addEventListener('change',updateLab6);$('#lab6Angle').addEventListener('input',e=>{stopLab6Auto();state.lab6Angle=clamp(Number(e.target.value)||45,5,80);updateLab6()});$('#lab6Step').addEventListener('change',e=>state.lab6Step=Number(e.target.value)||5);$('#lab6Auto').addEventListener('click',toggleLab6Auto);$('#lab6MaxBtn').addEventListener('click',toggleLab6Maximize);
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#view6').classList.contains('lab6-maximized'))closeLab6Maximize()});
 
 function roundRectPath(ctx,x,y,w,h,r){const rr=Math.min(r,w/2,h/2);ctx.beginPath();ctx.moveTo(x+rr,y);ctx.arcTo(x+w,y,x+w,y+h,rr);ctx.arcTo(x+w,y+h,x,y+h,rr);ctx.arcTo(x,y+h,x,y,rr);ctx.arcTo(x,y,x+w,y,rr);ctx.closePath()}
@@ -1502,18 +1559,11 @@ function drawCompareChart(){
   const {ctx,w,h}=setupCanvas($('#compareChart')),ga=groupBySelect('compareA'),gb=groupBySelect('compareB');
   updateCompareSummary();
   if(!ga&&!gb){
-    const a=axes(ctx,w,h,0,90,0,2,'入射角 i / °',state.compareMode==='sin'?'sin i / sin r':'sin i');
+    const a=axes(ctx,w,h,0,90,0,2,'入射角 i / °','sin i');
     ctx.fillStyle='#58758a';ctx.textAlign='center';ctx.fillText('请先录入至少两组数据',a.pad.l+a.iw/2,a.pad.t+a.ih/2);return;
   }
   const rows=[...(ga?ga.rows:[]),...(gb?gb.rows:[])];
-  if(state.compareMode==='sin'){
-    $('#compareChartSubtitle').textContent='原始角度求比值 → 舍入到 1 位小数作图 · 双组坐标自适应';
-    const range=ratioGraphAxes(rows,'compare',['sin']),[xMin,xMax]=range.x,[yMin,yMax]=range.y;
-    const a=axes(ctx,w,h,xMin,xMax,yMin,yMax,'入射角 i / °','sin i / sin r',6,5,{xDp:0,yDp:1,angleX:true});
-    if(ga)drawSeries(ctx,ga.rows.slice(0,state.compareVisibleA).map(r=>({x:r.i,y:chartRatio(r,'sin','compare')})).filter(p=>Number.isFinite(p.y)),a.X,a.Y,'#48d8ff',true);
-    if(gb)drawSeries(ctx,gb.rows.slice(0,state.compareVisibleB).map(r=>({x:r.i,y:chartRatio(r,'sin','compare')})).filter(p=>Number.isFinite(p.y)),a.X,a.Y,'#ffd36b',true);
-    if(!state.compareVisibleA&&!state.compareVisibleB){ctx.fillStyle='#58758a';ctx.textAlign='center';ctx.fillText('先绘制第1组，再绘制第2组',a.pad.l+a.iw/2,a.pad.t+a.ih/2)}
-  }else{
+  {
     $('#compareChartSubtitle').textContent='两组正弦散点与过原点拟合 · 使用完整精度计算';
     const range=sineGraphAxes(rows),xMax=range.x[1],yMax=range.y[1];
     const a=axes(ctx,w,h,range.x[0],xMax,range.y[0],yMax,'sin r','sin i');
@@ -1530,9 +1580,97 @@ function drawCompareChart(){
 }
 
 // ===== 模块5：六个小组×两种介质，共十二份正弦拟合 =====
-const OVERVIEW_COLORS=['#46d9fa','#ffcf69','#69e6b2','#bc9bff','#ff9695','#66a9ff'];
+// 同一种介质使用同一色系；不同小组使用该色系中的不同深浅。
+const OVERVIEW_PALETTES={
+  // 同介质仍保持统一色相，但六个小组之间拉开明度与饱和度差距
+  '水':['#B9F1FF','#42D5F5','#168FCB','#3159C7','#00A6A6','#78A8F2'],
+  '玻璃':['#E9C8FF','#C084FC','#9656D8','#6536B8','#C05A9F','#8876E8'],
+  '油':['#FFE28A','#FFB000','#F28C28','#D65A31','#B98500','#F4A261']
+};
+const OVERVIEW_EXTRA_PALETTES=[
+  ['#b8eee2','#83d9c7','#55c4b1','#31a995','#218b7c','#6dc8b5'],
+  ['#ffd0dc','#f5a9c0','#e989aa','#d96d91','#bf5278','#ed9bb4'],
+  ['#d7e6b1','#b8d58b','#98c16b','#7ca84d','#638d3b','#a9c879'],
+  ['#d5e0ee','#b4c7df','#91accd','#7294ba','#587da5','#9db6d0']
+];
+const OVERVIEW_MEDIUM_ALIASES=[
+  {key:'玻璃',aliases:['玻璃','glass']},
+  {key:'水',aliases:['水','water']},
+  {key:'油',aliases:['油','oil']}
+];
 const OVERVIEW_SLOTS=12;
-function overviewColor(slot){return OVERVIEW_COLORS[Math.floor(slot/2)%OVERVIEW_COLORS.length]}
+function overviewMedium(group){
+  const name=String(group?.name||'').trim().toLowerCase().replace(/\s+/g,'');
+  for(const item of OVERVIEW_MEDIUM_ALIASES){
+    if(item.aliases.some(alias=>name.includes(alias.toLowerCase())))return item.key;
+  }
+  const parts=String(group?.name||'').split(/[·•|｜/／—–-]+/).map(x=>x.trim()).filter(Boolean);
+  return parts.length>1?parts[parts.length-1]:'其他介质';
+}
+function overviewTeamKey(group){
+  let base=String(group?.name||'').trim();
+  const medium=overviewMedium(group);
+  const known=OVERVIEW_MEDIUM_ALIASES.find(x=>x.key===medium);
+  if(known)known.aliases.forEach(alias=>{base=base.replace(new RegExp(alias,'ig'),' ')});
+  else{
+    const parts=base.split(/[·•|｜/／—–-]+/).map(x=>x.trim()).filter(Boolean);
+    if(parts.length>1)base=parts.slice(0,-1).join(' ');
+  }
+  return base.replace(/介质/g,' ').replace(/[·•|｜/／—–\-()[\]{}]/g,' ').replace(/\s+/g,' ').trim()||String(group?.id??'');
+}
+function overviewShadeIndex(group){
+  const key=overviewTeamKey(group);
+  const number=key.match(/第?\s*(\d+)\s*组/);
+  if(number)return (Math.max(1,Number(number[1]))-1)%6;
+  const chinese=key.match(/第?\s*([一二三四五六七八九十])\s*组/);
+  if(chinese){
+    const nums={'一':1,'二':2,'三':3,'四':4,'五':5,'六':6,'七':7,'八':8,'九':9,'十':10};
+    return (nums[chinese[1]]-1)%6;
+  }
+  const letter=key.match(/(?:^|\s)([A-F])(?:组)?(?:$|\s)/i);
+  if(letter)return letter[1].toUpperCase().charCodeAt(0)-65;
+  let hash=0;
+  for(const ch of key)hash=(hash*31+ch.charCodeAt(0))>>>0;
+  return hash%6;
+}
+function overviewPalette(medium){
+  if(OVERVIEW_PALETTES[medium])return OVERVIEW_PALETTES[medium];
+  let hash=0;
+  for(const ch of String(medium))hash=(hash*31+ch.charCodeAt(0))>>>0;
+  return OVERVIEW_EXTRA_PALETTES[hash%OVERVIEW_EXTRA_PALETTES.length];
+}
+function overviewColor(slot,group){
+  if(!group)return '#58758a';
+  return overviewPalette(overviewMedium(group))[overviewShadeIndex(group)];
+}
+function overviewLineDash(group){
+  // 每个小组分配一种独立线型，与点形组合形成六种清晰编码
+  const patterns=[[],[9,5],[2,4],[10,3,2,3],[13,4],[4,3]];
+  return patterns[overviewShadeIndex(group)]||[];
+}
+function overviewMarker(group){
+  // 六种点形按小组编号分配；介质仍由所属色系区分
+  const markers=['circle','square','triangle','diamond','cross','plus'];
+  return markers[overviewShadeIndex(group)]||'circle';
+}
+function overviewMarkerGlyph(group){
+  const glyphs={circle:'●',square:'■',triangle:'▲',diamond:'◆',cross:'✚',plus:'＋'};
+  return glyphs[overviewMarker(group)]||'●';
+}
+function overviewDashStyle(group){
+  const dash=overviewLineDash(group);
+  if(!dash.length)return 'solid';
+  if(dash.length===2&&dash[0]<=2)return 'dotted';
+  if(dash.length===4)return 'dashdot';
+  if(dash[0]>=12)return 'longdash';
+  return 'dashed';
+}
+function updateOverviewPickColors(){
+  for(let j=0;j<OVERVIEW_SLOTS;j++){
+    const sel=$('#overviewSelect'+j),dot=sel?.closest('.overview-pick')?.querySelector('.overview-dot');
+    if(dot)dot.style.background=overviewColor(j,sel.value?groupBySelect('overviewSelect'+j):null);
+  }
+}
 function overviewCurrentGroups(){
   const chosen=[],seen=new Set();
   for(let j=0;j<OVERVIEW_SLOTS;j++){
@@ -1562,6 +1700,7 @@ function refreshOverviewSelectors(groups=validGroups()){
     else sel.value=sorted[j]?String(sorted[j].id):'';
   }
   updateOverviewStats();
+  updateOverviewPickColors();
 }
 // v2.3 · 每次演示一份实验：逐点出现 → 该组拟合线 → 等待下一次点击
 const overviewSequence={completed:0,active:-1,points:0,line:0,timer:null,raf:null};
@@ -1632,7 +1771,9 @@ function overviewLegend(chosen){
     const idx=chosen.findIndex(e=>e.slot===j),isVisible=idx>=0&&(idx<q.completed||idx===q.active);
     const slope=isVisible&&fit?`k=${fitSlopeText(fit.k)}`:'';
     const alpha=isVisible&&idx!==q.active&&q.active>=0?.43:1;
-    return `<span class="overview-key" style="opacity:${alpha}" title="${escapeHtml(g?g.name:'未选择')}"><i class="swatch ${j%2?'dashed':''}" style="border-top-color:${overviewColor(j)}"></i><span class="key-name">${escapeHtml(g?g.name:'未选择')}</span><b>${slope}</b></span>`;
+    const color=overviewColor(j,g),lineStyle=g?overviewDashStyle(g):'solid';
+    const medium=g?overviewMedium(g):'未选择',marker=g?overviewMarkerGlyph(g):'';
+    return `<span class="overview-key" style="opacity:${alpha}" title="${escapeHtml(g?g.name+' · '+medium:'未选择')}"><i class="swatch" style="border-top-color:${color};border-top-style:${lineStyle}"></i><span aria-hidden="true" style="color:${color};font-size:13px;line-height:1;margin:0 2px">${marker}</span><span class="key-name">${escapeHtml(g?g.name:'未选择')}</span><b>${slope}</b></span>`;
   }).join('');
 }
 
@@ -1683,6 +1824,7 @@ if(typeof ResizeObserver!=='undefined'){
 
 function drawOverview(){
   const canvas=$('#overviewChart');if(!canvas)return;
+  updateOverviewPickColors();
   const {ctx,w,h}=setupCanvas(canvas),chosen=overviewOrdered(),q=overviewSequence;
   const all=chosen.flatMap(({g})=>g.rows);
   const range=all.length?sineGraphAxes(all):{x:[0,1],y:[0,1]};
@@ -1693,23 +1835,36 @@ function drawOverview(){
   chosen.forEach(({g,slot},idx)=>{
     const isCurrent=idx===q.active,finished=idx<q.completed;
     if(!isCurrent&&!finished)return;
-    const color=overviewColor(slot),f=fitStats(g);
+    const color=overviewColor(slot,g),f=fitStats(g),dash=overviewLineDash(g),marker=overviewMarker(g);
     const alpha=isCurrent?1:(q.active>=0?.24:.56);
     const progress=isCurrent?q.line:1;
     if(f&&f.k>0&&progress>0){
       const endX=Math.min(xmax,ymax/f.k)*progress;
       ctx.save();ctx.globalAlpha=alpha;ctx.strokeStyle=color;ctx.lineWidth=isCurrent?3.2:2;
-      if(slot%2)ctx.setLineDash([9,6]);
+      ctx.setLineDash(dash);
       ctx.beginPath();ctx.moveTo(a.X(0),a.Y(0));ctx.lineTo(a.X(endX),a.Y(f.k*endX));ctx.stroke();ctx.restore();
     }
     const sorted=g.rows.slice().sort((a,b)=>a.i-b.i);
     const pts=originalSinePoints(isCurrent?sorted.slice(0,q.points):sorted);
     pts.forEach(p=>{
       const x=a.X(p.x),y=a.Y(p.y);
-      ctx.save();ctx.globalAlpha=alpha;ctx.strokeStyle=color;
-      ctx.fillStyle=slot%2?'#081727':color;ctx.lineWidth=isCurrent?2.4:1.8;
-      if(slot%2){ctx.beginPath();ctx.rect(x-3.5,y-3.5,7,7);ctx.fill();ctx.stroke()}
-      else{ctx.beginPath();ctx.arc(x,y,isCurrent?3.8:3.1,0,Math.PI*2);ctx.fill();ctx.stroke()}
+      ctx.save();ctx.globalAlpha=alpha;ctx.strokeStyle=color;ctx.fillStyle=color;
+      ctx.lineWidth=isCurrent?2.4:1.8;ctx.setLineDash([]);
+      if(marker==='square'){
+        ctx.beginPath();ctx.rect(x-3.5,y-3.5,7,7);ctx.fill();ctx.stroke();
+      }else if(marker==='triangle'){
+        ctx.beginPath();ctx.moveTo(x,y-4.4);ctx.lineTo(x+4.2,y+3.5);ctx.lineTo(x-4.2,y+3.5);ctx.closePath();ctx.fill();ctx.stroke();
+      }else if(marker==='diamond'){
+        ctx.beginPath();ctx.moveTo(x,y-4.6);ctx.lineTo(x+4.2,y);ctx.lineTo(x,y+4.6);ctx.lineTo(x-4.2,y);ctx.closePath();ctx.fill();ctx.stroke();
+      }else if(marker==='cross'||marker==='plus'){
+        const arm=4.1;
+        ctx.beginPath();
+        if(marker==='cross'){ctx.moveTo(x-arm,y-arm);ctx.lineTo(x+arm,y+arm);ctx.moveTo(x+arm,y-arm);ctx.lineTo(x-arm,y+arm)}
+        else{ctx.moveTo(x-arm,y);ctx.lineTo(x+arm,y);ctx.moveTo(x,y-arm);ctx.lineTo(x,y+arm)}
+        ctx.stroke();
+      }else{
+        ctx.beginPath();ctx.arc(x,y,isCurrent?3.8:3.1,0,Math.PI*2);ctx.fill();ctx.stroke();
+      }
       ctx.restore();
     });
   });
@@ -1720,7 +1875,7 @@ function drawOverview(){
   overviewLegend(chosen);
 }
 window.addEventListener('resize',()=>{if(state.step===2)drawSingleChart();if(state.step===3)drawSixGrid();if(state.step===4){if(state.labActive)applyLabSplit();drawCompareChart();if(state.labActive)drawRefractionLab()}if(state.step===5)drawOverview();if(state.step===6)drawRefractionLab6()});
-renderAllInput();refreshSelectors();initCloudIntegration();setStep(1);
+loadDefaultData();initCloudIntegration();setStep(1);
 })();
 </script>
 </body>
