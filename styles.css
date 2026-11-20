@@ -44,3 +44,12 @@ hr{border-color:#dfeaf1!important}
 
 /* 自主探究入口：紫色主题，与原数据采集页区分 */
 .inquiry-entry{background:linear-gradient(135deg,#7655d9,#a05ad7)!important;border-color:#b99af4!important;color:#fff!important}
+
+/* 同一小组多介质实验上传清单 */
+.uploaded-dataset-list{display:flex;flex-direction:column;gap:7px;margin-top:8px;max-height:230px;overflow:auto}
+.uploaded-dataset-item{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 10px;border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,.035);font-size:12px}
+.uploaded-dataset-item strong{font-size:12px}
+.uploaded-dataset-item small{display:block;color:var(--muted);font-size:10px;margin-top:3px}
+.uploaded-dataset-item .uploaded-tag{white-space:nowrap;color:#168f83;font-size:10px}
+.uploaded-dataset-empty{padding:10px;border:1px dashed var(--line);border-radius:10px;color:var(--muted);font-size:11px;line-height:1.6}
+#addDatasetBtn{border-style:dashed}
