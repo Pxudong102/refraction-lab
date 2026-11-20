@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>光的折射 · 自主探究平台</title>
+<style>
+:root{
+  color-scheme:light;
+  --bg:#f4f7fb;--panel:#ffffff;--panel2:#f8faff;
+  --line:rgba(69,91,125,.16);--text:#202b3c;--muted:#69788d;
+  --violet:#7656c8;--pink:#cf659b;--teal:#168f83;--gold:#b47a16;
+  --shadow:0 10px 30px rgba(40,58,84,.08)
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:radial-gradient(circle at 80% 0%,rgba(170,151,235,.13),transparent 32%),linear-gradient(145deg,#f8faff,#f1f5fb 58%,#f7f8fc);color:var(--text);font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif}
+button,select{font:inherit;color:inherit}button{cursor:pointer}
+.page{max-width:1500px;margin:auto;padding:22px;min-height:100vh}
+.top{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:18px}
+.brand h1{font-size:clamp(22px,3vw,32px);margin:0;letter-spacing:.04em;color:#25324a}
+.brand p{color:var(--muted);font-size:13px;margin:7px 0 0}
+.top-actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn{border:1px solid rgba(111,91,174,.22);background:#fff;color:#4d3d78;border-radius:11px;padding:10px 15px;text-decoration:none;cursor:pointer;font-size:13px;box-shadow:0 2px 6px rgba(35,45,70,.04)}
+.btn.primary{background:linear-gradient(135deg,#7656c8,#9674dc);border-color:#8c70d0;color:#fff}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+.identity{display:flex;gap:10px;align-items:center;flex-wrap:wrap;color:#64748b;font-size:12px;padding:12px 15px;background:rgba(255,255,255,.88);border:1px solid var(--line);border-radius:13px;margin-bottom:16px;box-shadow:0 3px 12px rgba(35,45,70,.035)}
+.identity strong{color:#34415a}
+.data-select{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:17px}
+.data-card,.stage-card,.chart-card{background:linear-gradient(160deg,#fff,#fbfcff);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);min-width:0}
+.data-card{padding:14px}
+.data-card h3{font-size:14px;margin:0 0 5px;color:#303b52}
+.data-card p{font-size:11px;color:var(--muted);margin:0 0 10px}
+.data-meta{font-size:11px;color:#66758b;line-height:1.7}
+.stages{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;margin-bottom:15px}
+.stage-card{padding:14px;position:relative;transition:.2s}
+.stage-card.active{border-color:rgba(118,86,200,.55);box-shadow:0 0 0 2px rgba(118,86,200,.08),var(--shadow);background:linear-gradient(160deg,#fff,#faf8ff)}
+.stage-card.locked{opacity:.58}
+.stage-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.stage-no{font-size:10px;letter-spacing:.14em;color:var(--violet);font-weight:700}
+.stage-status{font-size:10px;color:#65748a;padding:4px 7px;border-radius:20px;background:#f0f2f7}
+.stage-card h2{font-size:17px;margin:9px 0 5px;color:#2b354b}
+.stage-card p{font-size:11px;line-height:1.65;color:#68778c;margin:0}
+.stage-view{display:none}.stage-view.active{display:block}
+.stage-heading{display:flex;justify-content:space-between;align-items:end;gap:12px;flex-wrap:wrap;margin:14px 2px}
+.stage-heading h2{font-size:20px;margin:0;color:#29364d}
+.stage-heading p{font-size:12px;color:var(--muted);margin:5px 0 0}
+.progress-note{font-size:11px;color:#168f83;font-weight:600}
+.chart-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.chart-card{overflow:hidden}
+.chart-head{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid rgba(69,91,125,.11)}
+.chart-head strong{font-size:13px;color:#303b52}
+.chart-head small{font-size:10px;color:#718096}
+.chart-body{height:clamp(280px,38vw,440px);padding:10px;background:linear-gradient(180deg,#fff,#fcfdff)}
+.chart-body canvas{width:100%;height:100%;display:block}
+.chart-foot{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 13px;border-top:1px solid rgba(69,91,125,.10)}
+.chart-foot span{font-size:10px;color:#68778c}
+.draw-btn{border:1px solid rgba(118,86,200,.28);background:rgba(118,86,200,.08);color:#5c4698;border-radius:9px;padding:8px 12px;font-size:11px;cursor:pointer}
+.draw-btn.done{background:rgba(22,143,131,.09);border-color:rgba(22,143,131,.32);color:#14796f}
+.draw-btn:disabled{opacity:.42;cursor:not-allowed}
+.series-buttons{display:flex;gap:6px;flex-wrap:wrap;padding:0 13px 11px}
+.series-btn{border:1px solid rgba(69,91,125,.15);background:#f7f8fc;color:#536176;border-radius:8px;padding:7px 9px;font-size:10px}
+.series-btn.done{border-color:rgba(22,143,131,.30);color:#14796f;background:rgba(22,143,131,.07)}
+.notice{padding:12px 14px;border-radius:12px;background:rgba(22,143,131,.055);border:1px solid rgba(22,143,131,.16);font-size:11px;color:#416d68;line-height:1.7;margin:14px 0}
+.empty{padding:45px 20px;text-align:center;color:#68778c;border:1px dashed rgba(69,91,125,.25);border-radius:15px;line-height:1.8;background:rgba(255,255,255,.72)}
+@media(max-width:850px){.stages{grid-template-columns:1fr}.chart-grid,.data-select{grid-template-columns:1fr}.chart-body{height:330px}.page{padding:13px}.top{align-items:flex-start;flex-direction:column}}
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="top">
+    <div class="brand"><h1>✦ 光的折射 · 自主探究平台</h1><p>从自己的实验数据出发，逐步发现折射规律</p></div>
+    <div class="top-actions"><a class="btn" href="index.html">返回数据上传</a></div>
+  </header>
+  <div class="identity" id="identity">正在读取本机已上传的实验数据……</div>
+  <div id="appContent" hidden>
+    <section class="data-select" id="dataSelect"></section>
+    <section class="stages">
+      <article class="stage-card active" id="stageCard1"><div class="stage-top"><span class="stage-no">STEP 01</span><span class="stage-status" id="status1">进行中</span></div><h2>初步探究 · 角度比</h2><p>观察两种介质实验中，入射角与折射角之比是否保持稳定。</p></article>
+      <article class="stage-card locked" id="stageCard2"><div class="stage-top"><span class="stage-no">STEP 02</span><span class="stage-status" id="status2">未解锁</span></div><h2>进阶探究 · 三角函数比</h2><p>依次比较正弦比、余弦比和正切比，寻找更稳定的数量关系。</p></article>
+      <article class="stage-card locked" id="stageCard3"><div class="stage-top"><span class="stage-no">STEP 03</span><span class="stage-status" id="status3">未解锁</span></div><h2>规律建模 · 正弦拟合</h2><p>把两组实验的 sin r 与 sin i 数据绘制出来，并进行过原点线性拟合。</p></article>
+    </section>
+    <section class="stage-view active" id="stageView1">
+      <div class="stage-heading"><div><h2>初步探究：i / r 比值</h2><p>两份实验分别成图，先观察比值随入射角的变化。</p></div><span class="progress-note" id="progress1">完成两张图后解锁进阶探究</span></div>
+      <div class="chart-grid" id="grid1"></div>
+    </section>
+    <section class="stage-view" id="stageView2">
+      <div class="stage-heading"><div><h2>进阶探究：三角函数比值</h2><p>每张图包含 sin i / sin r、cos i / cos r、tan i / tan r 三条曲线，逐条绘制。</p></div><span class="progress-note" id="progress2">完成两张图的三种比值后解锁正弦拟合</span></div>
+      <div class="chart-grid" id="grid2"></div>
+    </section>
+    <section class="stage-view" id="stageView3">
+      <div class="stage-heading"><div><h2>规律建模：正弦拟合</h2><p>横轴 sin r，纵轴 sin i；拟合直线通过原点。</p></div><span class="progress-note" id="progress3">完成两组拟合，完成自主探究</span></div>
+      <div class="chart-grid" id="grid3"></div>
+    </section>
+    <div class="notice">本平台只读取当前浏览器中、由本组成功上传的数据副本，不读取其他小组数据。请在同一台设备和同一个浏览器中完成数据上传与自主探究；更换设备或清除浏览器数据后，需要重新上传。</div>
+  </div>
+  <div id="emptyState" class="empty" hidden>还没有找到本机成功上传的两份实验数据。请返回数据上传页面，分别提交两种介质的实验数据，再进入自主探究。</div>
+</div>
+<script>
+(()=>{
+'use strict';
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const identity=$('#identity'),app=$('#appContent'),empty=$('#emptyState');
+const storageKey=localStorage.getItem('refraction_self_inquiry_last_key');
+let records=[];
+try{records=storageKey?JSON.parse(localStorage.getItem(storageKey)||'[]'):[]}catch(_){records=[]}
+records=Array.isArray(records)?records.filter(x=>Array.isArray(x.measurements)&&x.measurements.length>=2):[];
+records.sort((a,b)=>String(a.uploaded_at||'').localeCompare(String(b.uploaded_at||'')));
+if(records.length<2){
+  identity.textContent='当前浏览器中还没有两份完整的已提交实验数据。';
+  empty.hidden=false;
+  return;
+}
+records=records.slice(-2);
+app.hidden=false;
+identity.innerHTML=`当前实验：<strong>${esc(records[0].class_name||'')}</strong> · <strong>${esc(records[0].group_name||'')}</strong>${records[0].student_code?' · '+esc(records[0].student_code):''} · 已读取本组 ${records.length} 份实验`;
+$('#dataSelect').innerHTML=records.map((r,i)=>`<article class="data-card"><h3>实验 ${i?'B':'A'} · ${esc(r.medium||'未标注介质')}</h3><p>${esc(r.group_name||'')} · ${r.measurements.length} 个有效测量点</p><div class="data-meta">提交时间：${r.uploaded_at?new Date(r.uploaded_at).toLocaleString('zh-CN'):'本机保存'}<br>仅供本组自主探究</div></article>`).join('');
+
+const data=records.map(r=>r.measurements.map(p=>({i:Number(p.i),r:Number(p.r)})).filter(p=>Number.isFinite(p.i)&&Number.isFinite(p.r)&&p.i>=0&&p.i<90&&p.r>=0&&p.r<90).sort((a,b)=>a.i-b.i));
+const rad=d=>d*Math.PI/180;
+const ratios=(rows)=>rows.map(p=>({x:p.i,angle:p.r?round(p.i/p.r):null,sin:round(Math.sin(rad(p.i))/Math.sin(rad(p.r))),cos:round(Math.cos(rad(p.i))/Math.cos(rad(p.r))),tan:Math.abs(Math.tan(rad(p.r)))>1e-10?round(Math.tan(rad(p.i))/Math.tan(rad(p.r))):null,sx:Math.sin(rad(p.r)),sy:Math.sin(rad(p.i))}));
+function round(v){return Number.isFinite(v)?Math.round((v+Number.EPSILON)*100)/100:null}
+const computed=data.map(ratios);
+const COLORS={angle:'#e5ad62',sin:'#63d8c7',cos:'#b99aff',tan:'#f19bc9'};
+const labels={angle:'i / r',sin:'sin i / sin r',cos:'cos i / cos r',tan:'tan i / tan r'};
+const stages=[1,2,3].map(n=>({done:n===1?false:false}));
+const savedKey=storageKey+'_inquiry_progress';
+let progress={stage:1,drawn1:[false,false],drawn2:[[false,false,false],[false,false,false]],scatter:[false,false],fit:[false,false]};
+try{progress={...progress,...JSON.parse(localStorage.getItem(savedKey)||'{}')}}catch(_){}
+function persist(){try{localStorage.setItem(savedKey,JSON.stringify(progress))}catch(_){}}
+function isDone(n){
+  if(n===1)return progress.drawn1.every(Boolean);
+  if(n===2)return progress.drawn2.every(a=>a.every(Boolean));
+  return progress.fit.every(Boolean);
+}
+function maxUnlocked(){return isDone(1)?(isDone(2)?3:2):1}
+function setStage(n){
+  n=Math.min(n,maxUnlocked());
+  progress.stage=n;persist();
+  [1,2,3].forEach(k=>{
+    $('#stageCard'+k).classList.toggle('active',k===n);
+    $('#stageCard'+k).classList.toggle('locked',k>maxUnlocked());
+    $('#status'+k).textContent=k<maxUnlocked()?'已完成':k===maxUnlocked()?(isDone(k)?'已完成':'进行中'):'未解锁';
+    $('#stageView'+k).classList.toggle('active',k===n);
+  });
+  $('#progress1').textContent=isDone(1)?'已完成 · 进阶探究已解锁':'完成两张图后解锁进阶探究';
+  $('#progress2').textContent=isDone(2)?'已完成 · 正弦拟合已解锁':'完成两张图的三种比值后解锁正弦拟合';
+  $('#progress3').textContent=isDone(3)?'自主探究已完成':'完成两组拟合，完成自主探究';
+  requestAnimationFrame(()=>drawVisibleStage());
+}
+[1,2,3].forEach(n=>$('#stageCard'+n).addEventListener('click',()=>{if(n<=maxUnlocked())setStage(n)}));
+function drawVisibleStage(){
+  if(progress.stage===1)for(let i=0;i<2;i++)drawChart('chart1_'+i,1,i);
+  if(progress.stage===2)for(let i=0;i<2;i++)drawChart('chart2_'+i,2,i);
+  if(progress.stage===3)for(let i=0;i<2;i++)drawChart('chart3_'+i,3,i);
+}
+function createChartCard(stage,i){
+  const medium=esc(records[i].medium||`实验${i?'B':'A'}`);
+  const grid=$('#grid'+stage);
+  const card=document.createElement('article');card.className='chart-card';
+  const chartId=`chart${stage}_${i}`;
+  let foot='',buttons='';
+  if(stage===1){
+    foot=`<button class="draw-btn" id="draw1_${i}">▶ 绘制 i/r 曲线</button>`;
+  }else if(stage===2){
+    buttons=`<div class="series-buttons">${['sin','cos','tan'].map(k=>`<button class="series-btn" data-chart="${chartId}" data-series="${k}" id="draw2_${i}_${k}">绘制 ${labels[k]}</button>`).join('')}</div>`;
+    foot=`<span>三条曲线可依次绘制</span>`;
+  }else{
+    foot=`<span id="fitInfo_${i}">过原点拟合：k = —</span><div><button class="draw-btn" id="scatter3_${i}">① 绘制正弦散点</button> <button class="draw-btn" id="fit3_${i}" disabled>② 拟合直线</button></div>`;
+  }
+  card.innerHTML=`<div class="chart-head"><strong>实验 ${i?'B':'A'} · ${medium}</strong><small>${data[i].length} 个测量点</small></div><div class="chart-body"><canvas id="${chartId}"></canvas></div>${buttons}<div class="chart-foot">${foot}</div>`;
+  grid.appendChild(card);
+}
+for(let s=1;s<=3;s++)for(let i=0;i<2;i++)createChartCard(s,i);
+function axisNice(max){
+  if(!Number.isFinite(max)||max<=0)return 1;
+  const raw=max/4,pow=Math.pow(10,Math.floor(Math.log10(raw))),n=raw/pow;
+  return (n<=1?1:n<=2?2:n<=2.5?2.5:n<=5?5:10)*pow;
+}
+function drawAxes(ctx,w,h,xVals,yVals,xLabel,yLabel){
+  const pad={l:w<450?48:62,r:18,t:18,b:48};
+  const xmin=Math.min(0,...xVals),xmax=Math.max(1,...xVals);
+  let ymin=Math.min(0,...yVals),ymax=Math.max(.1,...yVals);
+  if(Math.abs(ymax-ymin)<1e-8)ymax=ymin+1;
+  const yStep=axisNice(ymax-ymin);ymin=Math.floor(ymin/yStep)*yStep;ymax=Math.ceil(ymax/yStep)*yStep;
+  const xStep=axisNice(xmax-xmin);
+  const X=x=>pad.l+(x-xmin)/(xmax-xmin||1)*(w-pad.l-pad.r);
+  const Y=y=>h-pad.b-(y-ymin)/(ymax-ymin||1)*(h-pad.t-pad.b);
+  ctx.font='11px Microsoft YaHei';ctx.lineWidth=1;ctx.textBaseline='middle';
+  for(let y=ymin;y<=ymax+1e-8;y+=yStep){const yy=Y(y);ctx.strokeStyle='rgba(85,105,135,.16)';ctx.beginPath();ctx.moveTo(pad.l,yy);ctx.lineTo(w-pad.r,yy);ctx.stroke();ctx.fillStyle='#66758b';ctx.textAlign='right';ctx.fillText(y.toFixed(yStep<.1?2:1),pad.l-7,yy)}
+  for(let x=xmin;x<=xmax+1e-8;x+=xStep){const xx=X(x);ctx.strokeStyle='rgba(85,105,135,.10)';ctx.beginPath();ctx.moveTo(xx,pad.t);ctx.lineTo(xx,h-pad.b);ctx.stroke();ctx.fillStyle='#66758b';ctx.textAlign='center';ctx.textBaseline='top';ctx.fillText(x.toFixed(xStep<.1?2:0),xx,h-pad.b+8)}
+  ctx.strokeStyle='rgba(220,214,246,.55)';ctx.strokeRect(pad.l,pad.t,w-pad.l-pad.r,h-pad.t-pad.b);
+  ctx.fillStyle='#43516a';ctx.textAlign='center';ctx.textBaseline='alphabetic';ctx.fillText(xLabel,(pad.l+w-pad.r)/2,h-8);
+  ctx.save();ctx.translate(14,(pad.t+h-pad.b)/2);ctx.rotate(-Math.PI/2);ctx.fillText(yLabel,0,0);ctx.restore();
+  return {X,Y,pad};
+}
+function setupCanvas(canvas){
+  const r=canvas.getBoundingClientRect();if(r.width<40||r.height<60)return null;
+  const dpr=Math.min(2,window.devicePixelRatio||1),w=r.width,h=r.height;
+  canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);
+  const ctx=canvas.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);
+  return {ctx,w,h};
+}
+function drawChart(id,stage,i){
+  const canvas=$('#'+id),setup=setupCanvas(canvas);if(!setup)return;
+  const {ctx,w,h}=setup;ctx.clearRect(0,0,w,h);
+  const rows=computed[i],isA=i===0;
+  if(stage===1){
+    const visible=progress.drawn1[i]?rows.length:0;
+    const ys=rows.map(p=>p.angle).filter(Number.isFinite);
+    const a=drawAxes(ctx,w,h,rows.map(p=>p.x),ys,'入射角 i / °','i / r');
+    drawSeries(ctx,a,rows.filter(p=>Number.isFinite(p.angle)).slice(0,visible),'angle',COLORS.angle);
+    if(!progress.drawn1[i])emptyChart(ctx,w,h,'点击下方按钮绘制 i/r 比值');
+  }else if(stage===2){
+    const keys=['sin','cos','tan'];
+    const vals=rows.flatMap(p=>keys.map(k=>p[k])).filter(Number.isFinite);
+    const a=drawAxes(ctx,w,h,rows.map(p=>p.x),vals,'入射角 i / °','三角函数比值');
+    keys.forEach(k=>drawSeries(ctx,a,rows.filter(p=>Number.isFinite(p[k])).slice(0,progress.drawn2[i][keys.indexOf(k)]?rows.length:0),k,COLORS[k]));
+    if(!progress.drawn2[i].every(Boolean))emptyChart(ctx,w,h,'依次点击下方按钮绘制三种比值');
+  }else{
+    const pts=rows.map(p=>({x:p.sx,y:p.sy}));
+    const a=drawAxes(ctx,w,h,pts.map(p=>p.x),pts.map(p=>p.y),'sin r','sin i');
+    if(progress.scatter[i]){
+      pts.forEach(p=>{ctx.fillStyle='#bd9cff';ctx.strokeStyle='#ffffff';ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(a.X(p.x),a.Y(p.y),4,0,Math.PI*2);ctx.fill();ctx.stroke()});
+    }else emptyChart(ctx,w,h,'点击「绘制正弦散点」开始');
+    if(progress.fit[i]){
+      const den=pts.reduce((s,p)=>s+p.x*p.x,0),k=den?pts.reduce((s,p)=>s+p.x*p.y,0)/den:0;
+      ctx.strokeStyle='#f19bc9';ctx.lineWidth=2.8;ctx.beginPath();ctx.moveTo(a.X(0),a.Y(0));ctx.lineTo(a.X(Math.max(...pts.map(p=>p.x))),a.Y(k*Math.max(...pts.map(p=>p.x))));ctx.stroke();
+      $('#fitInfo_'+i).textContent=`过原点拟合：k = ${k.toFixed(3)}`;
+    }
+  }
+}
+function drawSeries(ctx,a,rows,key,color){
+  if(!rows.length)return;
+  ctx.save();ctx.strokeStyle=color;ctx.fillStyle=color;ctx.lineWidth=2.2;ctx.lineJoin='round';ctx.beginPath();
+  rows.forEach((p,j)=>j?ctx.lineTo(a.X(p.x),a.Y(p[key])):ctx.moveTo(a.X(p.x),a.Y(p[key])));if(rows.length>1)ctx.stroke();
+  rows.forEach(p=>{ctx.beginPath();ctx.arc(a.X(p.x),a.Y(p[key]),3.5,0,Math.PI*2);ctx.fill()});
+  ctx.restore();
+}
+function emptyChart(ctx,w,h,msg){ctx.save();ctx.fillStyle='rgba(83,99,124,.72)';ctx.font='12px Microsoft YaHei';ctx.textAlign='center';ctx.fillText(msg,w/2,h/2);ctx.restore()}
+function animateSeries(stage,i,key){
+  const btn=stage===1?$('#draw1_'+i):$('#draw2_'+i+'_'+key);
+  if(btn.disabled)return;
+  btn.disabled=true;btn.textContent='绘制中…';
+  let visible=0;
+  const total=computed[i].filter(p=>stage===1?Number.isFinite(p.angle):Number.isFinite(p[key])).length;
+  const timer=setInterval(()=>{
+    visible++;
+    if(visible>=total){
+      clearInterval(timer);
+      if(stage===1)progress.drawn1[i]=true;
+      else progress.drawn2[i][['sin','cos','tan'].indexOf(key)]=true;
+      btn.disabled=false;btn.classList.add('done');btn.textContent=stage===1?'✓ 已绘制 i/r':'✓ 已绘制 '+labels[key];
+      persist();updateStages();drawChart(`chart${stage}_${i}`,stage,i);
+      return;
+    }
+    if(stage===1){progress.drawn1[i]=false;drawChart(`chart${stage}_${i}`,stage,i,visible)}
+    else{drawChart(`chart${stage}_${i}`,stage,i,visible)}
+  },240);
+  // 逐点动画在本模块中只用作课堂观察，完成状态写入本机进度。
+  const drawOriginal=drawChart;
+  if(stage===1)drawChart(`chart${stage}_${i}`,stage,i,visible);
+}
+function syncActionButtons(){
+  for(let i=0;i<2;i++){
+    const b1=$('#draw1_'+i);
+    b1.disabled=!!progress.drawn1[i];
+    b1.classList.toggle('done',!!progress.drawn1[i]);
+    b1.textContent=progress.drawn1[i]?'✓ 已绘制 i/r':'▶ 绘制 i/r 曲线';
+    for(const key of ['sin','cos','tan']){
+      const b=$('#draw2_'+i+'_'+key),done=!!progress.drawn2[i][['sin','cos','tan'].indexOf(key)];
+      b.disabled=done;b.classList.toggle('done',done);
+      b.textContent=done?'✓ 已绘制 '+labels[key]:'绘制 '+labels[key];
+    }
+    const scatter=$('#scatter3_'+i),fit=$('#fit3_'+i);
+    scatter.disabled=!!progress.scatter[i];scatter.classList.toggle('done',!!progress.scatter[i]);
+    scatter.textContent=progress.scatter[i]?'✓ 散点已绘制':'① 绘制正弦散点';
+    fit.disabled=!progress.scatter[i]||!!progress.fit[i];fit.classList.toggle('done',!!progress.fit[i]);
+    fit.textContent=progress.fit[i]?'✓ 拟合完成':'② 拟合直线';
+  }
+}
+function bindActions(){
+  for(let i=0;i<2;i++){
+    $('#draw1_'+i).addEventListener('click',()=>{
+      if(progress.drawn1[i])return;
+      // 每点约 220 ms 出现
+      let n=0;const total=computed[i].filter(p=>Number.isFinite(p.angle)).length;
+      const b=$('#draw1_'+i);b.disabled=true;b.textContent='绘制中…';
+      const timer=setInterval(()=>{
+        n++;drawPartial(1,i,n);
+        if(n>=total){clearInterval(timer);progress.drawn1[i]=true;b.disabled=false;b.classList.add('done');b.textContent='✓ 已绘制 i/r';persist();updateStages();drawVisibleStage()}
+      },220);
+    });
+    for(const key of ['sin','cos','tan']){
+      $('#draw2_'+i+'_'+key).addEventListener('click',()=>{
+        if(progress.drawn2[i][['sin','cos','tan'].indexOf(key)])return;
+        let n=0;const total=computed[i].filter(p=>Number.isFinite(p[key])).length;
+        const b=$('#draw2_'+i+'_'+key);b.disabled=true;b.textContent='绘制中…';
+        const timer=setInterval(()=>{
+          n++;drawPartial(2,i,n,key);
+          if(n>=total){clearInterval(timer);progress.drawn2[i][['sin','cos','tan'].indexOf(key)]=true;b.disabled=false;b.classList.add('done');b.textContent='✓ '+labels[key];persist();updateStages();drawVisibleStage()}
+        },220);
+      });
+    }
+    $('#scatter3_'+i).addEventListener('click',()=>{
+      progress.scatter[i]=true;persist();drawChart('chart3_'+i,3,i);
+      $('#scatter3_'+i).disabled=true;$('#scatter3_'+i).classList.add('done');$('#scatter3_'+i).textContent='✓ 散点已绘制';$('#fit3_'+i).disabled=false;
+    });
+    $('#fit3_'+i).addEventListener('click',()=>{
+      progress.fit[i]=true;persist();drawChart('chart3_'+i,3,i);
+      $('#fit3_'+i).disabled=true;$('#fit3_'+i).classList.add('done');$('#fit3_'+i).textContent='✓ 拟合完成';updateStages();
+    });
+  }
+}
+function drawPartial(stage,i,n,key){
+  const canvas=$(`#chart${stage}_${i}`),setup=setupCanvas(canvas);if(!setup)return;
+  const {ctx,w,h}=setup;ctx.clearRect(0,0,w,h);
+  const rows=computed[i];
+  if(stage===1){
+    const pts=rows.filter(p=>Number.isFinite(p.angle)),a=drawAxes(ctx,w,h,pts.map(p=>p.x),pts.map(p=>p.angle),'入射角 i / °','i / r');
+    drawSeries(ctx,a,pts.slice(0,n),'angle',COLORS.angle);
+  }else{
+    const keys=['sin','cos','tan'],all=rows.flatMap(p=>keys.map(k=>p[k])).filter(Number.isFinite);
+    const a=drawAxes(ctx,w,h,rows.map(p=>p.x),all,'入射角 i / °','三角函数比值');
+    keys.forEach(k=>{
+      const idx=keys.indexOf(k),drawn=progress.drawn2[i][idx];
+      const current=k===key?rows.filter(p=>Number.isFinite(p[k])).slice(0,n):drawn?rows.filter(p=>Number.isFinite(p[k])):[];
+      drawSeries(ctx,a,current,k,COLORS[k]);
+    });
+  }
+}
+function updateStages(){
+  syncActionButtons();
+  for(let n=1;n<=3;n++){
+    const done=isDone(n),unlocked=n<=maxUnlocked();
+    $('#stageCard'+n).classList.toggle('locked',!unlocked);
+    $('#stageCard'+n).classList.toggle('active',progress.stage===n);
+    $('#status'+n).textContent=done?'已完成':unlocked?'进行中':'未解锁';
+  }
+  if(isDone(1)&&progress.stage===1)setStage(2);
+  else if(isDone(2)&&progress.stage===2)setStage(3);
+  else{
+    $('#progress1').textContent=isDone(1)?'已完成 · 进阶探究已解锁':'完成两张图后解锁进阶探究';
+    $('#progress2').textContent=isDone(2)?'已完成 · 正弦拟合已解锁':'完成两张图的三种比值后解锁正弦拟合';
+    $('#progress3').textContent=isDone(3)?'自主探究已完成':'完成两组拟合，完成自主探究';
+  }
+}
+bindActions();
+syncActionButtons();
+setStage(progress.stage||1);
+updateStages();
+window.addEventListener('resize',()=>requestAnimationFrame(drawVisibleStage));
+})();
+</script>
+</body>
+</html>
