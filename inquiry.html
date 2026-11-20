@@ -29,7 +29,7 @@ button,select{font:inherit;color:inherit}button{cursor:pointer}
 .data-card,.stage-card,.chart-card{background:linear-gradient(160deg,#fff,#fbfcff);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);min-width:0}
 .data-card{padding:14px}
 .data-card h3{font-size:14px;margin:0 0 5px;color:#303b52}
-.data-card p{font-size:11px;color:var(--muted);margin:0 0 10px}
+.data-card p{font-size:11px;color:var(--muted);margin:0 0 10px}.data-card select{width:100%;height:38px;border:1px solid var(--line);border-radius:9px;background:#fff;color:#26344b;padding:0 10px;margin:4px 0 9px}
 .data-meta{font-size:11px;color:#66758b;line-height:1.7}
 .stages{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;margin-bottom:15px}
 .stage-card{padding:14px;position:relative;transition:.2s}
@@ -73,9 +73,12 @@ button,select{font:inherit;color:inherit}button{cursor:pointer}
   </header>
   <div class="identity" id="identity">正在读取本机已上传的实验数据……</div>
   <div id="appContent" hidden>
-    <section class="data-select" id="dataSelect"></section>
+    <section class="data-select" id="dataSelect">
+      <article class="data-card"><h3>实验A</h3><p>选择第一组已上传的介质实验</p><select id="recordSelectA"></select><div class="data-meta" id="recordMetaA"></div></article>
+      <article class="data-card"><h3>实验B</h3><p>选择第二组已上传的介质实验</p><select id="recordSelectB"></select><div class="data-meta" id="recordMetaB"></div></article>
+    </section>
     <section class="stages">
-      <article class="stage-card active" id="stageCard1"><div class="stage-top"><span class="stage-no">STEP 01</span><span class="stage-status" id="status1">进行中</span></div><h2>初步探究 · 角度比</h2><p>观察两种介质实验中，入射角与折射角之比是否保持稳定。</p></article>
+      <article class="stage-card active" id="stageCard1"><div class="stage-top"><span class="stage-no">STEP 01</span><span class="stage-status" id="status1">进行中</span></div><h2>初步探究 · 角度比</h2><p>观察所选两份介质实验中，入射角与折射角之比是否保持稳定。</p></article>
       <article class="stage-card locked" id="stageCard2"><div class="stage-top"><span class="stage-no">STEP 02</span><span class="stage-status" id="status2">未解锁</span></div><h2>进阶探究 · 三角函数比</h2><p>依次比较正弦比、余弦比和正切比，寻找更稳定的数量关系。</p></article>
       <article class="stage-card locked" id="stageCard3"><div class="stage-top"><span class="stage-no">STEP 03</span><span class="stage-status" id="status3">未解锁</span></div><h2>规律建模 · 正弦拟合</h2><p>把两组实验的 sin r 与 sin i 数据绘制出来，并进行过原点线性拟合。</p></article>
     </section>
@@ -93,7 +96,7 @@ button,select{font:inherit;color:inherit}button{cursor:pointer}
     </section>
     <div class="notice">本平台只读取当前浏览器中、由本组成功上传的数据副本，不读取其他小组数据。请在同一台设备和同一个浏览器中完成数据上传与自主探究；更换设备或清除浏览器数据后，需要重新上传。</div>
   </div>
-  <div id="emptyState" class="empty" hidden>还没有找到本机成功上传的两份实验数据。请返回数据上传页面，分别提交两种介质的实验数据，再进入自主探究。</div>
+  <div id="emptyState" class="empty" hidden>请先上传至少2组完整实验数据（每组都需要填写介质名称），再进入自主探究平台。上传完成后可在上方选择要比较的两组数据。</div>
 </div>
 <script>
 (()=>{
@@ -104,27 +107,44 @@ const identity=$('#identity'),app=$('#appContent'),empty=$('#emptyState');
 const storageKey=localStorage.getItem('refraction_self_inquiry_last_key');
 let records=[];
 try{records=storageKey?JSON.parse(localStorage.getItem(storageKey)||'[]'):[]}catch(_){records=[]}
-records=Array.isArray(records)?records.filter(x=>Array.isArray(x.measurements)&&x.measurements.length>=2):[];
+records=Array.isArray(records)?records.filter(x=>Array.isArray(x.measurements)&&x.measurements.length>=2&&String(x.medium||'').trim()):[];
 records.sort((a,b)=>String(a.uploaded_at||'').localeCompare(String(b.uploaded_at||'')));
 if(records.length<2){
-  identity.textContent='当前浏览器中还没有两份完整的已提交实验数据。';
+  identity.textContent='当前小组已上传 '+records.length+' 组完整实验数据；请至少上传2组数据（每组填写介质名称）后开始自主探究。';
   empty.hidden=false;
   return;
 }
-records=records.slice(-2);
 app.hidden=false;
-identity.innerHTML=`当前实验：<strong>${esc(records[0].class_name||'')}</strong> · <strong>${esc(records[0].group_name||'')}</strong>${records[0].student_code?' · '+esc(records[0].student_code):''} · 已读取本组 ${records.length} 份实验`;
-$('#dataSelect').innerHTML=records.map((r,i)=>`<article class="data-card"><h3>实验 ${i?'B':'A'} · ${esc(r.medium||'未标注介质')}</h3><p>${esc(r.group_name||'')} · ${r.measurements.length} 个有效测量点</p><div class="data-meta">提交时间：${r.uploaded_at?new Date(r.uploaded_at).toLocaleString('zh-CN'):'本机保存'}<br>仅供本组自主探究</div></article>`).join('');
-
-const data=records.map(r=>r.measurements.map(p=>({i:Number(p.i),r:Number(p.r)})).filter(p=>Number.isFinite(p.i)&&Number.isFinite(p.r)&&p.i>=0&&p.i<90&&p.r>=0&&p.r<90).sort((a,b)=>a.i-b.i));
+identity.innerHTML=`当前实验：<strong>${esc(records[0].class_name||'')}</strong> · <strong>${esc(records[0].group_name||'')}</strong>${records[0].student_code?' · '+esc(records[0].student_code):''} · 已上传 <strong>${records.length}</strong> 组实验数据`;
+const recordLabel=(r,i)=>`实验${i+1} · ${r.medium||'未命名介质'} · ${(r.measurements||[]).length}点`;
+$('#recordSelectA').innerHTML=records.map((r,i)=>`<option value="${i}">${esc(recordLabel(r,i))}</option>`).join('');
+$('#recordSelectB').innerHTML=records.map((r,i)=>`<option value="${i}">${esc(recordLabel(r,i))}</option>`).join('');
+$('#recordSelectA').value='0';$('#recordSelectB').value='1';
+let selectedRecordIndices=[0,1];
+let data=[],computed=[];
+function refreshSelectedRecords(){
+  selectedRecordIndices=[Number($('#recordSelectA').value),Number($('#recordSelectB').value)];
+  savedKey=storageKey+'_inquiry_progress_'+selectedRecordIndices.join('_');
+  if(selectedRecordIndices[0]===selectedRecordIndices[1]){
+    const alternate=records.findIndex((_,i)=>i!==selectedRecordIndices[0]);
+    $('#recordSelectB').value=String(alternate);selectedRecordIndices[1]=alternate;
+    savedKey=storageKey+'_inquiry_progress_'+selectedRecordIndices.join('_');
+  }
+  const chosen=selectedRecordIndices.map(i=>records[i]);
+  data=chosen.map(r=>r.measurements.map(p=>({i:Number(p.i),r:Number(p.r)})).filter(p=>Number.isFinite(p.i)&&Number.isFinite(p.r)&&p.i>=0&&p.i<90&&p.r>=0&&p.r<90).sort((a,b)=>a.i-b.i));
+  computed=data.map(ratios);
+  $('#recordMetaA').textContent=`${chosen[0].class_name} · ${chosen[0].group_name} · ${chosen[0].measurements.length} 个测量点`;
+  $('#recordMetaB').textContent=`${chosen[1].class_name} · ${chosen[1].group_name} · ${chosen[1].measurements.length} 个测量点`;
+  identity.innerHTML=`当前实验：<strong>${esc(chosen[0].class_name||'')}</strong> · <strong>${esc(chosen[0].group_name||'')}</strong> · 可选实验共 <strong>${records.length}</strong> 组`;
+}
 const rad=d=>d*Math.PI/180;
 const ratios=(rows)=>rows.map(p=>({x:p.i,angle:p.r?round(p.i/p.r):null,sin:round(Math.sin(rad(p.i))/Math.sin(rad(p.r))),cos:round(Math.cos(rad(p.i))/Math.cos(rad(p.r))),tan:Math.abs(Math.tan(rad(p.r)))>1e-10?round(Math.tan(rad(p.i))/Math.tan(rad(p.r))):null,sx:Math.sin(rad(p.r)),sy:Math.sin(rad(p.i))}));
 function round(v){return Number.isFinite(v)?Math.round((v+Number.EPSILON)*100)/100:null}
-const computed=data.map(ratios);
+
 const COLORS={angle:'#e5ad62',sin:'#63d8c7',cos:'#b99aff',tan:'#f19bc9'};
 const labels={angle:'i / r',sin:'sin i / sin r',cos:'cos i / cos r',tan:'tan i / tan r'};
 const stages=[1,2,3].map(n=>({done:n===1?false:false}));
-const savedKey=storageKey+'_inquiry_progress';
+let savedKey=storageKey+'_inquiry_progress_'+selectedRecordIndices.join('_');
 let progress={stage:1,drawn1:[false,false],drawn2:[[false,false,false],[false,false,false]],scatter:[false,false],fit:[false,false]};
 try{progress={...progress,...JSON.parse(localStorage.getItem(savedKey)||'{}')}}catch(_){}
 function persist(){try{localStorage.setItem(savedKey,JSON.stringify(progress))}catch(_){}}
@@ -347,6 +367,9 @@ function updateStages(){
 }
 bindActions();
 syncActionButtons();
+refreshSelectedRecords();
+$('#recordSelectA').addEventListener('change',()=>{refreshSelectedRecords();progress={stage:1,drawn1:[false,false],drawn2:[[false,false,false],[false,false,false]],scatter:[false,false],fit:[false,false]};setStage(1);syncActionButtons();});
+$('#recordSelectB').addEventListener('change',()=>{refreshSelectedRecords();progress={stage:1,drawn1:[false,false],drawn2:[[false,false,false],[false,false,false]],scatter:[false,false],fit:[false,false]};setStage(1);syncActionButtons();});
 setStage(progress.stage||1);
 updateStages();
 window.addEventListener('resize',()=>requestAnimationFrame(drawVisibleStage));
