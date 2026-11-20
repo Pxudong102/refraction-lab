@@ -184,7 +184,9 @@ let savedKey=storageKey+'_inquiry_progress_'+selectedRecordIndices.join('_');
 let progress={stage:1,drawn1:[false,false],drawn2:[[false,false,false],[false,false,false]],scatter:[false,false],fit:[false,false]};
 try{progress={...progress,...JSON.parse(localStorage.getItem(savedKey)||'{}')}}catch(_){}
 const animationCounts={angle:[0,0],trig:[0,0],scatter:[0,0]};
-const animationRunning={angle:[false,false],trig:[false,false],scatter:[false,false]};
+const animationRunning={angle:[false,false],trig:[false,false],scatter:[false,false],fit:[false,false]};
+const fitLineProgress=progress.fit.map(done=>done?1:0);
+const fitLineRaf=[null,null];
 function persist(){try{localStorage.setItem(savedKey,JSON.stringify(progress))}catch(_){}}
 function isDone(n){
   if(n===1)return progress.drawn1.every(Boolean);
@@ -362,13 +364,15 @@ function drawChart(id,stage,i){
     const count=progress.scatter[i]?pts.length:animationCounts.scatter[i];
     pts.slice(0,count).forEach(p=>drawPoint(ctx,a,p,COLORS.angle));
     if(count===0)emptyChart(ctx,w,h,'点击「绘制正弦散点」开始');
-    if(progress.fit[i]){
+    if(fitLineProgress[i]>0){
       const den=pts.reduce((sum,p)=>sum+p.x*p.x,0);
       const k=den?pts.reduce((sum,p)=>sum+p.x*p.y,0)/den:0;
-      const maxX=range.x[1];
-      ctx.save();ctx.strokeStyle='#A65D57';ctx.lineWidth=2.3;
+      const maxX=Math.min(range.x[1],range.y[1]/(k||Infinity))*fitLineProgress[i];
+      ctx.save();ctx.strokeStyle='#A65D57';ctx.lineWidth=2.3;ctx.lineCap='round';
       ctx.beginPath();ctx.moveTo(a.X(0),a.Y(0));ctx.lineTo(a.X(maxX),a.Y(k*maxX));ctx.stroke();ctx.restore();
-      $('#fitInfo_'+i).textContent=`过原点拟合：k = ${k.toFixed(3)}`;
+      $('#fitInfo_'+i).textContent=fitLineProgress[i]>=1
+        ?`过原点拟合：k = ${k.toFixed(3)}`
+        :`拟合直线生成中：${Math.round(fitLineProgress[i]*100)}%`;
     }
   }
 }
@@ -428,9 +432,10 @@ function syncActionButtons(){
     scatter.disabled=sBusy;
     scatter.classList.toggle('done',sDone&&!sBusy);
     scatter.textContent=sBusy?'散点绘制中…':sDone?'↻ 重新绘制正弦散点':'① 绘制正弦散点';
-    fit.disabled=!sDone;
-    fit.classList.toggle('done',!!progress.fit[i]);
-    fit.textContent=progress.fit[i]?'↻ 重新拟合直线':'② 拟合直线';
+    fit.disabled=!sDone||animationRunning.fit?.[i]===true;
+    fit.classList.toggle('done',!!progress.fit[i]&&!animationRunning.fit?.[i]);
+    fit.classList.toggle('running',animationRunning.fit?.[i]===true);
+    fit.textContent=animationRunning.fit?.[i]?'拟合线生成中…':progress.fit[i]?'↻ 清除拟合线':'② 开始拟合直线';
   }
 }
 function bindActions(){
@@ -508,9 +513,33 @@ function bindActions(){
 
     // 拟合可重复点击，便于重新显示/计算。
     $('#fit3_'+i).addEventListener('click',()=>{
-      if(!progress.scatter[i])return;
-      progress.fit[i]=true;persist();drawChart('chart3_'+i,3,i);
-      syncActionButtons();updateStages();
+      if(!progress.scatter[i]||animationRunning.fit[i])return;
+
+      // 已完成时再次点击：清除拟合线，保留散点；下次点击可重新播放。
+      if(progress.fit[i]&&fitLineProgress[i]>=1){
+        if(fitLineRaf[i])cancelAnimationFrame(fitLineRaf[i]);
+        fitLineRaf[i]=null;fitLineProgress[i]=0;progress.fit[i]=false;
+        persist();drawChart('chart3_'+i,3,i);syncActionButtons();updateStages();
+        return;
+      }
+
+      // 参照教师分析平台 fitCycle：用 requestAnimationFrame 在约900ms内逐渐延长拟合线。
+      const start=performance.now(),duration=900;
+      animationRunning.fit[i]=true;fitLineProgress[i]=0;
+      progress.fit[i]=false;persist();syncActionButtons();updateStages();
+      const frame=now=>{
+        const t=Math.min(1,(now-start)/duration);
+        fitLineProgress[i]=t;
+        drawChart('chart3_'+i,3,i);
+        if(t<1){
+          fitLineRaf[i]=requestAnimationFrame(frame);
+        }else{
+          fitLineRaf[i]=null;fitLineProgress[i]=1;
+          animationRunning.fit[i]=false;progress.fit[i]=true;
+          persist();drawChart('chart3_'+i,3,i);syncActionButtons();updateStages();
+        }
+      };
+      fitLineRaf[i]=requestAnimationFrame(frame);
     });
   }
 }
@@ -537,7 +566,8 @@ syncActionButtons();
 function resetPairProgress(){
   progress={stage:1,drawn1:[false,false],drawn2:[[false,false,false],[false,false,false]],scatter:[false,false],fit:[false,false]};
   animationCounts.angle=[0,0];animationCounts.trig=[0,0];animationCounts.scatter=[0,0];
-  animationRunning.angle=[false,false];animationRunning.trig=[false,false];animationRunning.scatter=[false,false];
+  animationRunning.angle=[false,false];animationRunning.trig=[false,false];animationRunning.scatter=[false,false];animationRunning.fit=[false,false];
+  for(let i=0;i<2;i++){if(fitLineRaf[i])cancelAnimationFrame(fitLineRaf[i]);fitLineRaf[i]=null;fitLineProgress[i]=0;}
   persist();setStage(1);syncActionButtons();updateStages();drawVisibleStage();
 }
 function restartInquiry(){
