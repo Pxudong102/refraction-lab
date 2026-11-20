@@ -52,50 +52,94 @@
   }
   async function submit(){
     if(!db){show('云端连接脚本尚未就绪，请检查网络或稍后重试；已填写的数据仍保留在本页。','err');return;}
+    const grade_level=$('#gradeLevel').value.trim(), class_number=$('#classNumber').value.trim();
     const class_name=buildClassName(), group_name=$('#groupName').value.trim(), student_code=$('#studentCode').value.trim(), medium=$('#medium').value.trim(), note=$('#note').value.trim();
-    if(!class_name){show('请选择年级，并填写有效的班级数字（1–99）。','err');return;}
-    if(!group_name){show('请填写组别。','err');return;}
+    if(!grade_level){show('请选择年级。','err');$('#gradeLevel').focus();return;}
+    if(!class_number||!class_name){show('请填写有效的班级数字（1–99）。','err');$('#classNumber').focus();return;}
+    if(!group_name){show('请填写组别。','err');$('#groupName').focus();return;}
+    if(!medium){show('请填写本组实验的介质名称，例如：水、玻璃、介质1。','err');$('#medium').focus();return;}
     let measurements; try{measurements=collectRows();}catch(e){show(e.message,'err');return;}
     if(measurements.length<2){show('请至少录入 2 组有效测量数据。','err');return;}
     const btn=$('#submitBtn'); btn.disabled=true; btn.textContent='正在提交…';
     const {error}=await db.from('submissions').insert({class_name,group_name,student_code:student_code||null,medium:medium||null,note:note||null,measurements});
     btn.disabled=false; btn.textContent='提交本组实验数据';
     if(error){show(`提交失败：${error.message}`,'err');return;}
-    // 仅在云端提交成功后，把本组本次实验的原始 i、r 副本保存到当前浏览器。
-    // 自主探究页只读取这个本地副本，不查询 submissions 表，避免学生读取其他组数据。
+    // 云端成功后，将本次实验追加保存到当前浏览器的本组数据清单。
+    // 每次上传都是独立记录，不覆盖同一介质的历史记录，也不只保留两份。
     let localSaved=true;
+    let storageKey='';
     try{
-      const localIdentity=[class_name,group_name].join('|');
-      const storageKey='refraction_self_inquiry_v1_'+encodeURIComponent(localIdentity);
+      const localIdentity=[grade_level,class_number,class_name,group_name].join('|');
+      storageKey='refraction_self_inquiry_v2_'+encodeURIComponent(localIdentity);
       let saved=[];
       try{saved=JSON.parse(localStorage.getItem(storageKey)||'[]');}catch(_){saved=[];}
       const record={
-        class_name,group_name,student_code:student_code||'',
-        medium:medium||'未填写介质',note,
+        grade_level,class_number,class_name,group_name,student_code:student_code||'',
+        medium,note,
         measurements:measurements.map(p=>({i:p.i,r:p.r})),
-        uploaded_at:new Date().toISOString()
+        uploaded_at:new Date().toISOString(),
+        record_id:Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,8)
       };
-      const mediumKey=String(record.medium).trim().toLowerCase();
-      // 同一介质重复提交时以最新一次为准；不同介质分别保留。
-      if(mediumKey && mediumKey!=='未填写介质'){
-        saved=saved.filter(x=>String(x.medium||'').trim().toLowerCase()!==mediumKey);
-      }
       saved.push(record);
-      saved.sort((a,b)=>String(a.uploaded_at||'').localeCompare(String(b.uploaded_at||'')));
-      saved=saved.slice(-2);
+      // 本地最多保留30份，避免浏览器存储无限增长；正常课堂远低于此数量。
+      saved=saved.slice(-30);
       localStorage.setItem(storageKey,JSON.stringify(saved));
-      // 新提交会改变实验内容，清除旧的阶段完成状态，要求学生重新完成探究。
       localStorage.removeItem(storageKey+'_inquiry_progress');
       localStorage.setItem('refraction_self_inquiry_last_key',storageKey);
+      localStorage.setItem('refraction_self_inquiry_identity',JSON.stringify({grade_level,class_number,class_name,group_name}));
     }catch(storageError){
       localSaved=false;
       console.warn('本地自主探究数据保存失败：',storageError);
     }
     show(localSaved
-      ? `提交成功：${measurements.length} 个数据点，已同步到本机自主探究平台。`
-      : `云端提交成功，但本机自主探究数据保存失败。请检查浏览器存储设置后重新提交。`,'ok');
+      ? `提交成功：${measurements.length} 个测量点；已保存为“${medium}”，本组目前共有 ${getSavedDatasetCount(storageKey)} 组实验数据。`
+      : `云端提交成功，但本机自主探究数据保存失败。请检查浏览器存储设置后重试。`,'ok');
+    if(localSaved){
+      renderUploadedDatasetList();
+      // 为下一种介质准备空白测量表；年级、班级、组别和学生信息保持不变，只清空介质与本次测量值。
+      $('#medium').value='';
+      $('#note').value='';
+      $('#pasteBox').value='';
+      clearRows();
+      $('#medium').focus();
+    }
   }
 
+  function currentStorageKey(){
+    const class_name=buildClassName(),group_name=$('#groupName').value.trim();
+    const grade=$('#gradeLevel').value.trim(),classNo=$('#classNumber').value.trim();
+    if(!class_name||!group_name||!grade||!classNo)return '';
+    return 'refraction_self_inquiry_v2_'+encodeURIComponent([grade,classNo,class_name,group_name].join('|'));
+  }
+  function getSavedDatasetCount(key){
+    if(!key)return 0;
+    try{return JSON.parse(localStorage.getItem(key)||'[]').length}catch(_){return 0}
+  }
+  function renderUploadedDatasetList(){
+    const key=currentStorageKey(),list=$('#uploadedDatasetList');
+    if(!key){
+      $('#uploadedDatasetCount').textContent='0 组';
+      list.innerHTML='<div class="uploaded-dataset-empty">请先填写年级、班级和组别，系统会显示该小组已上传的实验数据。</div>';
+      return;
+    }
+    let saved=[];try{saved=JSON.parse(localStorage.getItem(key)||'[]')}catch(_){}
+    saved=Array.isArray(saved)?saved:[];
+    $('#uploadedDatasetCount').textContent=saved.length+' 组';
+    list.innerHTML=saved.length?saved.map((x,i)=>`<div class="uploaded-dataset-item"><div><strong>${escapeHtml(x.medium||'未命名介质')}</strong><small>${(x.measurements||[]).length} 个测量点 · ${x.uploaded_at?new Date(x.uploaded_at).toLocaleString('zh-CN'):'已保存'}</small></div><span class="uploaded-tag">✓ 已上传</span></div>`).join(''):'<div class="uploaded-dataset-empty">该小组还没有上传实验数据。填写介质名称并提交后，会显示在这里。</div>';
+  }
+  function startNextDataset(){
+    const key=currentStorageKey();
+    if(!key){show('请先填写年级、班级和组别，再添加另一组实验数据。','err');return;}
+    const count=getSavedDatasetCount(key);
+    if(!count){show('请先完成并成功上传当前第一组实验数据。','err');return;}
+    $('#medium').value='';$('#note').value='';$('#pasteBox').value='';clearRows();
+    $('#medium').focus();
+    show(`已准备添加第 ${count+1} 组实验数据，请填写新的介质名称并录入数据。`,'info');
+  }
+  $('#addDatasetBtn').addEventListener('click',startNextDataset);
+  ['gradeLevel','classNumber','groupName'].forEach(id=>$('#'+id).addEventListener(id==='gradeLevel'?'change':'input',renderUploadedDatasetList));
+
+  $('#gradeLevel').required=true;$('#classNumber').required=true;$('#groupName').required=true;$('#medium').required=true;
   $('#gradeLevel').addEventListener('change',updateClassPreview);
   $('#classNumber').addEventListener('input',updateClassPreview);
   $('#addRowBtn').addEventListener('click',()=>addRow());
@@ -104,5 +148,6 @@
   $('#submitBtn').addEventListener('click',submit);
   clearRows();
   updateClassPreview();
+  renderUploadedDatasetList();
   if(!configured) show('当前是未配置状态：教师完成 Supabase 配置后即可在线提交。','info');
 })();
