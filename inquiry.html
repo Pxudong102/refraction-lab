@@ -81,6 +81,21 @@ button,select{font:inherit;color:inherit}button{cursor:pointer}
 
 #restartInquiryBtn{background:#fff;color:#365b77;border:1px solid #cbd6e1}
 #restartInquiryBtn:hover{background:#f2f6fa}
+
+/* 顶部阶段指示器只显示当前阶段，避免提前展示全部探究任务 */
+.stages{grid-template-columns:minmax(0,1fr)!important}
+.stages .stage-card:not(.active){display:none!important}
+.stages .stage-card.active{display:block!important}
+.stage-heading{align-items:center}
+.stage-heading-main{min-width:0;flex:1}
+.stage-heading-actions{display:flex;align-items:center;gap:8px;flex:0 0 auto}
+.prev-stage-btn{border:1px solid #cbd6e1;background:#fff;color:#49647c;border-radius:9px;padding:8px 12px;font-size:11px;font-weight:600;cursor:pointer}
+.prev-stage-btn:hover{background:#f1f6fa;border-color:#91a8ba}
+.prev-stage-btn[hidden]{display:none!important}
+@media(max-width:650px){
+  .stage-heading{align-items:flex-start}
+  .stage-heading-actions{width:100%;justify-content:flex-start}
+}
 </style>
 </head>
 <body>
@@ -101,17 +116,17 @@ button,select{font:inherit;color:inherit}button{cursor:pointer}
       <article class="stage-card locked" id="stageCard3" hidden><div class="stage-top"><span class="stage-no">STEP 03</span><span class="stage-status" id="status3">未解锁</span></div><h2>规律建模 · 正弦拟合</h2><p>把两组实验的 sin r 与 sin i 数据绘制出来，并进行过原点线性拟合。</p></article>
     </section>
     <section class="stage-view active" id="stageView1">
-      <div class="stage-heading"><div><h2>初步探究：i / r 比值</h2><p>两份实验分别成图，先观察比值随入射角的变化。</p></div><span class="progress-note" id="progress1">完成两张图后，下一步按钮出现</span></div>
+      <div class="stage-heading"><div class="stage-heading-main"><h2>初步探究：i / r 比值</h2><p>两份实验分别成图，先观察比值随入射角的变化。</p></div><div class="stage-heading-actions"><span class="progress-note" id="progress1">完成两张图后，下一步按钮出现</span></div></div>
       <div class="chart-grid" id="grid1"></div>
       <div class="stage-next-row" id="nextRow1" hidden><span>两组角度比图均已完成。准备好后再进入下一步。</span><button class="next-stage-btn" id="nextStage1" type="button">下一步：进阶探究 →</button></div>
     </section>
     <section class="stage-view" id="stageView2">
-      <div class="stage-heading"><div><h2>进阶探究：三角函数比值</h2><p>点击一次按钮，正弦比、余弦比、正切比在同一坐标系中同步逐点绘制。</p></div><span class="progress-note" id="progress2">完成两组实验的三种比值绘制后，下一步按钮出现</span></div>
+      <div class="stage-heading"><div class="stage-heading-main"><h2>进阶探究：三角函数比值</h2><p>点击一次按钮，正弦比、余弦比、正切比在同一坐标系中同步逐点绘制。</p></div><div class="stage-heading-actions"><button class="prev-stage-btn" id="prevStage2" type="button">← 上一步</button><span class="progress-note" id="progress2">完成两组实验的三种比值绘制后，下一步按钮出现</span></div></div>
       <div class="chart-grid" id="grid2"></div>
       <div class="stage-next-row" id="nextRow2" hidden><span>两组实验的三条比值曲线均已完成。准备好后进入下一步。</span><button class="next-stage-btn" id="nextStage2" type="button">下一步：规律建模 →</button></div>
     </section>
     <section class="stage-view" id="stageView3">
-      <div class="stage-heading"><div><h2>规律建模：正弦拟合</h2><p>横轴 sin r，纵轴 sin i；拟合直线通过原点。</p></div><span class="progress-note" id="progress3">完成两组拟合后，自主探究结束</span></div>
+      <div class="stage-heading"><div class="stage-heading-main"><h2>规律建模：正弦拟合</h2><p>横轴 sin r，纵轴 sin i；拟合直线通过原点。</p></div><div class="stage-heading-actions"><button class="prev-stage-btn" id="prevStage3" type="button">← 上一步</button><span class="progress-note" id="progress3">完成两组拟合后，自主探究结束</span></div></div>
       <div class="chart-grid" id="grid3"></div>
       <div class="stage-next-row" id="nextRow3" hidden><span>两组实验均已完成正弦拟合，自主探究结束。</span><span class="finish-pill">✓ 探究完成</span></div>
     </section>
@@ -197,6 +212,9 @@ function setStage(n){
 [1,2,3].forEach(n=>$('#stageCard'+n).addEventListener('click',()=>{if(n<=maxUnlocked())setStage(n)}));
 $('#nextStage1').addEventListener('click',()=>{if(isDone(1)){setStage(2);updateStages()}});
 $('#nextStage2').addEventListener('click',()=>{if(isDone(2)){setStage(3);updateStages()}});
+$('#prevStage2').addEventListener('click',()=>setStage(1));
+$('#prevStage3').addEventListener('click',()=>setStage(2));
+
 
 function drawVisibleStage(){
   if(progress.stage===1)for(let i=0;i<2;i++)drawChart('chart1_'+i,1,i);
