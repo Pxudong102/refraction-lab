@@ -78,13 +78,16 @@ button,select{font:inherit;color:inherit}button{cursor:pointer}
 .chart-legend span{display:inline-flex;align-items:center;gap:5px;font-size:9px;color:#65758a;white-space:nowrap}
 .chart-legend i{width:8px;height:8px;border-radius:50%;display:inline-block}
 .chart-head{flex-wrap:wrap}
+
+#restartInquiryBtn{background:#fff;color:#365b77;border:1px solid #cbd6e1}
+#restartInquiryBtn:hover{background:#f2f6fa}
 </style>
 </head>
 <body>
 <div class="page">
   <header class="top">
     <div class="brand"><h1>✦ 光的折射 · 自主探究平台</h1><p>从自己的实验数据出发，逐步发现折射规律</p></div>
-    <div class="top-actions"><a class="btn" href="index.html">返回数据上传</a></div>
+    <div class="top-actions"><button class="btn" id="restartInquiryBtn" type="button">↻ 重新开始探究</button><a class="btn" href="index.html">返回数据上传</a></div>
   </header>
   <div class="identity" id="identity">正在读取本机已上传的实验数据……</div>
   <div id="appContent" hidden>
@@ -166,6 +169,7 @@ let savedKey=storageKey+'_inquiry_progress_'+selectedRecordIndices.join('_');
 let progress={stage:1,drawn1:[false,false],drawn2:[[false,false,false],[false,false,false]],scatter:[false,false],fit:[false,false]};
 try{progress={...progress,...JSON.parse(localStorage.getItem(savedKey)||'{}')}}catch(_){}
 const animationCounts={angle:[0,0],trig:[0,0],scatter:[0,0]};
+const animationRunning={angle:[false,false],trig:[false,false],scatter:[false,false]};
 function persist(){try{localStorage.setItem(savedKey,JSON.stringify(progress))}catch(_){}}
 function isDone(n){
   if(n===1)return progress.drawn1.every(Boolean);
@@ -261,33 +265,30 @@ function tickLabel(v,step){
   const dp=step>=1?0:Math.min(5,Math.max(0,base+(Math.abs(step*10**base-Math.round(step*10**base))>1e-8?1:0)));
   return Number(v).toFixed(dp).replace(/(\.\d*?)0+$/,'$1').replace(/\.$/,'');
 }
-function stageAxisRange(stage){
-  const rows=data.flat();
+function stageAxisRange(stage,i){
+  const rows=data[i]||[];
+  const values=computed[i]||[];
   if(stage===1){
-    const ys=computed.flat().map(p=>p.angle).filter(Number.isFinite);
     return {
-      x:dataAxisRange(rows.map(p=>p.i),{minSpan:10,minBound:0,maxBound:90,angle:true}),
-      y:dataAxisRange(ys,{minSpan:.08,ticks:5})
+      x:dataAxisRange(rows.map(p=>p.i),{minSpan:8,minBound:0,maxBound:90,angle:true}),
+      y:dataAxisRange(values.map(p=>p.angle).filter(Number.isFinite),{minSpan:.05,ticks:5})
     };
   }
   if(stage===2){
-    const ys=computed.flat().flatMap(p=>[p.sin,p.cos,p.tan]).filter(Number.isFinite);
+    const ys=values.flatMap(p=>[p.sin,p.cos,p.tan]).filter(Number.isFinite);
     return {
-      x:dataAxisRange(rows.map(p=>p.i),{minSpan:10,minBound:0,maxBound:90,angle:true}),
-      y:dataAxisRange(ys,{minSpan:.08,ticks:5})
+      x:dataAxisRange(rows.map(p=>p.i),{minSpan:8,minBound:0,maxBound:90,angle:true}),
+      y:dataAxisRange(ys,{minSpan:.05,ticks:5})
     };
   }
-  const points=computed.flat().map(p=>({x:p.sx,y:p.sy}));
-  const xRange=dataAxisRange(points.map(p=>p.x),{minSpan:.2,minBound:0,maxBound:1.05,zeroStart:true});
-  const fitEnds=data.map(rows=>{
-    const pts=rows.map(p=>({x:Math.sin(rad(p.r)),y:Math.sin(rad(p.i))}));
-    const den=pts.reduce((sum,p)=>sum+p.x*p.x,0);
-    const k=den?pts.reduce((sum,p)=>sum+p.x*p.y,0)/den:0;
-    return k*xRange[1];
-  }).filter(Number.isFinite);
+  const points=values.map(p=>({x:p.sx,y:p.sy}));
+  const xRange=dataAxisRange(points.map(p=>p.x),{minSpan:.12,minBound:0,maxBound:1.05,zeroStart:true});
+  const den=points.reduce((sum,p)=>sum+p.x*p.x,0);
+  const k=den?points.reduce((sum,p)=>sum+p.x*p.y,0)/den:0;
+  const fitEnd=k*xRange[1];
   return {
     x:xRange,
-    y:dataAxisRange([...points.map(p=>p.y),...fitEnds],{minSpan:.2,minBound:0,maxBound:1.05,zeroStart:true})
+    y:dataAxisRange([...points.map(p=>p.y),fitEnd],{minSpan:.12,minBound:0,maxBound:1.05,zeroStart:true})
   };
 }
 function drawAxes(ctx,w,h,xMin,xMax,yMin,yMax,xLabel,yLabel){
@@ -319,7 +320,7 @@ function setupCanvas(canvas){
 function drawChart(id,stage,i){
   const canvas=$('#'+id),setup=setupCanvas(canvas);if(!setup)return;
   const {ctx,w,h}=setup;ctx.clearRect(0,0,w,h);
-  const rows=computed[i]||[],range=stageAxisRange(stage);
+  const rows=computed[i]||[],range=stageAxisRange(stage,i);
   const a=drawAxes(ctx,w,h,range.x[0],range.x[1],range.y[0],range.y[1],
     stage===3?'sin r':'入射角 i / °',
     stage===1?'角度比 i / r':stage===2?'三角函数比值':'sin i');
@@ -394,79 +395,102 @@ function animateSeries(stage,i,key){
 }
 function syncActionButtons(){
   for(let i=0;i<2;i++){
-    const b1=$('#draw1_'+i);
-    b1.disabled=!!progress.drawn1[i];
-    b1.classList.toggle('done',!!progress.drawn1[i]);
-    b1.textContent=progress.drawn1[i]?'✓ 角度比已绘制':'▶ 开始绘制角度比';
-    const trig=$('#draw2_'+i);
-    const trigDone=progress.drawn2[i].every(Boolean);
-    trig.disabled=trigDone;
-    trig.classList.toggle('done',trigDone);
-    trig.textContent=trigDone?'✓ 三种比值已绘制':'▶ 同时绘制三种比值';
+    const b1=$('#draw1_'+i),aDone=!!progress.drawn1[i],aBusy=animationRunning.angle[i];
+    b1.disabled=aBusy;
+    b1.classList.toggle('done',aDone&&!aBusy);
+    b1.textContent=aBusy?'绘制中…':aDone?'↻ 重新绘制角度比':'▶ 开始绘制角度比';
+
+    const trig=$('#draw2_'+i),tDone=progress.drawn2[i].every(Boolean),tBusy=animationRunning.trig[i];
+    trig.disabled=tBusy;
+    trig.classList.toggle('done',tDone&&!tBusy);
+    trig.textContent=tBusy?'三条曲线绘制中…':tDone?'↻ 重新绘制三种比值':'▶ 同时绘制三种比值';
+
     const scatter=$('#scatter3_'+i),fit=$('#fit3_'+i);
-    scatter.disabled=!!progress.scatter[i];
-    scatter.classList.toggle('done',!!progress.scatter[i]);
-    scatter.textContent=progress.scatter[i]?'✓ 散点已绘制':'① 绘制正弦散点';
-    fit.disabled=!progress.scatter[i]||!!progress.fit[i];
+    const sDone=!!progress.scatter[i],sBusy=animationRunning.scatter[i];
+    scatter.disabled=sBusy;
+    scatter.classList.toggle('done',sDone&&!sBusy);
+    scatter.textContent=sBusy?'散点绘制中…':sDone?'↻ 重新绘制正弦散点':'① 绘制正弦散点';
+    fit.disabled=!sDone;
     fit.classList.toggle('done',!!progress.fit[i]);
-    fit.textContent=progress.fit[i]?'✓ 拟合完成':'② 拟合直线';
+    fit.textContent=progress.fit[i]?'↻ 重新拟合直线':'② 拟合直线';
   }
 }
 function bindActions(){
   for(let i=0;i<2;i++){
+    // 角度比：首次绘制或重新绘制均从第一个点开始。
     $('#draw1_'+i).addEventListener('click',()=>{
-      if(progress.drawn1[i])return;
+      if(animationRunning.angle[i])return;
       const pts=computed[i].filter(p=>Number.isFinite(p.angle));
       const b=$('#draw1_'+i),status=$('#angleProgress_'+i);
-      b.disabled=true;b.textContent='绘制中…';
-      let n=0;animationCounts.angle[i]=0;
+      progress.drawn1[i]=false;
+      animationRunning.angle[i]=true;
+      animationCounts.angle[i]=0;
+      persist();syncActionButtons();updateStages();
+      let n=0;
       const timer=setInterval(()=>{
         n++;animationCounts.angle[i]=n;
         drawChart('chart1_'+i,1,i);
         if(status)status.textContent=`正在呈现 ${n} / ${pts.length} 个测量点`;
         if(n>=pts.length){
-          clearInterval(timer);progress.drawn1[i]=true;
+          clearInterval(timer);
+          animationRunning.angle[i]=false;
+          progress.drawn1[i]=true;
           persist();syncActionButtons();updateStages();drawChart('chart1_'+i,1,i);
-          if(status)status.textContent=`已呈现全部 ${pts.length} 个测量点`;
+          if(status)status.textContent=`已呈现全部 ${pts.length} 个测量点，可再次绘制`;
         }
       },180);
     });
 
+    // 三角函数比：一个按钮同步重绘三条曲线。
     $('#draw2_'+i).addEventListener('click',()=>{
-      if(progress.drawn2[i].every(Boolean))return;
+      if(animationRunning.trig[i])return;
       const b=$('#draw2_'+i),status=$('#trigProgress_'+i);
-      const maxCount=computed[i].length;
-      b.disabled=true;b.textContent='三条曲线绘制中…';
+      const maxCount=Math.max(0,...['sin','cos','tan'].map(k=>computed[i].filter(p=>Number.isFinite(p[k])).length));
+      progress.drawn2[i]=[false,false,false];
+      animationRunning.trig[i]=true;
       animationCounts.trig[i]=0;
+      persist();syncActionButtons();updateStages();
       let n=0;
       const timer=setInterval(()=>{
         n++;animationCounts.trig[i]=n;
         drawChart('chart2_'+i,2,i);
-        if(status)status.textContent=`三条曲线同步绘制：${n} / ${maxCount} 个测量点`;
+        if(status)status.textContent=`三条曲线同步绘制：${Math.min(n,maxCount)} / ${maxCount} 个测量点`;
         if(n>=maxCount){
-          clearInterval(timer);progress.drawn2[i]=[true,true,true];
+          clearInterval(timer);
+          animationRunning.trig[i]=false;
+          progress.drawn2[i]=[true,true,true];
           persist();syncActionButtons();updateStages();drawChart('chart2_'+i,2,i);
-          if(status)status.textContent='正弦比、余弦比、正切比已全部绘制完成';
+          if(status)status.textContent='三种比值已绘制完成，可再次绘制';
         }
       },180);
     });
 
+    // 正弦散点：重新绘制时同时清除旧拟合，绘完后可再次拟合。
     $('#scatter3_'+i).addEventListener('click',()=>{
-      if(progress.scatter[i])return;
-      const b=$('#scatter3_'+i),pts=computed[i];
-      b.disabled=true;b.textContent='散点绘制中…';animationCounts.scatter[i]=0;
+      if(animationRunning.scatter[i])return;
+      const pts=computed[i],status=$('#fitInfo_'+i);
+      progress.scatter[i]=false;
+      progress.fit[i]=false;
+      animationRunning.scatter[i]=true;
+      animationCounts.scatter[i]=0;
+      persist();syncActionButtons();updateStages();
       let n=0;
       const timer=setInterval(()=>{
-        n++;animationCounts.scatter[i]=n;drawChart('chart3_'+i,3,i);
+        n++;animationCounts.scatter[i]=n;
+        drawChart('chart3_'+i,3,i);
         if(n>=pts.length){
-          clearInterval(timer);progress.scatter[i]=true;
-          persist();syncActionButtons();drawChart('chart3_'+i,3,i);
+          clearInterval(timer);
+          animationRunning.scatter[i]=false;
+          progress.scatter[i]=true;
+          persist();syncActionButtons();updateStages();drawChart('chart3_'+i,3,i);
+          if(status)status.textContent='过原点拟合：k = —';
         }
       },160);
     });
 
+    // 拟合可重复点击，便于重新显示/计算。
     $('#fit3_'+i).addEventListener('click',()=>{
-      if(!progress.scatter[i]||progress.fit[i])return;
+      if(!progress.scatter[i])return;
       progress.fit[i]=true;persist();drawChart('chart3_'+i,3,i);
       syncActionButtons();updateStages();
     });
@@ -495,8 +519,20 @@ syncActionButtons();
 function resetPairProgress(){
   progress={stage:1,drawn1:[false,false],drawn2:[[false,false,false],[false,false,false]],scatter:[false,false],fit:[false,false]};
   animationCounts.angle=[0,0];animationCounts.trig=[0,0];animationCounts.scatter=[0,0];
-  persist();setStage(1);updateStages();drawVisibleStage();
+  animationRunning.angle=[false,false];animationRunning.trig=[false,false];animationRunning.scatter=[false,false];
+  persist();setStage(1);syncActionButtons();updateStages();drawVisibleStage();
 }
+function restartInquiry(){
+  if(!window.confirm('确定重新开始本次自主探究吗？当前两份实验的绘图进度将清零，但已上传的实验数据不会删除。'))return;
+  try{localStorage.removeItem(savedKey)}catch(_){}
+  resetPairProgress();
+  for(let i=0;i<2;i++){
+    const a=$('#angleProgress_'+i);if(a)a.textContent='点击开始后，测量点将逐个出现';
+    const t=$('#trigProgress_'+i);if(t)t.textContent='点击一次，三条曲线在同一坐标系中同步逐点出现';
+    const f=$('#fitInfo_'+i);if(f)f.textContent='过原点拟合：k = —';
+  }
+}
+$('#restartInquiryBtn').addEventListener('click',restartInquiry);
 $('#recordSelectA').addEventListener('change',()=>{refreshSelectedRecords();resetPairProgress()});
 $('#recordSelectB').addEventListener('change',()=>{refreshSelectedRecords();resetPairProgress()});
 setStage(progress.stage||1);
