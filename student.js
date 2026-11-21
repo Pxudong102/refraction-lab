@@ -50,58 +50,158 @@
     if(!rows.length){show('没有识别到有效的 i、r 两列数字。','err');return;}
     $('#rowsBody').innerHTML=''; rows.forEach(x=>addRow(x[0],x[1])); show(`已识别 ${rows.length} 组测量数据。`,'ok');
   }
+  const SUBMIT_MAX_ATTEMPTS=3;
+  const SUBMIT_TIMEOUT_MS=15000;
+
+  function sleep(ms){return new Promise(resolve=>setTimeout(resolve,ms))}
+  function errorMessage(err){
+    return String(err?.message||err?.error_description||err?.details||err||'未知错误');
+  }
+  function isNetworkError(err){
+    const text=errorMessage(err).toLowerCase();
+    return err instanceof TypeError ||
+      ['load failed','failed to fetch','networkerror','network request failed','fetch failed',
+       'timeout','timed out','connection reset','network is offline','internetdisconnected']
+       .some(token=>text.includes(token));
+  }
+  function withTimeout(promise,ms){
+    let timer;
+    const timeout=new Promise((_,reject)=>{
+      timer=setTimeout(()=>reject(new Error('请求超时')),ms);
+    });
+    return Promise.race([promise,timeout]).finally(()=>clearTimeout(timer));
+  }
+  function newRequestId(){
+    if(window.crypto&&typeof window.crypto.randomUUID==='function')return window.crypto.randomUUID();
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{
+      const r=Math.random()*16|0;return(c==='x'?r:(r&0x3|0x8)).toString(16);
+    });
+  }
+  function pendingKeyFor(class_name,group_name,grade_level,class_number){
+    return 'refraction_pending_submit_v1_'+encodeURIComponent([grade_level,class_number,class_name,group_name].join('|'));
+  }
+  function getOrCreatePending(payload){
+    const key=pendingKeyFor(payload.class_name,payload.group_name,payload.grade_level,payload.class_number);
+    let pending=null;
+    try{pending=JSON.parse(localStorage.getItem(key)||'null')}catch(_){}
+    const comparable=x=>JSON.stringify({
+      class_name:x.class_name,group_name:x.group_name,student_code:x.student_code||null,
+      medium:x.medium,note:x.note||null,measurements:x.measurements
+    });
+    if(pending&&pending.request_id&&comparable(pending.payload||{})===comparable(payload)){
+      return {key,request_id:pending.request_id};
+    }
+    const request_id=newRequestId();
+    localStorage.setItem(key,JSON.stringify({request_id,payload,created_at:new Date().toISOString()}));
+    return {key,request_id};
+  }
+  function isIdempotencyDuplicate(err){
+    const msg=errorMessage(err).toLowerCase();
+    return String(err?.code||'')==='23505' &&
+      (String(err?.constraint||'').includes('request_id')||msg.includes('request_id'));
+  }
+  async function sendSubmission(payload){
+    let lastError=null;
+    for(let attempt=1;attempt<=SUBMIT_MAX_ATTEMPTS;attempt++){
+      if(!navigator.onLine) {
+        lastError=new Error('当前设备处于离线状态');
+      } else {
+        try{
+          const result=await withTimeout(
+            db.from('submissions').insert(payload),
+            SUBMIT_TIMEOUT_MS
+          );
+          if(!result?.error)return {ok:true};
+          if(isIdempotencyDuplicate(result.error))return {ok:true,duplicate:true};
+          lastError=result.error;
+        }catch(err){lastError=err}
+      }
+      if(!isNetworkError(lastError)&&!String(lastError?.message||'').includes('超时')&&!String(lastError?.message||'').includes('离线')){
+        return {ok:false,error:lastError,network:false};
+      }
+      if(attempt<SUBMIT_MAX_ATTEMPTS){
+        show(`网络连接不稳定，正在安全重试（${attempt}/${SUBMIT_MAX_ATTEMPTS-1}）。请不要关闭页面或修改数据。`,'info');
+        await sleep(attempt===1?800:1600);
+      }
+    }
+    return {ok:false,error:lastError,network:true};
+  }
+
   async function submit(){
-    if(!db){show('云端连接脚本尚未就绪，请检查网络或稍后重试；已填写的数据仍保留在本页。','err');return;}
+    if(!db){show('云端连接尚未就绪，请检查网络或稍后重试；当前填写的数据不会清除。','err');return;}
     const grade_level=$('#gradeLevel').value.trim(), class_number=$('#classNumber').value.trim();
     const class_name=buildClassName(), group_name=$('#groupName').value.trim(), student_code=$('#studentCode').value.trim(), medium=$('#medium').value.trim(), note=$('#note').value.trim();
     if(!grade_level){show('请选择年级。','err');$('#gradeLevel').focus();return;}
     if(!class_number||!class_name){show('请填写有效的班级数字（1–99）。','err');$('#classNumber').focus();return;}
     if(!group_name){show('请填写组别。','err');$('#groupName').focus();return;}
     if(!medium){show('请填写本组实验的介质名称，例如：水、玻璃、介质1。','err');$('#medium').focus();return;}
-    let measurements; try{measurements=collectRows();}catch(e){show(e.message,'err');return;}
+    let measurements;
+    try{measurements=collectRows()}catch(e){show(e.message,'err');return}
     if(measurements.length<2){show('请至少录入 2 组有效测量数据。','err');return;}
-    const btn=$('#submitBtn'); btn.disabled=true; btn.textContent='正在提交…';
-    const {error}=await db.from('submissions').insert({class_name,group_name,student_code:student_code||null,medium:medium||null,note:note||null,measurements});
-    btn.disabled=false; btn.textContent='提交本组实验数据';
-    if(error){show(`提交失败：${error.message}`,'err');return;}
-    // 云端成功后，将本次实验追加保存到当前浏览器的本组数据清单。
-    // 每次上传都是独立记录，不覆盖同一介质的历史记录，也不只保留两份。
-    let localSaved=true;
-    let storageKey='';
+
+    const btn=$('#submitBtn'),originalText=btn.textContent;
+    btn.disabled=true;btn.textContent='正在连接云端…';
+    let pending;
+    const payload={
+      class_name,group_name,student_code:student_code||null,
+      medium,note:note||null,measurements
+    };
+    try{
+      pending=getOrCreatePending({grade_level,class_number,...payload});
+    }catch(storageErr){
+      btn.disabled=false;btn.textContent=originalText;
+      show('浏览器无法保存本次提交编号。请检查网站存储权限后再提交，避免网络异常时产生重复记录。','err');
+      return;
+    }
+    const requestPayload={...payload,request_id:pending.request_id};
+    show('正在提交数据，请稍候…','info');
+    const result=await sendSubmission(requestPayload);
+    if(!result.ok){
+      btn.disabled=false;btn.textContent=originalText;
+      if(result.network){
+        show('暂时无法确认云端是否收到数据。你填写的数据已保留；请保持内容不变，再点击提交，系统会沿用同一个提交编号，避免重复入库。','err');
+      }else if(String(result.error?.code||'')==='42703'||errorMessage(result.error).toLowerCase().includes('request_id')){
+        show('数据库尚未完成安全提交升级。请管理员先在 Supabase SQL Editor 执行本次更新包中的“supabase_idempotency_migration.sql”，再重新提交。当前数据已保留。','err');
+      }else{
+        show(`提交失败：${errorMessage(result.error)}。已保留填写内容，请检查后重试。`,'err');
+      }
+      console.warn('Student submission failed:',result.error);
+      return;
+    }
+
+    // 云端确认成功（或相同 request_id 已存在）后，才将记录写入自主探究本地副本。
+    let localSaved=true,storageKey='';
     try{
       const localIdentity=[grade_level,class_number,class_name,group_name].join('|');
       storageKey='refraction_self_inquiry_v2_'+encodeURIComponent(localIdentity);
       let saved=[];
-      try{saved=JSON.parse(localStorage.getItem(storageKey)||'[]');}catch(_){saved=[];}
+      try{saved=JSON.parse(localStorage.getItem(storageKey)||'[]')}catch(_){saved=[]}
       const record={
         grade_level,class_number,class_name,group_name,student_code:student_code||'',
-        medium,note,
-        measurements:measurements.map(p=>({i:p.i,r:p.r})),
-        uploaded_at:new Date().toISOString(),
-        record_id:Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,8)
+        medium,note,measurements:measurements.map(p=>({i:p.i,r:p.r})),
+        uploaded_at:new Date().toISOString(),request_id:pending.request_id
       };
-      saved.push(record);
-      // 本地最多保留30份，避免浏览器存储无限增长；正常课堂远低于此数量。
+      // request_id 本地去重：同一请求重试成功时不会在自主探究记录中重复出现。
+      if(!saved.some(x=>x.request_id===pending.request_id))saved.push(record);
       saved=saved.slice(-30);
       localStorage.setItem(storageKey,JSON.stringify(saved));
       localStorage.removeItem(storageKey+'_inquiry_progress');
       localStorage.setItem('refraction_self_inquiry_last_key',storageKey);
       localStorage.setItem('refraction_self_inquiry_identity',JSON.stringify({grade_level,class_number,class_name,group_name}));
+      localStorage.removeItem(pending.key);
     }catch(storageError){
       localSaved=false;
-      console.warn('本地自主探究数据保存失败：',storageError);
+      console.warn('Local inquiry cache save failed:',storageError);
     }
+
+    btn.disabled=false;btn.textContent=originalText;
     show(localSaved
-      ? `提交成功：${measurements.length} 个测量点；已保存为“${medium}”，本组目前共有 ${getSavedDatasetCount(storageKey)} 组实验数据。`
-      : `云端提交成功，但本机自主探究数据保存失败。请检查浏览器存储设置后重试。`,'ok');
+      ? `提交成功：${measurements.length} 个测量点，介质“${medium}”已保存；本组目前共有 ${getSavedDatasetCount(storageKey)} 组实验数据。`
+      : '云端已确认提交成功，但本机自主探究缓存保存失败。请勿重复提交；可检查浏览器存储权限。','ok');
     if(localSaved){
       renderUploadedDatasetList();
-      // 为下一种介质准备空白测量表；年级、班级、组别和学生信息保持不变，只清空介质与本次测量值。
-      $('#medium').value='';
-      $('#note').value='';
-      $('#pasteBox').value='';
-      clearRows();
-      $('#medium').focus();
+      $('#medium').value='';$('#note').value='';$('#pasteBox').value='';
+      clearRows();$('#medium').focus();
     }
   }
 
@@ -146,6 +246,8 @@
   $('#clearRowsBtn').addEventListener('click',clearRows);
   $('#parseBtn').addEventListener('click',parsePaste);
   $('#submitBtn').addEventListener('click',submit);
+  window.addEventListener('offline',()=>show('当前设备网络已断开。已填写的数据会保留，恢复网络后可以重新提交。','err'));
+  window.addEventListener('online',()=>show('网络已恢复，可以继续提交实验数据。','ok'));
   clearRows();
   updateClassPreview();
   renderUploadedDatasetList();
