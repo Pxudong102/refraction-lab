@@ -13,28 +13,18 @@
     const timeout=new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error('请求超时')),ms)});
     return Promise.race([promise,timeout]).finally(()=>clearTimeout(timer));
   }
-  async function retryNetwork(action,{attempts=3,timeout=12000,label='网络请求'}={}){
+  async function retryNetwork(action,{attempts=3,timeout=15000,label='网络请求'}={}){
     let lastError=null;
-    for(let attempt=1;attempt<=attempts;attempt++){
-      if(!navigator.onLine){
-        lastError=new Error('当前设备处于离线状态');
-      }else{
-        try{
-          const response=await withTimeout(action(),timeout);
-          if(response?.error){
-            lastError=response.error;
-            const status=Number(response.error.status||response.status||0);
-            const retryable=isNetworkError(lastError)||status===408||status===429||status>=500;
-            if(!retryable)return {data:response,error:lastError};
-          }else{
-            return {data:response,error:null};
-          }
-        }catch(err){lastError=err}
+    for(let i=1;i<=attempts;i++){
+      if(!navigator.onLine){lastError=new Error('当前设备处于离线状态')}
+      else{
+        try{return {data:await withTimeout(action(),timeout),error:null}}
+        catch(err){lastError=err}
       }
-      const msg=String(lastError?.message||lastError||'');
-      const retryable=isNetworkError(lastError)||msg.includes('超时')||msg.includes('离线');
-      if(!retryable)return {data:null,error:lastError};
-      if(attempt<attempts)await sleep(attempt===1?700:1400);
+      if(!isNetworkError(lastError)&&!String(lastError?.message||'').includes('超时')&&!String(lastError?.message||'').includes('离线')){
+        return {data:null,error:lastError};
+      }
+      if(i<attempts)await sleep(i===1?700:1300);
     }
     return {data:null,error:lastError};
   }
@@ -80,48 +70,28 @@
     if(!db){show(dashStatus,'当前没有可用的云端连接，请检查 config.js。','err');return}
     if(loadInProgress)return;
     loadInProgress=true;
-    const refreshBtn=$('#refreshBtn');
-    const originalRefreshText=refreshBtn?.textContent||'刷新';
+    const refreshBtn=$('#refreshBtn'),oldText=refreshBtn?.textContent;
     if(refreshBtn){refreshBtn.disabled=true;refreshBtn.textContent='读取中…'}
     try{
-      show(dashStatus,'正在检查教师账号权限…','info');
-      const access=await retryNetwork(()=>db.rpc('is_teacher'),{attempts:2,timeout:8000,label:'检查教师权限'});
-      if(access.error){
-        show(dashStatus,`教师权限检查失败：${friendlyError(access.error,'权限检查')}。请检查网络及 Supabase 配置。`,'err');
-        console.error('Teacher permission check failed:',access.error);
-        return;
-      }
-      if(access.data?.data!==true){
-        show(dashStatus,'当前账号已登录，但不在教师白名单中，不能读取或删除学生提交。请管理员检查 teacher_allowlist。','err');
-        all=[];render();
-        return;
-      }
-
       show(dashStatus,'正在读取云端实验数据…','info');
       const result=await retryNetwork(
         ()=>db.from('submissions').select('*').order('created_at',{ascending:false}),
-        {attempts:2,timeout:12000,label:'读取实验数据'}
+        {attempts:2,timeout:12000,label:'读取数据'}
       );
       if(result.error){
-        show(dashStatus,`读取失败：${friendlyError(result.error,'读取数据')}。请检查网络、SELECT 权限及 RLS 策略后重试。`,'err');
-        console.error('Teacher data query failed:',result.error);
-        return;
+        show(dashStatus,`读取失败：${friendlyError(result.error,'读取数据')}。请检查网络后点击刷新；已有数据不会被清空。`,'err');
+        console.warn('Teacher data load failed:',result.error);return;
       }
-      const response=result.data||{};
-      if(response.error){
-        show(dashStatus,`读取失败：${friendlyError(response.error,'读取数据')}`,'err');
-        console.error('Teacher data response error:',response.error);
-        return;
-      }
-      all=Array.isArray(response.data)?response.data:[];
-      render();
-      show(dashStatus,`读取成功：${all.length} 条提交记录。`,'ok');
+      const {data,error}=result.data||{};
+      if(error){show(dashStatus,`读取失败：${friendlyError(error,'读取数据')}`,'err');console.warn(error);return}
+      all=Array.isArray(data)?data:[];
+      render();show(dashStatus,`读取成功：${all.length} 条提交记录。`,'ok');
     }catch(err){
-      show(dashStatus,`读取过程中发生程序异常：${friendlyError(err,'读取数据')}。请查看浏览器控制台。`,'err');
-      console.error('Unexpected teacher load/render error:',err);
+      show(dashStatus,`读取异常：${friendlyError(err,'读取数据')}。请点击刷新重试。`,'err');
+      console.error(err);
     }finally{
       loadInProgress=false;
-      if(refreshBtn){refreshBtn.disabled=false;refreshBtn.textContent=originalRefreshText}
+      if(refreshBtn){refreshBtn.disabled=false;refreshBtn.textContent=oldText||'刷新'}
     }
   }
 
@@ -235,38 +205,34 @@
 
   async function removeOne(id){
     if(!confirm('确定删除这次提交吗？'))return;
-    const rowButton=[...document.querySelectorAll('.del')].find(b=>String(b.dataset.id)===String(id));
-    if(rowButton){rowButton.disabled=true;rowButton.textContent='删除中…'}
-    show(dashStatus,'正在向数据库确认删除…','info');
+    const button=[...document.querySelectorAll('.del')].find(b=>String(b.dataset.id)===String(id));
+    if(button){button.disabled=true;button.textContent='删除中…'}
+    show(dashStatus,'正在删除并核实数据库结果…','info');
     try{
-      const response=await withTimeout(
-        db.from('submissions').delete().eq('id',id).select('id'),
-        12000
+      const result=await retryNetwork(
+        ()=>db.from('submissions').delete().eq('id',id).select('id'),
+        {attempts:1,timeout:10000,label:'删除记录'}
       );
-      if(response?.error){
-        show(dashStatus,`删除失败：${friendlyError(response.error,'删除')}。请检查教师白名单及 DELETE/SELECT RLS 策略。`,'err');
-        console.error('Teacher delete response error:',response.error);
-        if(rowButton){rowButton.disabled=false;rowButton.textContent='删除'}
-        return;
+      if(result.error){
+        show(dashStatus,`删除失败：${friendlyError(result.error,'删除')}。请检查教师账号及 Supabase DELETE RLS 策略。`,'err');
+        if(button){button.disabled=false;button.textContent='删除'}
+        console.warn('Delete failed:',result.error);return;
       }
-      const deletedRows=Array.isArray(response?.data)?response.data:[];
-      const wasDeleted=deletedRows.some(row=>String(row.id)===String(id));
-      if(!wasDeleted){
-        // 不把“0行受影响”误报为成功；重新查询确认记录是否仍存在。
-        await load();
-        const stillExists=all.some(row=>String(row.id)===String(id));
-        show(dashStatus,stillExists
-          ?'删除未成功：数据库中仍存在这条记录。请检查 teacher_allowlist 和 submissions 的 DELETE RLS 策略。'
-          :'数据库中已找不到这条记录，列表已同步。','err');
-        return;
+      const {data,error}=result.data||{};
+      if(error){
+        show(dashStatus,`删除失败：${friendlyError(error,'删除')}`,'err');
+        if(button){button.disabled=false;button.textContent='删除'}return;
       }
-      all=all.filter(row=>String(row.id)!==String(id));
-      render();
-      show(dashStatus,'数据库已确认删除该条记录。','ok');
+      if(!Array.isArray(data)||!data.some(x=>String(x.id)===String(id))){
+        show(dashStatus,'数据库没有返回被删除记录。可能是 DELETE RLS 策略未允许删除，或记录已经不存在。请刷新确认。','err');
+        if(button){button.disabled=false;button.textContent='删除'}return;
+      }
+      all=all.filter(x=>String(x.id)!==String(id));
+      render();show(dashStatus,'数据库已确认删除该条记录。','ok');
     }catch(err){
-      show(dashStatus,`删除请求异常：${friendlyError(err,'删除')}。请先刷新列表确认结果，不要连续重复点击。`,'err');
-      console.error('Unexpected teacher delete error:',err);
-      if(rowButton){rowButton.disabled=false;rowButton.textContent='删除'}
+      show(dashStatus,`删除异常：${friendlyError(err,'删除')}。请刷新列表核实结果。`,'err');
+      if(button){button.disabled=false;button.textContent='删除'}
+      console.error(err);
     }
   }
 
@@ -284,26 +250,10 @@
   $('#analysisCsvBtn').addEventListener('click',analysisCsv);
   $('#detailCsvBtn').addEventListener('click',detailCsv);
   ['filterClass','filterGroup','filterMedium'].forEach(id=>$('#'+id).addEventListener('input',render));
-  if(configured){
-    db.auth.onAuthStateChange((event,session)=>{
-      // Auth 回调内不再调用 getSession()，避免 Supabase Auth 锁重入。
-      if(event==='SIGNED_IN'&&session){
-        setTimeout(()=>{
-          $('#loginCard').style.display='none';
-          $('#dashboard').style.display='block';
-          $('#logoutBtn').style.display='inline-flex';
-          load().catch(err=>show(dashStatus,`读取异常：${friendlyError(err,'读取数据')}`,'err'));
-        },0);
-      }else if(event==='SIGNED_OUT'){
-        setTimeout(()=>{
-          $('#loginCard').style.display='block';
-          $('#dashboard').style.display='none';
-          $('#logoutBtn').style.display='none';
-          all=[];render();
-        },0);
-      }
-    });
-  }
+  if(configured) db.auth.onAuthStateChange((event,session)=>{
+    if(event==='SIGNED_IN'&&session)setTimeout(()=>{ $('#loginCard').style.display='none';$('#dashboard').style.display='block';$('#logoutBtn').style.display='inline-flex';load(); },0);
+    if(event==='SIGNED_OUT')setTimeout(()=>{ $('#loginCard').style.display='block';$('#dashboard').style.display='none';$('#logoutBtn').style.display='none';all=[];render(); },0);
+  });
   syncAuth().catch(err=>show(loginStatus,`登录状态检查失败：${friendlyError(err,'恢复登录状态')}`,'err'));
   window.addEventListener('offline',()=>show($('#dashboard').style.display==='block'?dashStatus:loginStatus,'网络已断开。请恢复网络后重试，页面数据不会主动清空。','err'));
   window.addEventListener('online',()=>show($('#dashboard').style.display==='block'?dashStatus:loginStatus,'网络已恢复，可以重新尝试操作。','ok'));
