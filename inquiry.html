@@ -262,8 +262,9 @@ function createAllChartCards(){
     <div class="chart-head">
       <strong>两组实验 · sin r – sin i</strong>
       <div class="chart-legend">
-        <span><i style="background:#426B8A"></i>${esc(records[selectedRecordIndices[0]]?.medium||'实验A')}（散点＋实线拟合）</span>
-        <span><i style="background:#B18443"></i>${esc(records[selectedRecordIndices[1]]?.medium||'实验B')}（散点＋虚线拟合）</span>
+        <span><i style="background:#426B8A"></i>${esc(records[selectedRecordIndices[0]]?.medium||'实验A')}</span>
+        <span><i style="background:#B18443"></i>${esc(records[selectedRecordIndices[1]]?.medium||'实验B')}</span>
+        <span><i style="background:#A65D57"></i>拟合直线</span>
       </div>
       <small id="combinedFitSummary">两组数据共用同一坐标系</small>
     </div>
@@ -363,8 +364,13 @@ function drawAxes(ctx,w,h,xMin,xMax,yMin,yMax,xLabel,yLabel){
 function setupCanvas(canvas){
   const r=canvas.getBoundingClientRect();if(r.width<40||r.height<60)return null;
   const dpr=Math.min(2,window.devicePixelRatio||1),w=r.width,h=r.height;
-  canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);
-  const ctx=canvas.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);
+  const pixelW=Math.round(w*dpr),pixelH=Math.round(h*dpr);
+  // 只有画布实际尺寸变化时才重设 width/height，避免每帧清空并重新分配 Canvas 位图。
+  if(canvas.width!==pixelW||canvas.height!==pixelH){
+    canvas.width=pixelW;canvas.height=pixelH;
+  }
+  const ctx=canvas.getContext('2d');
+  ctx.setTransform(dpr,0,0,dpr,0,0);
   return {ctx,w,h};
 }
 function drawChart(id,stage,i){
@@ -585,14 +591,16 @@ function bindActions(){
       fitLineProgress[0]=t;fitLineProgress[1]=t;
       drawChart('chart3_combined',3,0);
       if(t<1){
-        for(let i=0;i<2;i++)fitLineRaf[i]=requestAnimationFrame(frame);
+        const rafId=requestAnimationFrame(frame);
+        fitLineRaf[0]=rafId;fitLineRaf[1]=rafId;
       }else{
         for(let i=0;i<2;i++){fitLineRaf[i]=null;animationRunning.fit[i]=false;progress.fit[i]=true}
         fitLineProgress[0]=1;fitLineProgress[1]=1;
         persist();drawChart('chart3_combined',3,0);syncActionButtons();updateStages();
       }
     };
-    fitLineRaf[0]=requestAnimationFrame(frame);fitLineRaf[1]=fitLineRaf[0];
+    const rafId=requestAnimationFrame(frame);
+    fitLineRaf[0]=rafId;fitLineRaf[1]=rafId;
   });
 }
 function updateStages(){
