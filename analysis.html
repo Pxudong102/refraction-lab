@@ -430,7 +430,7 @@ body.overview-maximized-active{overflow:hidden!important}
         <div class="control-stack">
           <div class="card control-card compare-control-card"><h4>选择两组数据</h4><p>选择两组真实实验数据，用同一种数学方式进行比较。两组数据分开绘制，便于课堂逐步呈现。</p><div class="compare-selects"><select class="select" id="compareA"></select><select class="select" id="compareB"></select></div><div class="result-strip"><div class="result-chip"><span>第1组样本</span><b id="compareAN">0</b></div><div class="result-chip"><span>第2组样本</span><b id="compareBN">0</b></div><div class="result-chip"><span>比较方式</span><b id="compareModeName">正弦拟合</b></div></div></div>
           <div class="card control-card compare-control-card"><h4>比较内容</h4><p>比较两组实验的 sin r–sin i 散点分布与拟合直线，观察两种介质对应的拟合斜率。</p><div class="metric-tabs"><button class="metric-tab active" id="compareFitTab">正弦拟合比较</button></div></div>
-          <div class="card control-card compare-control-card"><h4>分步绘制</h4><p id="compareActionText">先后绘制两组 sin r–sin i 散点，再分别生成拟合直线。</p><div class="btn-row"><button class="action primary cycle-btn" id="drawA" title="点击开始；绘制中再点立即补齐；完成后再点清空；清空后再点重新绘制">① 绘制第1组</button><button class="action cycle-btn" id="drawB" title="点击开始；绘制中再点立即补齐；完成后再点清空；清空后再点重新绘制">② 绘制第2组</button></div><div class="btn-row" id="compareFitButtons" style="display:none;margin-top:7px"><button class="action good cycle-btn fit-cycle" id="fitA" disabled title="点击开始拟合；拟合中再点立即完成；完成后再点清空；清空后再点重新拟合">∿ 拟合第1组</button><button class="action good cycle-btn fit-cycle" id="fitB" disabled title="点击开始拟合；拟合中再点立即完成；完成后再点清空；清空后再点重新拟合">∿ 拟合第2组</button></div><div class="result-strip" id="compareFitResults" style="display:none"><div class="result-chip em"><span id="slopeALabel">第1组斜率</span><b id="slopeA">—</b></div><div class="result-chip em"><span id="slopeBLabel">第2组斜率</span><b id="slopeB">—</b></div><div class="result-chip"><span>斜率差</span><b id="slopeDiff">—</b></div></div><div class="btn-row" id="refractionLabAction" style="display:none;margin-top:8px"><button class="action primary" id="showRefractionLabBtn" type="button">◎ 展示数字折射实验台</button></div></div>
+          <div class="card control-card compare-control-card"><h4>分步绘制</h4><p id="compareActionText">先绘制两组 sin r–sin i 散点；每组散点完成后，对应的拟合直线按钮即可使用。</p><div class="btn-row"><button class="action primary cycle-btn" id="drawA" title="点击开始；绘制中再点立即补齐；完成后再点清空；清空后再点重新绘制">① 绘制第1组</button><button class="action cycle-btn" id="drawB" title="点击开始；绘制中再点立即补齐；完成后再点清空；清空后再点重新绘制">② 绘制第2组</button></div><div class="btn-row" id="compareFitButtons" style="display:flex;margin-top:7px"><button class="action good cycle-btn fit-cycle" id="fitA" disabled title="点击开始拟合；拟合中再点立即完成；完成后再点清空；清空后再点重新拟合">∿ 拟合第1组</button><button class="action good cycle-btn fit-cycle" id="fitB" disabled title="点击开始拟合；拟合中再点立即完成；完成后再点清空；清空后再点重新拟合">∿ 拟合第2组</button></div><div class="result-strip" id="compareFitResults" style="display:none"><div class="result-chip em"><span id="slopeALabel">第1组斜率</span><b id="slopeA">—</b></div><div class="result-chip em"><span id="slopeBLabel">第2组斜率</span><b id="slopeB">—</b></div><div class="result-chip"><span>斜率差</span><b id="slopeDiff">—</b></div></div><div class="btn-row" id="refractionLabAction" style="display:none;margin-top:8px"><button class="action primary" id="showRefractionLabBtn" type="button">◎ 展示数字折射实验台</button></div></div>
           <div class="card" id="refractionLabCard">
             <div class="card-head"><div><h3>数字折射实验台</h3><small>拟合结果可视化</small></div><button class="action" id="exitRefractionLabBtn" type="button">← 返回拟合</button></div>
             <div class="refraction-lab-body">
@@ -809,13 +809,13 @@ function ratioExplorerDrawCurrent(which){
     ratioExplorerDrawOne($('#angleRatioChart'),'angle',g);
     $('#angleRatioPointCount').textContent=(g?g.rows.length:0)+' 个测量点';
     $('#angleRatioChartTitle').textContent=`单组特例分析 · i / r`;
-    $('#angleRatioFoot').textContent=`当前展示：${g?g.name:'未选择'}。全屏模式将展示12组 i/r 比值图，所有图共用统一坐标尺度。`;
+    $('#angleRatioFoot').textContent=`当前展示：${g?g.name:'未选择'}。全屏模式将展示12组 i/r 比值图，每张图根据本组数据独立确定坐标轴范围。`;
   }else{
     ratioExplorerDrawTrigOne($('#trigRatioChart'),g);
     $('#trigRatioPointCount').textContent=(g?g.rows.length:0)+' 个测量点';
     $('#trigRatioChartTitle').textContent='单组特例分析 · 三角函数比';
     $('#trigRatioChartSubtitle').textContent='横轴：入射角 i / ° · 纵轴：三角函数比值（2位小数）';
-    $('#trigRatioFoot').textContent=`当前展示：${g?g.name:'未选择'}。同一张图同时呈现正弦比、余弦比和正切比；全屏后12组图也会同时展示这三条曲线，并共用统一坐标尺度。`;
+    $('#trigRatioFoot').textContent=`当前展示：${g?g.name:'未选择'}。同一张图同时呈现正弦比、余弦比和正切比；全屏后12组图也会同时展示这三条曲线，每张图根据本组数据独立确定坐标轴范围。`;
   }
 }
 function ratioExplorerRefresh(){
@@ -828,24 +828,21 @@ function ratioExplorerRefresh(){
 function ratioExplorerDrawFullscreen(){
   const mode=ratioExplorerState.fullscreenKey;if(!mode)return;
   const groups=ratioExplorerGroups(),grid=$('#ratioFullscreenGrid');
-  const allRows=groups.flatMap(g=>g.rows);
-  const range=allRows.length
-    ?(mode==='trig'?ratioExplorerTrigRange(allRows):ratioGraphAxes(allRows,'single',['angle']))
-    :(mode==='trig'?{x:[0,90],y:[0,2]}:{x:[0,90],y:[0,2]});
   grid.innerHTML=groups.map((g,i)=>`<article class="ratio-fullscreen-card"><header><b>${escapeHtml(g.name)}</b><span>${g.rows.length} 个测量点</span></header><canvas class="ratio-mini-canvas" id="ratioFullCanvas${i}"></canvas></article>`).join('');
   $('#ratioFullscreenCount').textContent=`${groups.length} / 12 组`;
   if(mode==='trig'){
     $('#ratioFullscreenTitle').textContent='全班12组 · 三角函数比';
-    $('#ratioFullscreenSubtitle').textContent='每张图同时展示 sin i/sin r、cos i/cos r、tan i/tan r · 12张图共用统一坐标范围';
+    $('#ratioFullscreenSubtitle').textContent='每张图同时展示三种三角函数比；每张图根据本组数据独立确定坐标轴范围';
   }else{
     $('#ratioFullscreenTitle').textContent='全班12组 · 角度比 i / r';
-    $('#ratioFullscreenSubtitle').textContent='12张图展示相同的 i/r 比值 · 共用统一坐标范围';
+    $('#ratioFullscreenSubtitle').textContent='每张图展示本组 i/r 比值；每张图根据本组数据独立确定坐标轴范围';
   }
   requestAnimationFrame(()=>{
     groups.forEach((g,i)=>{
       const canvas=$('#ratioFullCanvas'+i);
-      if(mode==='trig')ratioExplorerDrawTrigOne(canvas,g,range);
-      else ratioExplorerDrawOne(canvas,'angle',g,range);
+      // 不传入全班共享范围，让绘图函数依据当前 g.rows 单独计算坐标轴。
+      if(mode==='trig')ratioExplorerDrawTrigOne(canvas,g);
+      else ratioExplorerDrawOne(canvas,'angle',g);
     });
   });
 }
