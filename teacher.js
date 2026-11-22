@@ -85,7 +85,12 @@
       const {data,error}=result.data||{};
       if(error){show(dashStatus,`读取失败：${friendlyError(error,'读取数据')}`,'err');console.warn(error);return}
       all=Array.isArray(data)?data:[];
-      render();show(dashStatus,`读取成功：${all.length} 条提交记录。`,'ok');
+      render();
+      if(all.length===0){
+        show(dashStatus,'读取成功，但当前返回 0 条记录。若学生端已提示提交成功，请检查：学生是否向同一个阿里云项目提交、教师当前账号是否已加入 public.teacher_allowlist，以及 submissions 表是否已完成 request_id 字段升级。RLS 未授权时也可能返回空列表。','info');
+      }else{
+        show(dashStatus,`读取成功：${all.length} 条提交记录。`,'ok');
+      }
     }catch(err){
       show(dashStatus,`读取异常：${friendlyError(err,'读取数据')}。请点击刷新重试。`,'err');
       console.error(err);
