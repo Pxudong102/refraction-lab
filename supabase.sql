@@ -1,8 +1,10 @@
--- 在 Supabase Dashboard -> SQL Editor 中完整运行本文件。
--- 作用：创建学生提交表、教师白名单、RLS 权限。
+-- 阿里云 Supabase：光的折射实验数据表与教师读取权限
+-- 可在已有项目中重复执行。不会删除已有 submissions 记录。
+-- 重要：学生端 student.js 会写入 request_id；此字段和唯一索引必须存在。
 
 create table if not exists public.submissions (
   id uuid primary key default gen_random_uuid(),
+  request_id uuid,
   created_at timestamptz not null default now(),
   class_name text not null,
   group_name text not null,
@@ -16,6 +18,24 @@ create table if not exists public.submissions (
   constraint group_len check (char_length(group_name) between 1 and 60),
   constraint medium_len check (char_length(medium) between 1 and 60)
 );
+
+-- 升级已存在的表：补 request_id；给历史数据生成独立编号。
+alter table public.submissions
+  add column if not exists request_id uuid;
+
+update public.submissions
+set request_id = gen_random_uuid()
+where request_id is null;
+
+alter table public.submissions
+  alter column request_id set default gen_random_uuid();
+
+alter table public.submissions
+  alter column request_id set not null;
+
+-- 学生端网络重试时复用 request_id，唯一索引防止重复入库。
+create unique index if not exists submissions_request_id_uidx
+  on public.submissions(request_id);
 
 create table if not exists public.teacher_allowlist (
   user_id uuid primary key references auth.users(id) on delete cascade,
@@ -38,7 +58,8 @@ security definer
 set search_path = public
 as $$
   select exists (
-    select 1 from public.teacher_allowlist t
+    select 1
+    from public.teacher_allowlist t
     where t.user_id = auth.uid()
   );
 $$;
@@ -46,7 +67,6 @@ $$;
 revoke all on function public.is_teacher() from public;
 grant execute on function public.is_teacher() to authenticated;
 
--- 允许学生/访客提交，但不允许读取任何人的数据。
 drop policy if exists "student insert" on public.submissions;
 create policy "student insert"
 on public.submissions
@@ -57,7 +77,6 @@ with check (
   and jsonb_array_length(measurements) between 1 and 100
 );
 
--- 只有 teacher_allowlist 中的账号可以查看和删除。
 drop policy if exists "teacher select" on public.submissions;
 create policy "teacher select"
 on public.submissions
@@ -72,4 +91,5 @@ for delete
 to authenticated
 using ((select public.is_teacher()));
 
--- teacher_allowlist 本身不给浏览器直接读取权限。
+-- teacher_allowlist 不向浏览器开放直接读取/写入。
+-- 教师账号加入白名单的操作见 ALIYUN_DATA_VISIBILITY_FIX.md。
