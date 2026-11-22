@@ -232,7 +232,7 @@ function drawVisibleStage(){
   if(progress.stage===3)drawChart('chart3_combined',3,0);
 }
 function createChartCard(stage,i){
-  const medium=esc(records[selectedRecordIndices[i]]?.medium||`实验${i?'B':'A'}`);
+  const medium=esc(records[selectedRecordIndices[i]]?.medium||`实验${i?'Ⅱ':'Ⅰ'}`);
   const grid=$('#grid'+stage);
   const card=document.createElement('article');card.className='chart-card';
   const chartId=`chart${stage}_${i}`;
@@ -245,7 +245,7 @@ function createChartCard(stage,i){
   }else{
     foot=`<span id="fitInfo_${i}">过原点拟合：k = —</span><div><button class="draw-btn" id="scatter3_${i}">① 绘制正弦散点</button> <button class="draw-btn" id="fit3_${i}" disabled>② 拟合直线</button></div>`;
   }
-  card.innerHTML=`<div class="chart-head"><strong>实验 ${i?'B':'A'} · ${medium}</strong><small>${data[i].length} 个测量点</small>${legend}</div><div class="chart-body"><canvas id="${chartId}"></canvas></div><div class="chart-foot">${foot}</div>`;
+  card.innerHTML=`<div class="chart-head"><strong>实验 ${i?'Ⅱ':'Ⅰ'} · ${medium}</strong><small>${data[i].length} 个测量点</small>${legend}</div><div class="chart-body"><canvas id="${chartId}"></canvas></div><div class="chart-foot">${foot}</div>`;
   grid.appendChild(card);
 }
 function createAllChartCards(){
